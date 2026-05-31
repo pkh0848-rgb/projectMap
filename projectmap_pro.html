@@ -1,0 +1,908 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ProjectMap Pro</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root {
+  --bg: #0b0d14; --bg2: #12152a; --bg3: #1a1d33; --bg4: #1e2140;
+  --border: #ffffff10; --border2: #ffffff18;
+  --text: #e8eaf0; --text2: #9ca3b0; --text3: #555c70;
+  --blue: #4f9eff; --green: #4fcc7a; --purple: #a855f7; --orange: #f59e0b; --red: #ef4444; --gray: #555;
+  --blue-bg: #1e3a5f22; --green-bg: #1e4d2e22; --purple-bg: #2d1e5f22; --orange-bg: #3a2e1e22; --red-bg: #4d1e1e22;
+  --sidebar-w: 220px;
+  --header-h: 56px;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); height: 100vh; overflow: hidden; }
+
+/* ── LOGIN ── */
+#loginScreen {
+  position:fixed; inset:0; background: radial-gradient(ellipse at 30% 50%, #1a1d3a 0%, #0b0d14 70%);
+  display:flex; align-items:center; justify-content:center; z-index:9999;
+}
+.login-box {
+  background: var(--bg2); border:1px solid var(--border2); border-radius:20px;
+  padding:40px; width:380px; box-shadow:0 24px 60px rgba(0,0,0,0.6);
+}
+.login-logo { text-align:center; margin-bottom:32px; }
+.login-logo .logo-icon { width:56px;height:56px;background:linear-gradient(135deg,#4f9eff,#a855f7);border-radius:14px;display:inline-flex;align-items:center;justify-content:center;font-size:26px;margin-bottom:12px; }
+.login-logo h1 { font-size:22px;font-weight:800;letter-spacing:-0.5px; }
+.login-logo p { font-size:12px;color:var(--text3);margin-top:4px; }
+.login-field { margin-bottom:14px; }
+.login-field label { font-size:11px;color:var(--text3);display:block;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px; }
+.login-field input {
+  width:100%; background:var(--bg); border:1px solid var(--border2); border-radius:8px;
+  padding:10px 14px; color:var(--text); font-size:14px; outline:none;
+}
+.login-field input:focus { border-color: var(--blue); }
+.login-btn {
+  width:100%; background:linear-gradient(135deg,#4f9eff,#a855f7); border:none; border-radius:10px;
+  color:#fff; font-size:15px; font-weight:700; padding:12px; cursor:pointer; margin-top:8px;
+  transition: opacity 0.2s;
+}
+.login-btn:hover { opacity:0.85; }
+.login-hint { font-size:11px;color:var(--text3);text-align:center;margin-top:16px; }
+.login-err { color:var(--red);font-size:12px;text-align:center;margin-top:8px;display:none; }
+
+/* ── APP LAYOUT ── */
+#app { display:none; height:100vh; flex-direction:column; }
+#app.visible { display:flex; }
+
+.app-header {
+  height:var(--header-h); background:var(--bg2); border-bottom:1px solid var(--border);
+  display:flex;align-items:center;padding:0 20px;gap:16px;flex-shrink:0;z-index:100;
+}
+.app-logo { display:flex;align-items:center;gap:10px; }
+.app-logo .icon { width:30px;height:30px;background:linear-gradient(135deg,#4f9eff,#a855f7);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:14px; }
+.app-logo h1 { font-size:15px;font-weight:800; }
+.app-logo .ver { font-size:10px;color:var(--blue);background:var(--blue-bg);padding:2px 7px;border-radius:8px;border:1px solid #4f9eff33; }
+
+.header-search { flex:1;max-width:300px;margin-left:auto; }
+.header-search input {
+  width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:8px;
+  padding:6px 12px;color:var(--text);font-size:13px;outline:none;
+}
+.header-search input:focus { border-color:#4f9eff44; }
+
+.header-right { display:flex;align-items:center;gap:12px;margin-left:16px; }
+.notif-btn { position:relative;background:none;border:none;color:var(--text2);cursor:pointer;font-size:18px;padding:4px; }
+.notif-dot { position:absolute;top:2px;right:2px;width:7px;height:7px;background:var(--red);border-radius:50%;border:1.5px solid var(--bg2); }
+.user-chip { display:flex;align-items:center;gap:8px;background:var(--bg3);border-radius:20px;padding:4px 12px 4px 4px;cursor:pointer; }
+.user-avatar { width:26px;height:26px;background:linear-gradient(135deg,#4f9eff44,#a855f744);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700; }
+.user-name { font-size:12px;font-weight:600; }
+.user-role { font-size:10px;color:var(--text3); }
+
+/* ── MAIN LAYOUT ── */
+.app-body { display:flex;flex:1;overflow:hidden; }
+
+/* ── SIDEBAR ── */
+.sidebar {
+  width:var(--sidebar-w);background:var(--bg2);border-right:1px solid var(--border);
+  display:flex;flex-direction:column;flex-shrink:0;
+}
+.nav-section { padding:16px 12px 8px; }
+.nav-label { font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:1px;padding:0 8px;margin-bottom:6px; }
+.nav-item {
+  display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:8px;
+  cursor:pointer;font-size:13px;color:var(--text2);transition:all 0.15s;margin-bottom:2px;
+  border:none;background:none;width:100%;text-align:left;
+}
+.nav-item:hover { background:var(--bg3);color:var(--text); }
+.nav-item.active { background:linear-gradient(135deg,#4f9eff18,#a855f718);color:#fff;border:1px solid #4f9eff22; }
+.nav-item .nav-icon { font-size:16px;width:20px;text-align:center; }
+.nav-badge { margin-left:auto;background:var(--red);color:#fff;font-size:9px;font-weight:700;padding:1px 5px;border-radius:8px; }
+
+.sidebar-bottom { margin-top:auto;padding:16px 12px;border-top:1px solid var(--border); }
+.logout-btn { display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:8px;cursor:pointer;font-size:13px;color:var(--text3);width:100%;border:none;background:none; }
+.logout-btn:hover { color:var(--red); }
+
+/* ── CONTENT ── */
+.content { flex:1;overflow:hidden;display:flex;flex-direction:column; }
+.page { display:none;flex:1;overflow:hidden; }
+.page.active { display:flex;flex-direction:column; }
+.page-inner { flex:1;overflow-y:auto;padding:24px; }
+
+/* ── DASHBOARD ── */
+.kpi-grid { display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px; }
+.kpi-card {
+  background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:18px 20px;
+  position:relative;overflow:hidden;
+}
+.kpi-card::before { content:'';position:absolute;top:0;right:0;width:80px;height:80px;border-radius:50%;opacity:0.06;transform:translate(20px,-20px); }
+.kpi-card.blue::before { background:var(--blue); }
+.kpi-card.green::before { background:var(--green); }
+.kpi-card.purple::before { background:var(--purple); }
+.kpi-card.orange::before { background:var(--orange); }
+.kpi-label { font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px; }
+.kpi-value { font-size:28px;font-weight:800;margin-bottom:4px; }
+.kpi-sub { font-size:11px;color:var(--text3); }
+.kpi-icon { position:absolute;top:16px;right:16px;font-size:22px;opacity:0.5; }
+
+.dash-grid { display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px; }
+.dash-card { background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:20px; }
+.dash-card h3 { font-size:13px;font-weight:700;margin-bottom:16px;color:var(--text); }
+
+.status-list .status-row { display:flex;align-items:center;gap:10px;margin-bottom:10px; }
+.status-row .dot { width:8px;height:8px;border-radius:50%;flex-shrink:0; }
+.status-row .lbl { font-size:12px;color:var(--text2);flex:1; }
+.status-row .bar-wrap { flex:2;height:5px;background:var(--bg);border-radius:3px;overflow:hidden; }
+.status-row .bar-fill { height:100%;border-radius:3px; }
+.status-row .cnt { font-size:12px;font-weight:700;min-width:20px;text-align:right; }
+
+.alert-list .alert-item {
+  display:flex;align-items:flex-start;gap:10px;padding:10px 12px;border-radius:8px;margin-bottom:8px;
+}
+.alert-item.warn { background:#f59e0b0d;border:1px solid #f59e0b22; }
+.alert-item.danger { background:#ef44440d;border:1px solid #ef444422; }
+.alert-item.info { background:#4f9eff0d;border:1px solid #4f9eff22; }
+.alert-icon { font-size:16px;flex-shrink:0;margin-top:1px; }
+.alert-title { font-size:12px;font-weight:600;margin-bottom:2px; }
+.alert-desc { font-size:11px;color:var(--text3); }
+
+/* ── PROJECT LIST ── */
+.page-header { display:flex;align-items:center;gap:12px;margin-bottom:20px; }
+.page-title { font-size:18px;font-weight:800; }
+.page-title span { font-size:13px;color:var(--text3);font-weight:400;margin-left:8px; }
+.btn-primary { background:linear-gradient(135deg,#4f9eff,#a855f7);border:none;color:#fff;padding:8px 18px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px; }
+.btn-primary:hover { opacity:0.85; }
+
+.table-wrap { background:var(--bg2);border:1px solid var(--border);border-radius:14px;overflow:hidden; }
+table { width:100%;border-collapse:collapse; }
+th { background:var(--bg3);font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;padding:12px 16px;text-align:left;font-weight:600; }
+td { padding:12px 16px;border-top:1px solid var(--border);font-size:13px; }
+tr:hover td { background:var(--bg3); }
+.td-name { font-weight:600; }
+.td-client { color:var(--text2); }
+.status-pill { display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600; }
+.progress-cell { display:flex;align-items:center;gap:8px; }
+.prog-bar { flex:1;height:4px;background:var(--bg);border-radius:2px;overflow:hidden; }
+.prog-fill { height:100%;border-radius:2px; }
+.prog-pct { font-size:11px;color:var(--text2);min-width:28px; }
+.action-btns { display:flex;gap:6px; }
+.btn-sm { padding:4px 10px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;border:1px solid; }
+.btn-edit { background:#4f9eff11;border-color:#4f9eff33;color:var(--blue); }
+.btn-edit:hover { background:#4f9eff22; }
+.btn-del { background:#ef444411;border-color:#ef444433;color:var(--red); }
+.btn-del:hover { background:#ef444422; }
+
+/* ── RESOURCE VIEW ── */
+.resource-grid { display:grid;grid-template-columns:repeat(3,1fr);gap:16px; }
+.resource-card { background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:16px; }
+.rc-top { display:flex;align-items:center;gap:10px;margin-bottom:12px; }
+.rc-avatar { width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;flex-shrink:0; }
+.rc-name { font-size:13px;font-weight:700; }
+.rc-title { font-size:11px;color:var(--text3); }
+.rc-projects { }
+.rc-proj-item { display:flex;align-items:center;gap:8px;margin-bottom:6px; }
+.rc-proj-dot { width:6px;height:6px;border-radius:50%;flex-shrink:0; }
+.rc-proj-name { font-size:11px;color:var(--text2);flex:1; }
+.rc-util { font-size:10px;font-weight:700;padding:1px 6px;border-radius:4px; }
+.conflict-badge { display:inline-flex;align-items:center;gap:4px;font-size:10px;color:var(--red);background:#ef444411;border:1px solid #ef444422;border-radius:6px;padding:3px 8px;margin-top:8px; }
+
+/* ── MAP PAGE ── */
+#mapContainer { flex:1;position:relative; }
+#theMap { width:100%;height:100%; }
+.map-filter-panel {
+  position:absolute;top:16px;right:16px;z-index:999;
+  background:var(--bg2);border:1px solid var(--border2);border-radius:12px;padding:14px;min-width:150px;
+  box-shadow:0 8px 24px rgba(0,0,0,0.5);
+}
+.mfp-title { font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px; }
+.mfp-btn {
+  width:100%;background:transparent;border:1px solid var(--border);color:var(--text2);padding:6px 10px;border-radius:6px;
+  cursor:pointer;font-size:11px;text-align:left;margin-bottom:4px;display:flex;align-items:center;gap:7px;transition:all 0.15s;
+}
+.mfp-btn:hover { background:var(--bg3);color:var(--text); }
+.mfp-btn.active { background:var(--bg3);border-color:currentColor; }
+.mfp-dot { width:7px;height:7px;border-radius:50%; }
+
+/* ── MODAL ── */
+.modal-overlay {
+  position:fixed;inset:0;background:#000000aa;z-index:2000;display:none;align-items:center;justify-content:center;
+}
+.modal-overlay.open { display:flex; }
+.modal {
+  background:var(--bg2);border:1px solid var(--border2);border-radius:18px;padding:28px;width:600px;max-height:85vh;overflow-y:auto;
+  box-shadow:0 24px 60px rgba(0,0,0,0.7);
+}
+.modal h2 { font-size:17px;font-weight:800;margin-bottom:20px; }
+.form-grid { display:grid;grid-template-columns:1fr 1fr;gap:14px; }
+.form-full { grid-column:1/-1; }
+.form-group { display:flex;flex-direction:column;gap:5px; }
+.form-group label { font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px; }
+.form-group input, .form-group select, .form-group textarea {
+  background:var(--bg);border:1px solid var(--border2);border-radius:8px;
+  padding:8px 12px;color:var(--text);font-size:13px;outline:none;
+}
+.form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color:#4f9eff44; }
+.form-group textarea { resize:vertical;min-height:70px; }
+.form-group select option { background:var(--bg2); }
+.modal-footer { display:flex;justify-content:flex-end;gap:10px;margin-top:20px; }
+.btn-cancel { background:var(--bg3);border:1px solid var(--border2);color:var(--text2);padding:8px 18px;border-radius:8px;font-size:13px;cursor:pointer; }
+.btn-cancel:hover { color:var(--text); }
+
+/* ── MARKER ── */
+.marker-card {
+  background:var(--bg2);border:1.5px solid var(--border2);border-radius:10px;padding:8px 10px;
+  min-width:155px;max-width:185px;box-shadow:0 4px 20px rgba(0,0,0,0.6);cursor:pointer;
+  position:relative;
+}
+.marker-card::after {
+  content:'';position:absolute;bottom:-7px;left:50%;transform:translateX(-50%);
+  border:7px solid transparent;border-top-color:#2a2d40;border-bottom:none;
+}
+.mc-top { display:flex;align-items:center;gap:6px;margin-bottom:4px; }
+.mc-dot { width:7px;height:7px;border-radius:50%;flex-shrink:0; }
+.mc-status { font-size:10px;font-weight:600; }
+.mc-name { font-size:12px;font-weight:700;line-height:1.3;margin-bottom:3px; }
+.mc-client { font-size:10px;color:var(--text3);margin-bottom:5px; }
+.mc-bottom { display:flex;justify-content:space-between; }
+.mc-period { font-size:9px;color:var(--text3); }
+.mc-members { font-size:10px;color:var(--text2); }
+
+/* popup */
+.leaflet-popup-content-wrapper { background:var(--bg2);border:1px solid var(--border2);border-radius:14px;box-shadow:0 12px 40px rgba(0,0,0,0.7);color:var(--text);padding:0;overflow:hidden; }
+.leaflet-popup-tip-container { display:none; }
+.leaflet-popup-content { margin:0!important;width:320px!important; }
+.leaflet-popup-close-button { color:#666!important;top:10px!important;right:12px!important; }
+
+.pu { padding:0; }
+.pu-head { padding:16px 18px 12px;border-bottom:1px solid var(--border); }
+.pu-badge { display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;margin-bottom:7px; }
+.pu-title { font-size:16px;font-weight:800;margin-bottom:3px; }
+.pu-loc { font-size:11px;color:var(--text3); }
+.pu-body { padding:14px 18px; }
+.pu-prog-wrap { background:var(--bg);border-radius:8px;padding:10px 12px;margin-bottom:10px; }
+.pu-prog-top { display:flex;justify-content:space-between;margin-bottom:5px; }
+.pu-prog-top span { font-size:10px;color:var(--text3); }
+.pu-prog-top strong { font-size:12px;font-weight:700; }
+.pu-prog-track { height:5px;background:var(--bg2);border-radius:3px;overflow:hidden; }
+.pu-prog-fill { height:100%;border-radius:3px; }
+.pu-g2 { display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:8px; }
+.pu-g3 { display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;margin-bottom:8px; }
+.pi { background:var(--bg);border-radius:7px;padding:7px 9px; }
+.pi .pk { font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:0.3px;margin-bottom:2px; }
+.pi .pv { font-size:11px;font-weight:600; }
+.pu-tags { display:flex;gap:4px;flex-wrap:wrap;margin-bottom:8px; }
+.pu-tag { background:var(--bg3);border:1px solid var(--border);border-radius:5px;padding:2px 7px;font-size:10px;color:var(--text2); }
+.pu-foot { padding:10px 18px 14px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between; }
+.pu-pm { display:flex;align-items:center;gap:8px; }
+.pu-pm-av { width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,#4f9eff33,#a855f733);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;border:1px solid #4f9eff33; }
+.pu-pm-name { font-size:11px;font-weight:700; }
+.pu-pm-role { font-size:10px;color:var(--text3); }
+.risk-pill { padding:3px 9px;border-radius:6px;font-size:10px;font-weight:600; }
+
+/* chart canvas */
+.chart-wrap { position:relative;height:180px; }
+
+/* scrollbar */
+::-webkit-scrollbar { width:5px; }
+::-webkit-scrollbar-track { background:transparent; }
+::-webkit-scrollbar-thumb { background:var(--bg4);border-radius:3px; }
+
+/* toast */
+.toast {
+  position:fixed;bottom:24px;right:24px;background:var(--bg2);border:1px solid var(--border2);border-radius:10px;
+  padding:12px 18px;font-size:13px;z-index:9999;box-shadow:0 8px 24px rgba(0,0,0,0.4);
+  transform:translateY(80px);opacity:0;transition:all 0.3s;pointer-events:none;
+}
+.toast.show { transform:translateY(0);opacity:1; }
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="loginScreen">
+  <div class="login-box">
+    <div class="login-logo">
+      <div class="logo-icon">🗺</div>
+      <h1>ProjectMap Pro</h1>
+      <p>프로젝트 현황 통합 관리 플랫폼</p>
+    </div>
+    <div class="login-field">
+      <label>아이디</label>
+      <input id="loginId" type="text" placeholder="아이디 입력" value="admin"/>
+    </div>
+    <div class="login-field">
+      <label>비밀번호</label>
+      <input id="loginPw" type="password" placeholder="비밀번호 입력" value="1234" onkeydown="if(event.key==='Enter')doLogin()"/>
+    </div>
+    <button class="login-btn" onclick="doLogin()">로그인</button>
+    <div class="login-err" id="loginErr">아이디 또는 비밀번호가 올바르지 않습니다.</div>
+    <div class="login-hint">관리자: admin / 1234 &nbsp;|&nbsp; 일반: viewer / 1234</div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <header class="app-header">
+    <div class="app-logo">
+      <div class="icon">🗺</div>
+      <h1>ProjectMap</h1>
+      <span class="ver">Pro</span>
+    </div>
+    <div class="header-search">
+      <input type="text" placeholder="🔍  프로젝트·고객사·기술스택 검색..." id="globalSearch" oninput="onGlobalSearch(this.value)"/>
+    </div>
+    <div class="header-right">
+      <button class="notif-btn" onclick="goPage('dashboard')" title="알림">🔔<span class="notif-dot" id="notifDot"></span></button>
+      <div class="user-chip" onclick="doLogout()">
+        <div class="user-avatar" id="userAvatar">A</div>
+        <div><div class="user-name" id="userName">관리자</div><div class="user-role" id="userRole">Administrator</div></div>
+      </div>
+    </div>
+  </header>
+
+  <div class="app-body">
+    <!-- SIDEBAR -->
+    <nav class="sidebar">
+      <div class="nav-section">
+        <div class="nav-label">메인</div>
+        <button class="nav-item active" onclick="goPage('dashboard')" id="nav-dashboard"><span class="nav-icon">📊</span> 대시보드</button>
+        <button class="nav-item" onclick="goPage('map')" id="nav-map"><span class="nav-icon">🗺</span> 프로젝트 지도</button>
+        <button class="nav-item" onclick="goPage('projects')" id="nav-projects"><span class="nav-icon">📋</span> 프로젝트 목록</button>
+        <button class="nav-item" onclick="goPage('resources')" id="nav-resources"><span class="nav-icon">👥</span> 인력 현황 <span class="nav-badge" id="conflictBadge" style="display:none">!</span></button>
+      </div>
+      <div class="sidebar-bottom">
+        <button class="logout-btn" onclick="doLogout()">🚪 로그아웃</button>
+      </div>
+    </nav>
+
+    <!-- CONTENT -->
+    <div class="content">
+
+      <!-- DASHBOARD -->
+      <div class="page active" id="page-dashboard">
+        <div class="page-inner">
+          <div class="kpi-grid" id="kpiGrid"></div>
+          <div class="dash-grid">
+            <div class="dash-card">
+              <h3>📊 상태별 현황</h3>
+              <div class="chart-wrap"><canvas id="statusChart"></canvas></div>
+            </div>
+            <div class="dash-card">
+              <h3>⚡ 알림 센터</h3>
+              <div class="alert-list" id="alertList"></div>
+            </div>
+          </div>
+          <div class="dash-card" style="margin-bottom:16px">
+            <h3>🚀 진행률 현황 (진행중 프로젝트)</h3>
+            <div id="progressBars" style="margin-top:8px"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- MAP -->
+      <div class="page" id="page-map" style="display:none;flex-direction:column;">
+        <div id="mapContainer" style="flex:1;position:relative;">
+          <div id="theMap"></div>
+          <div class="map-filter-panel">
+            <div class="mfp-title">상태 필터</div>
+            <button class="mfp-btn active" onclick="mapFilter('all',this)"><span class="mfp-dot" style="background:var(--blue)"></span>전체</button>
+            <button class="mfp-btn" onclick="mapFilter('dev',this)" style="color:var(--blue)"><span class="mfp-dot" style="background:var(--blue)"></span>개발 중</button>
+            <button class="mfp-btn" onclick="mapFilter('test',this)" style="color:var(--green)"><span class="mfp-dot" style="background:var(--green)"></span>테스트</button>
+            <button class="mfp-btn" onclick="mapFilter('stable',this)" style="color:var(--purple)"><span class="mfp-dot" style="background:var(--purple)"></span>운영안정화</button>
+            <button class="mfp-btn" onclick="mapFilter('plan',this)" style="color:var(--orange)"><span class="mfp-dot" style="background:var(--orange)"></span>설계</button>
+            <button class="mfp-btn" onclick="mapFilter('done',this)" style="color:var(--gray)"><span class="mfp-dot" style="background:var(--gray)"></span>종료</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- PROJECTS -->
+      <div class="page" id="page-projects" style="display:none;flex-direction:column;">
+        <div class="page-inner">
+          <div class="page-header">
+            <div class="page-title">프로젝트 목록 <span id="projCount"></span></div>
+            <button class="btn-primary" id="addProjBtn" onclick="openModal()" style="margin-left:auto">＋ 프로젝트 추가</button>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>프로젝트명</th><th>고객사</th><th>PM</th><th>상태</th>
+                  <th>기간</th><th>인원</th><th>진행률</th><th>위험도</th><th id="actionHead">관리</th>
+                </tr>
+              </thead>
+              <tbody id="projTable"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- RESOURCES -->
+      <div class="page" id="page-resources" style="display:none;flex-direction:column;">
+        <div class="page-inner">
+          <div class="page-header">
+            <div class="page-title">인력 현황 <span id="resCount"></span></div>
+          </div>
+          <div class="resource-grid" id="resourceGrid"></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <h2 id="modalTitle">프로젝트 추가</h2>
+    <div class="form-grid">
+      <input type="hidden" id="fId"/>
+      <div class="form-group form-full"><label>프로젝트명</label><input id="fName" placeholder="예: 우리카드 통합단말 재구축"/></div>
+      <div class="form-group"><label>고객사</label><input id="fClient" placeholder="예: 우리카드"/></div>
+      <div class="form-group"><label>PM</label><input id="fPm" placeholder="예: 김정후 상무"/></div>
+      <div class="form-group"><label>위치</label><input id="fLocation" placeholder="예: 서울 상암"/></div>
+      <div class="form-group"><label>위도</label><input id="fLat" type="number" placeholder="37.5793" step="0.0001"/></div>
+      <div class="form-group"><label>경도</label><input id="fLng" type="number" placeholder="126.8897" step="0.0001"/></div>
+      <div class="form-group"><label>상태</label>
+        <select id="fStatus">
+          <option value="plan">설계</option>
+          <option value="dev">개발 중</option>
+          <option value="test">테스트</option>
+          <option value="stable">운영안정화</option>
+          <option value="done">종료</option>
+        </select>
+      </div>
+      <div class="form-group"><label>진행률 (%)</label><input id="fProgress" type="number" min="0" max="100" placeholder="0"/></div>
+      <div class="form-group"><label>시작일</label><input id="fStart" type="text" placeholder="2025.01"/></div>
+      <div class="form-group"><label>종료일</label><input id="fEnd" type="text" placeholder="2026.12"/></div>
+      <div class="form-group"><label>투입 인원</label><input id="fMembers" type="number" placeholder="5"/></div>
+      <div class="form-group"><label>계약 규모</label><input id="fBudget" placeholder="예: 15억"/></div>
+      <div class="form-group"><label>프로젝트 유형</label>
+        <select id="fType">
+          <option>신규개발</option><option>고도화</option><option>재구축</option><option>유지보수</option>
+        </select>
+      </div>
+      <div class="form-group"><label>위험도</label>
+        <select id="fRisk"><option value="low">낮음</option><option value="mid">보통</option><option value="high">높음</option></select>
+      </div>
+      <div class="form-group form-full"><label>기술 스택 (쉼표 구분)</label><input id="fLangs" placeholder="Java, Spring, Oracle, React"/></div>
+      <div class="form-group form-full"><label>프로젝트 PM 팀원 (이름:역할, 쉼표 구분)</label><input id="fTeam" placeholder="김철수:개발, 이영희:기획, 박지민:디자인"/></div>
+      <div class="form-group form-full"><label>프로젝트 개요</label><textarea id="fDesc" placeholder="프로젝트 목표 및 주요 내용을 입력하세요."></textarea></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeModal()">취소</button>
+      <button class="btn-primary" onclick="saveProject()">💾 저장</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ════════════════════════════════════
+//  CONFIG
+// ════════════════════════════════════
+const USERS = {
+  admin:  { pw:'1234', name:'관리자', role:'Administrator', isAdmin:true },
+  viewer: { pw:'1234', name:'직원',   role:'Viewer',        isAdmin:false }
+};
+
+const STATUS_CFG = {
+  dev:    { label:'개발 중',    color:'#4f9eff', bg:'#1e3a5f' },
+  test:   { label:'테스트',     color:'#4fcc7a', bg:'#1e4d2e' },
+  stable: { label:'운영안정화', color:'#a855f7', bg:'#2d1e5f' },
+  plan:   { label:'설계',       color:'#f59e0b', bg:'#3a2e1e' },
+  done:   { label:'종료',       color:'#666',    bg:'#222'    }
+};
+const RISK_CFG = {
+  low:  { label:'낮음', color:'#4fcc7a', bg:'#1e4d2e' },
+  mid:  { label:'보통', color:'#f59e0b', bg:'#3a2e1e' },
+  high: { label:'높음', color:'#ef4444', bg:'#4d1e1e' }
+};
+
+// ════════════════════════════════════
+//  DEFAULT DATA
+// ════════════════════════════════════
+const DEFAULT_PROJECTS = [
+  { id:1, name:'SBI 프로젝트', client:'SBI저축은행', location:'서울 광화문', lat:37.5759, lng:126.9768, status:'done', progress:100, start:'2024.03', end:'2025.12', members:9, budget:'12억', type:'신규개발', risk:'low', pm:'금승철 상무', langs:['Java','Spring','Oracle','React'], team:[{name:'금승철',role:'PM'},{name:'홍길동',role:'개발리드'},{name:'김민지',role:'개발'},{name:'이태양',role:'QA'}], desc:'저축은행 차세대 뱅킹 시스템 구축' },
+  { id:2, name:'우리카드 통합단말 재구축', client:'우리카드', location:'서울 상암', lat:37.5793, lng:126.8897, status:'stable', progress:92, start:'2024.06', end:'2026.05', members:11, budget:'28억', type:'재구축', risk:'low', pm:'김정후 상무', langs:['C++','Java','PostgreSQL','Vue.js'], team:[{name:'김정후',role:'PM'},{name:'박서연',role:'개발리드'},{name:'최민준',role:'개발'},{name:'정하은',role:'개발'},{name:'윤채원',role:'QA'}], desc:'카드 통합단말기 소프트웨어 전면 재구축 및 운영 안정화' },
+  { id:3, name:'현대커머셜 2차 개발', client:'현대커머셜', location:'서울 여의도', lat:37.5219, lng:126.9245, status:'dev', progress:47, start:'2025.09', end:'2026.12', members:8, budget:'19억', type:'고도화', risk:'mid', pm:'나한주 이사', langs:['Java','Spring Boot','Oracle','React'], team:[{name:'나한주',role:'PM'},{name:'박민수',role:'개발리드'},{name:'이재훈',role:'개발'},{name:'박서연',role:'개발'},{name:'김민지',role:'기획'}], desc:'캐피탈 여신 관리 시스템 2차 고도화 및 모바일 연동' },
+  { id:4, name:'OOO 프로젝트', client:'미공개', location:'서울 시청 (본사)', lat:37.5657, lng:126.9769, status:'plan', progress:12, start:'2026.08', end:'2027.06', members:5, budget:'TBD', type:'신규개발', risk:'mid', pm:'정영상 이사', langs:['미정'], team:[{name:'정영상',role:'PM'},{name:'강태양',role:'기획'}], desc:'사내 핵심 전략 프로젝트 (보안상 대외비)' },
+  { id:5, name:'NH농협 디지털뱅킹', client:'NH농협은행', location:'서울 중구', lat:37.5600, lng:126.9950, status:'dev', progress:63, start:'2025.04', end:'2026.10', members:14, budget:'45억', type:'고도화', risk:'mid', pm:'박민수 부장', langs:['Java','MSA','Kubernetes','Vue.js'], team:[{name:'박민수',role:'PM'},{name:'최수진',role:'개발리드'},{name:'이재훈',role:'개발'},{name:'윤성민',role:'개발'},{name:'오승환',role:'인프라'}], desc:'농협 모바일뱅킹 앱 전면 리뉴얼 및 MSA 전환' },
+  { id:6, name:'신한카드 AI 심사엔진', client:'신한카드', location:'서울 강남', lat:37.5087, lng:127.0630, status:'dev', progress:38, start:'2025.11', end:'2027.03', members:7, budget:'22억', type:'신규개발', risk:'high', pm:'이재훈 부장', langs:['Python','TensorFlow','FastAPI','React'], team:[{name:'이재훈',role:'PM'},{name:'박서연',role:'ML엔지니어'},{name:'한동훈',role:'개발'},{name:'이재훈',role:'개발'}], desc:'머신러닝 기반 실시간 카드 발급 심사 엔진 개발' },
+  { id:7, name:'롯데카드 마이데이터', client:'롯데카드', location:'서울 서초', lat:37.4870, lng:127.0160, status:'test', progress:78, start:'2025.01', end:'2026.06', members:9, budget:'17억', type:'신규개발', risk:'low', pm:'최수진 차장', langs:['Java','Spring','MySQL','Flutter'], team:[{name:'최수진',role:'PM'},{name:'강태양',role:'개발리드'},{name:'서지민',role:'개발'},{name:'윤채원',role:'QA'}], desc:'마이데이터 플랫폼 구축 및 오픈API 연동' },
+  { id:8, name:'삼성화재 전산 고도화', client:'삼성화재', location:'서울 서초 삼성타운', lat:37.4980, lng:127.0276, status:'test', progress:85, start:'2024.08', end:'2026.04', members:16, budget:'52억', type:'고도화', risk:'low', pm:'한동훈 수석', langs:['COBOL','Java','Oracle','Angular'], team:[{name:'한동훈',role:'PM'},{name:'오승환',role:'개발리드'},{name:'윤성민',role:'개발'},{name:'박민수',role:'개발'},{name:'강태양',role:'QA'}], desc:'차세대 보험 핵심계정 시스템 고도화' },
+  { id:9, name:'KT 망관리 시스템', client:'KT', location:'서울 광화문 KT사옥', lat:37.5722, lng:126.9795, status:'test', progress:71, start:'2025.03', end:'2026.08', members:12, budget:'31억', type:'재구축', risk:'mid', pm:'오승환 수석', langs:['Go','gRPC','Kubernetes','React'], team:[{name:'오승환',role:'PM'},{name:'이재훈',role:'개발리드'},{name:'박서연',role:'개발'}], desc:'5G 통신 망 실시간 모니터링 및 장애 대응 시스템' },
+  { id:10, name:'국민건강보험 EDI', client:'국민건강보험공단', location:'서울 마포', lat:37.5540, lng:126.9104, status:'plan', progress:8, start:'2026.10', end:'2028.02', members:6, budget:'38억', type:'재구축', risk:'mid', pm:'강태양 부장', langs:['미정'], team:[{name:'강태양',role:'PM'},{name:'서지민',role:'기획'}], desc:'의료기관-보험공단 간 EDI 전산 시스템 차세대 전환' },
+  { id:11, name:'대전 스마트시티 플랫폼', client:'대전광역시', location:'대전 유성구', lat:36.3624, lng:127.3569, status:'dev', progress:55, start:'2025.06', end:'2027.05', members:10, budget:'67억', type:'신규개발', risk:'mid', pm:'윤성민 이사', langs:['Python','IoT','React','PostgreSQL'], team:[{name:'윤성민',role:'PM'},{name:'서지민',role:'개발리드'},{name:'한동훈',role:'개발'}], desc:'스마트시티 통합관제 및 빅데이터 분석 플랫폼' },
+  { id:12, name:'베트남 VPBank 뱅킹앱', client:'VPBank', location:'베트남 호치민', lat:10.8231, lng:106.6297, status:'plan', progress:18, start:'2026.07', end:'2027.12', members:8, budget:'USD 1.8M', type:'신규개발', risk:'high', pm:'서지민 이사', langs:['Flutter','Go','Firebase','AWS'], team:[{name:'서지민',role:'PM'},{name:'윤채원',role:'기획'},{name:'강태양',role:'기획'}], desc:'베트남 현지 맞춤형 모바일 뱅킹 앱 개발' }
+];
+
+// ════════════════════════════════════
+//  STATE
+// ════════════════════════════════════
+let currentUser = null;
+let projects = [];
+let leafletMap = null;
+let markerLayerGroup = null;
+let statusChartObj = null;
+let currentPage = 'dashboard';
+let searchQuery = '';
+
+function loadProjects() {
+  const saved = localStorage.getItem('pm_projects');
+  projects = saved ? JSON.parse(saved) : JSON.parse(JSON.stringify(DEFAULT_PROJECTS));
+}
+function saveProjects() { localStorage.setItem('pm_projects', JSON.stringify(projects)); }
+
+// ════════════════════════════════════
+//  LOGIN / LOGOUT
+// ════════════════════════════════════
+function doLogin() {
+  const id = document.getElementById('loginId').value.trim();
+  const pw = document.getElementById('loginPw').value;
+  const u = USERS[id];
+  if (!u || u.pw !== pw) { document.getElementById('loginErr').style.display='block'; return; }
+  currentUser = { id, ...u };
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('app').classList.add('visible');
+  document.getElementById('userName').textContent = u.name;
+  document.getElementById('userRole').textContent = u.role;
+  document.getElementById('userAvatar').textContent = u.name[0];
+  if (!u.isAdmin) {
+    document.getElementById('addProjBtn').style.display = 'none';
+    document.getElementById('actionHead').style.display = 'none';
+  }
+  loadProjects();
+  renderDashboard();
+  initMap();
+}
+function doLogout() {
+  currentUser = null;
+  document.getElementById('loginScreen').style.display = 'flex';
+  document.getElementById('app').classList.remove('visible');
+}
+
+// ════════════════════════════════════
+//  NAVIGATION
+// ════════════════════════════════════
+function goPage(page) {
+  document.querySelectorAll('.page').forEach(p => { p.style.display='none'; p.classList.remove('active'); });
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  currentPage = page;
+  const el = document.getElementById('page-'+page);
+  if (el) { el.style.display='flex'; el.classList.add('active'); }
+  const nav = document.getElementById('nav-'+page);
+  if (nav) nav.classList.add('active');
+  if (page === 'dashboard') renderDashboard();
+  if (page === 'map') { setTimeout(()=>{ if(leafletMap) leafletMap.invalidateSize(); renderMap(); }, 100); }
+  if (page === 'projects') renderProjects();
+  if (page === 'resources') renderResources();
+}
+
+// ════════════════════════════════════
+//  DASHBOARD
+// ════════════════════════════════════
+function renderDashboard() {
+  const active = projects.filter(p => p.status !== 'done');
+  const totalMembers = active.reduce((s,p)=>s+p.members,0);
+  const totalBudget = projects.filter(p=>p.budget&&p.budget!=='TBD'&&!p.budget.includes('USD'))
+    .reduce((s,p)=>{ const n=parseFloat(p.budget); return isNaN(n)?s:s+n; }, 0);
+  const alerts = getAlerts();
+  document.getElementById('notifDot').style.display = alerts.length ? 'block' : 'none';
+
+  // KPIs
+  document.getElementById('kpiGrid').innerHTML = `
+    <div class="kpi-card blue"><div class="kpi-icon">📁</div><div class="kpi-label">전체 프로젝트</div><div class="kpi-value" style="color:var(--blue)">${projects.length}</div><div class="kpi-sub">활성 ${active.length}개 · 종료 ${projects.length-active.length}개</div></div>
+    <div class="kpi-card green"><div class="kpi-icon">👥</div><div class="kpi-label">총 투입 인원</div><div class="kpi-value" style="color:var(--green)">${totalMembers}명</div><div class="kpi-sub">활성 프로젝트 기준</div></div>
+    <div class="kpi-card purple"><div class="kpi-icon">💰</div><div class="kpi-label">수주 금액 합계</div><div class="kpi-value" style="color:var(--purple)">${totalBudget}억</div><div class="kpi-sub">원화 계약 기준</div></div>
+    <div class="kpi-card orange"><div class="kpi-icon">⚠️</div><div class="kpi-label">알림</div><div class="kpi-value" style="color:var(--orange)">${alerts.length}</div><div class="kpi-sub">마감임박·위험·충돌</div></div>
+  `;
+
+  // Status chart
+  const statusCounts = {};
+  Object.keys(STATUS_CFG).forEach(k => statusCounts[k] = 0);
+  projects.forEach(p => { if(statusCounts[p.status]!==undefined) statusCounts[p.status]++; });
+  const labels = Object.values(STATUS_CFG).map(s=>s.label);
+  const data = Object.keys(STATUS_CFG).map(k=>statusCounts[k]);
+  const colors = Object.values(STATUS_CFG).map(s=>s.color);
+  if (statusChartObj) statusChartObj.destroy();
+  const ctx = document.getElementById('statusChart').getContext('2d');
+  statusChartObj = new Chart(ctx, {
+    type: 'doughnut',
+    data: { labels, datasets: [{ data, backgroundColor: colors.map(c=>c+'cc'), borderColor: colors, borderWidth: 2 }] },
+    options: { responsive:true, maintainAspectRatio:false, plugins:{ legend:{ position:'right', labels:{ color:'#9ca3b0', font:{size:11}, padding:12 } } }, cutout:'65%' }
+  });
+
+  // Alerts
+  document.getElementById('alertList').innerHTML = alerts.length
+    ? alerts.map(a=>`<div class="alert-item ${a.type}"><span class="alert-icon">${a.icon}</span><div><div class="alert-title">${a.title}</div><div class="alert-desc">${a.desc}</div></div></div>`).join('')
+    : '<div style="color:var(--text3);font-size:12px;text-align:center;padding:20px">✅ 현재 알림이 없습니다</div>';
+
+  // Progress bars
+  const active2 = projects.filter(p=>p.status!=='done').sort((a,b)=>b.progress-a.progress);
+  document.getElementById('progressBars').innerHTML = active2.map(p => {
+    const s = STATUS_CFG[p.status];
+    return `<div style="display:flex;align-items:center;gap:12px;margin-bottom:10px">
+      <div style="width:160px;font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${p.name}</div>
+      <span class="status-pill" style="background:${s.bg};color:${s.color};min-width:80px;justify-content:center">${s.label}</span>
+      <div style="flex:1;height:6px;background:var(--bg);border-radius:3px;overflow:hidden">
+        <div style="height:100%;width:${p.progress}%;background:linear-gradient(90deg,${s.color}88,${s.color});border-radius:3px"></div>
+      </div>
+      <span style="font-size:12px;font-weight:700;color:${s.color};min-width:32px">${p.progress}%</span>
+      <span style="font-size:11px;color:var(--text3);min-width:60px">~${p.end}</span>
+    </div>`;
+  }).join('');
+}
+
+function getAlerts() {
+  const alerts = [];
+  const now = new Date('2026-05-30');
+  projects.forEach(p => {
+    if (p.status === 'done') return;
+    if (p.end && p.end !== '-') {
+      const parts = p.end.split('.');
+      if (parts.length >= 2) {
+        const d = new Date(parseInt(parts[0]), parseInt(parts[1])-1, 1);
+        const diff = Math.round((d - now) / (1000*60*60*24));
+        if (diff >= 0 && diff <= 30) alerts.push({ type:'danger', icon:'🚨', title:`마감 임박: ${p.name}`, desc:`${diff}일 후 종료 예정 (${p.end})` });
+        else if (diff >= 0 && diff <= 90) alerts.push({ type:'warn', icon:'⚠️', title:`마감 주의: ${p.name}`, desc:`${diff}일 후 종료 예정 (${p.end})` });
+      }
+    }
+    if (p.risk === 'high') alerts.push({ type:'danger', icon:'🔴', title:`고위험 프로젝트: ${p.name}`, desc:'위험도가 높음으로 설정된 프로젝트입니다.' });
+  });
+  // conflict check
+  const personProjects = {};
+  projects.filter(p=>p.status!=='done'&&p.team).forEach(p => {
+    p.team.forEach(m => {
+      if (!personProjects[m.name]) personProjects[m.name] = [];
+      personProjects[m.name].push(p.name);
+    });
+  });
+  Object.entries(personProjects).forEach(([name, projs]) => {
+    if (projs.length > 1) alerts.push({ type:'warn', icon:'👤', title:`인력 중복: ${name}`, desc:`${projs.join(', ')} 동시 투입` });
+  });
+  return alerts;
+}
+
+// ════════════════════════════════════
+//  MAP
+// ════════════════════════════════════
+function initMap() {
+  if (leafletMap) return;
+  leafletMap = L.map('theMap', { zoomControl:false, preferCanvas:true }).setView([37.55, 127.05], 11);
+  L.control.zoom({ position:'bottomright' }).addTo(leafletMap);
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+    attribution:'© OpenStreetMap © CARTO', maxZoom:19, subdomains:'abcd'
+  }).addTo(leafletMap);
+  markerLayerGroup = L.layerGroup().addTo(leafletMap);
+}
+let mapCurrentFilter = 'all';
+function renderMap(filter) {
+  if (!leafletMap) return;
+  if (filter) mapCurrentFilter = filter;
+  markerLayerGroup.clearLayers();
+  const data = mapCurrentFilter === 'all' ? projects : projects.filter(p=>p.status===mapCurrentFilter);
+  const filtered = searchQuery ? data.filter(p =>
+    p.name.toLowerCase().includes(searchQuery) || p.client.toLowerCase().includes(searchQuery) ||
+    (p.langs||[]).some(l=>l.toLowerCase().includes(searchQuery))
+  ) : data;
+  filtered.forEach(p => addMapMarker(p));
+}
+function mapFilter(status, btn) {
+  document.querySelectorAll('.mfp-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderMap(status);
+}
+function addMapMarker(p) {
+  const s = STATUS_CFG[p.status];
+  const endLabel = p.end || '-';
+  const html = `<div class="marker-card">
+    <div class="mc-top"><span class="mc-dot" style="background:${s.color}"></span><span class="mc-status" style="color:${s.color}">${s.label}</span></div>
+    <div class="mc-name">${p.name}</div>
+    <div class="mc-client">${p.client}</div>
+    <div class="mc-bottom"><span class="mc-period">~ ${endLabel}</span><span class="mc-members">👥 ${p.members}명</span></div>
+  </div>`;
+  const icon = L.divIcon({ className:'', html, iconAnchor:[92,82] });
+  const marker = L.marker([p.lat, p.lng], { icon }).addTo(markerLayerGroup);
+  const r = RISK_CFG[p.risk];
+  marker.bindPopup(`
+    <div class="pu">
+      <div class="pu-head">
+        <div class="pu-badge" style="background:${s.bg};color:${s.color}"><span style="width:6px;height:6px;border-radius:50%;background:${s.color};display:inline-block"></span>${s.label}</div>
+        <div class="pu-title">${p.name}</div>
+        <div class="pu-loc">📍 ${p.location} &nbsp;·&nbsp; 🏢 ${p.client}</div>
+      </div>
+      <div class="pu-body">
+        <div class="pu-prog-wrap">
+          <div class="pu-prog-top"><span>진행률</span><strong style="color:${s.color}">${p.progress}%</strong></div>
+          <div class="pu-prog-track"><div class="pu-prog-fill" style="width:${p.progress}%;background:linear-gradient(90deg,${s.color}88,${s.color})"></div></div>
+        </div>
+        <div class="pu-g2">
+          <div class="pi"><div class="pk">기간</div><div class="pv" style="font-size:10px">${p.start} ~ ${p.end}</div></div>
+          <div class="pi"><div class="pk">인원</div><div class="pv">${p.members}명</div></div>
+          <div class="pi"><div class="pk">계약규모</div><div class="pv">${p.budget}</div></div>
+          <div class="pi"><div class="pk">유형</div><div class="pv">${p.type}</div></div>
+        </div>
+        <div class="pu-tags">${(p.langs||[]).map(l=>`<span class="pu-tag">${l}</span>`).join('')}</div>
+        <div class="pi"><div class="pk" style="margin-bottom:4px">개요</div><div style="font-size:11px;color:#aaa;line-height:1.5">${p.desc||'-'}</div></div>
+      </div>
+      <div class="pu-foot">
+        <div class="pu-pm"><div class="pu-pm-av">${(p.pm||'?')[0]}</div><div><div class="pu-pm-name">PM · ${p.pm}</div><div class="pu-pm-role">Project Manager</div></div></div>
+        <span class="risk-pill" style="background:${r.bg};color:${r.color}">위험 ${r.label}</span>
+      </div>
+    </div>
+  `, { maxWidth:320, minWidth:320 });
+}
+
+// ════════════════════════════════════
+//  PROJECT LIST
+// ════════════════════════════════════
+function renderProjects() {
+  document.getElementById('projCount').textContent = `(${projects.length}건)`;
+  const isAdmin = currentUser && currentUser.isAdmin;
+  document.getElementById('projTable').innerHTML = projects.map(p => {
+    const s = STATUS_CFG[p.status];
+    const r = RISK_CFG[p.risk];
+    const actions = isAdmin ? `<div class="action-btns"><button class="btn-sm btn-edit" onclick="openModal(${p.id})">수정</button><button class="btn-sm btn-del" onclick="deleteProject(${p.id})">삭제</button></div>` : '-';
+    return `<tr>
+      <td class="td-name">${p.name}</td>
+      <td class="td-client">${p.client}</td>
+      <td>${p.pm}</td>
+      <td><span class="status-pill" style="background:${s.bg};color:${s.color}">${s.label}</span></td>
+      <td style="font-size:11px;color:var(--text2)">${p.start} ~ ${p.end}</td>
+      <td>${p.members}명</td>
+      <td><div class="progress-cell"><div class="prog-bar"><div class="prog-fill" style="width:${p.progress}%;background:${s.color}"></div></div><span class="prog-pct">${p.progress}%</span></div></td>
+      <td><span style="color:${r.color}">${r.label}</span></td>
+      <td>${actions}</td>
+    </tr>`;
+  }).join('');
+}
+
+// ════════════════════════════════════
+//  RESOURCES
+// ════════════════════════════════════
+function renderResources() {
+  const personMap = {};
+  projects.filter(p=>p.status!=='done').forEach(p => {
+    (p.team||[]).forEach(m => {
+      if (!personMap[m.name]) personMap[m.name] = { name:m.name, roles:[], projects:[] };
+      personMap[m.name].projects.push({ name:p.name, status:p.status, role:m.role });
+      if (!personMap[m.name].roles.includes(m.role)) personMap[m.name].roles.push(m.role);
+    });
+  });
+  const people = Object.values(personMap).sort((a,b)=>b.projects.length-a.projects.length);
+  const conflicts = people.filter(p=>p.projects.length>1).length;
+  document.getElementById('conflictBadge').style.display = conflicts ? 'inline' : 'none';
+  document.getElementById('conflictBadge').textContent = conflicts;
+  document.getElementById('resCount').textContent = `(${people.length}명)`;
+  const colors = ['#4f9eff','#4fcc7a','#a855f7','#f59e0b','#ef4444','#06b6d4','#ec4899'];
+  document.getElementById('resourceGrid').innerHTML = people.map((person, idx) => {
+    const bg = colors[idx % colors.length];
+    const isConflict = person.projects.length > 1;
+    const projHtml = person.projects.map(proj => {
+      const s = STATUS_CFG[proj.status];
+      return `<div class="rc-proj-item">
+        <span class="rc-proj-dot" style="background:${s.color}"></span>
+        <span class="rc-proj-name">${proj.name}</span>
+        <span class="rc-util" style="background:${s.bg};color:${s.color}">${proj.role}</span>
+      </div>`;
+    }).join('');
+    const conflictHtml = isConflict ? `<div class="conflict-badge">⚠️ 중복 투입 (${person.projects.length}개)</div>` : '';
+    return `<div class="resource-card" style="${isConflict?'border-color:#ef444433':''}">
+      <div class="rc-top">
+        <div class="rc-avatar" style="background:${bg}33;color:${bg};border:1px solid ${bg}44">${person.name[0]}</div>
+        <div><div class="rc-name">${person.name}</div><div class="rc-title">${[...new Set(person.roles)].join(' / ')}</div></div>
+      </div>
+      <div class="rc-projects">${projHtml}</div>
+      ${conflictHtml}
+    </div>`;
+  }).join('');
+}
+
+// ════════════════════════════════════
+//  CRUD MODAL
+// ════════════════════════════════════
+function openModal(id) {
+  document.getElementById('modalOverlay').classList.add('open');
+  if (id) {
+    const p = projects.find(x=>x.id===id);
+    document.getElementById('modalTitle').textContent = '프로젝트 수정';
+    document.getElementById('fId').value = p.id;
+    document.getElementById('fName').value = p.name;
+    document.getElementById('fClient').value = p.client;
+    document.getElementById('fPm').value = p.pm;
+    document.getElementById('fLocation').value = p.location;
+    document.getElementById('fLat').value = p.lat;
+    document.getElementById('fLng').value = p.lng;
+    document.getElementById('fStatus').value = p.status;
+    document.getElementById('fProgress').value = p.progress;
+    document.getElementById('fStart').value = p.start;
+    document.getElementById('fEnd').value = p.end;
+    document.getElementById('fMembers').value = p.members;
+    document.getElementById('fBudget').value = p.budget;
+    document.getElementById('fType').value = p.type;
+    document.getElementById('fRisk').value = p.risk;
+    document.getElementById('fLangs').value = (p.langs||[]).join(', ');
+    document.getElementById('fTeam').value = (p.team||[]).map(t=>`${t.name}:${t.role}`).join(', ');
+    document.getElementById('fDesc').value = p.desc||'';
+  } else {
+    document.getElementById('modalTitle').textContent = '프로젝트 추가';
+    document.getElementById('fId').value = '';
+    ['fName','fClient','fPm','fLocation','fLat','fLng','fProgress','fStart','fEnd','fMembers','fBudget','fLangs','fTeam','fDesc'].forEach(id=>document.getElementById(id).value='');
+    document.getElementById('fStatus').value='plan';
+    document.getElementById('fType').value='신규개발';
+    document.getElementById('fRisk').value='mid';
+  }
+}
+function closeModal() { document.getElementById('modalOverlay').classList.remove('open'); }
+function saveProject() {
+  const name = document.getElementById('fName').value.trim();
+  if (!name) { showToast('프로젝트명을 입력해주세요.'); return; }
+  const id = document.getElementById('fId').value;
+  const langsRaw = document.getElementById('fLangs').value;
+  const teamRaw = document.getElementById('fTeam').value;
+  const p = {
+    id: id ? parseInt(id) : Date.now(),
+    name, client: document.getElementById('fClient').value,
+    pm: document.getElementById('fPm').value,
+    location: document.getElementById('fLocation').value,
+    lat: parseFloat(document.getElementById('fLat').value)||37.5665,
+    lng: parseFloat(document.getElementById('fLng').value)||126.9780,
+    status: document.getElementById('fStatus').value,
+    progress: parseInt(document.getElementById('fProgress').value)||0,
+    start: document.getElementById('fStart').value,
+    end: document.getElementById('fEnd').value,
+    members: parseInt(document.getElementById('fMembers').value)||0,
+    budget: document.getElementById('fBudget').value,
+    type: document.getElementById('fType').value,
+    risk: document.getElementById('fRisk').value,
+    langs: langsRaw ? langsRaw.split(',').map(s=>s.trim()).filter(Boolean) : [],
+    team: teamRaw ? teamRaw.split(',').map(s=>{ const [n,r]=s.trim().split(':'); return {name:(n||'').trim(),role:(r||'').trim()}; }).filter(t=>t.name) : [],
+    desc: document.getElementById('fDesc').value
+  };
+  if (id) { const idx = projects.findIndex(x=>x.id===parseInt(id)); if(idx>=0) projects[idx]=p; }
+  else projects.push(p);
+  saveProjects();
+  closeModal();
+  renderProjects();
+  if (currentPage === 'map') renderMap();
+  showToast(id ? '프로젝트가 수정됐습니다.' : '프로젝트가 추가됐습니다.');
+}
+function deleteProject(id) {
+  if (!confirm('정말 삭제하시겠습니까?')) return;
+  projects = projects.filter(p=>p.id!==id);
+  saveProjects();
+  renderProjects();
+  showToast('삭제됐습니다.');
+}
+
+// ════════════════════════════════════
+//  SEARCH
+// ════════════════════════════════════
+function onGlobalSearch(val) {
+  searchQuery = val.toLowerCase();
+  if (currentPage === 'map') renderMap();
+  if (currentPage === 'projects') {
+    document.querySelectorAll('#projTable tr').forEach(tr => {
+      tr.style.display = tr.textContent.toLowerCase().includes(searchQuery) ? '' : 'none';
+    });
+  }
+}
+
+// ════════════════════════════════════
+//  TOAST
+// ════════════════════════════════════
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 2500);
+}
+
+// ════════════════════════════════════
+//  CLOSE MODAL ON OVERLAY CLICK
+// ════════════════════════════════════
+document.getElementById('modalOverlay').addEventListener('click', function(e) {
+  if (e.target === this) closeModal();
+});
+</script>
+</body>
+</html>
