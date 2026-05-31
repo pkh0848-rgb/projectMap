@@ -699,7 +699,8 @@ function initAppUI(){
   document.getElementById('nav-users').style.display=isAdmin?'flex':'none';
   document.querySelectorAll('.admin-only').forEach(el=>el.style.display=isAdmin?'':'none');
   startRealtime();
-  setTimeout(()=>{initMap();},300);}
+  setTimeout(()=>{initMap();},300);
+  goPage('dashboard');}
 
 // ═══════════════════════════════════
 //  FIRESTORE 실시간
@@ -723,6 +724,8 @@ function startRealtime(){
 //  네비게이션
 // ═══════════════════════════════════
 function goPage(page){
+  // 비관리자는 사용자 관리 페이지 접근 차단
+  if(page==='users'&&(!userProfile||userProfile.role!=='admin')){page='dashboard';}
   document.querySelectorAll('.page').forEach(p=>{p.style.display='none';p.classList.remove('active');});
   document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
   currentPage=page;
