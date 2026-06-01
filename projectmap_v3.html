@@ -897,7 +897,8 @@ async function deleteProject(id){if(!confirm('정말 삭제하시겠습니까?')
 // ═══════════════════════════════════
 // 빈 양식 다운로드
 function downloadTemplate(){
-  const headers=[{'프로젝트명':'(예시) 우리카드 통합단말 재구축','고객사':'우리카드','PM':'김정후 상무','위치':'서울 상암','상태':'개발 중','시작일':'2025.01','종료일':'2026.12','투입인원':10,'계약규모':'15억','유형':'재구축','위험도':'보통','기술스택':'Java, Spring, Oracle','팀원':'김철수(개발), 이영희(기획)','개요':'프로젝트 설명'}];
+  // 위도/경도 컬럼 추가, 팀원 형식을 업로드와 일치(이름:역할)
+  const headers=[{'프로젝트명':'(예시) 우리카드 통합단말 재구축','고객사':'우리카드','PM':'김정후 상무','위치':'서울 상암','위도':37.5793,'경도':126.8897,'상태':'개발 중','시작일':'2025.01','종료일':'2026.12','투입인원':10,'계약규모':'15억','유형':'재구축','위험도':'보통','기술스택':'Java, Spring, Oracle','팀원':'김철수:개발, 이영희:기획','개요':'프로젝트 설명'}];
   const ws=XLSX.utils.json_to_sheet(headers),wb=XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb,ws,'프로젝트');
   XLSX.writeFile(wb,'projectmap_양식.xlsx');
@@ -911,37 +912,60 @@ function downloadExcel(){
   XLSX.writeFile(wb,`projectmap_${new Date().toISOString().slice(0,10)}.xlsx`);
   showToast('엑셀 다운로드 완료');}
 
+// 엑셀 날짜 시리얼 → "YYYY.MM" 문자열 변환
+function excelDateToStr(val){
+  if(!val)return'';
+  // 이미 문자열이면 그대로
+  if(typeof val==='string')return val.trim();
+  // 숫자(Excel 시리얼)이면 변환
+  if(typeof val==='number'){
+    const d=new Date(Math.round((val-25569)*86400*1000));
+    return`${d.getUTCFullYear()}.${String(d.getUTCMonth()+1).padStart(2,'0')}`;
+  }
+  return String(val);}
+
 // 엑셀 업로드 (프로젝트명 기준 중복 방지)
 function uploadExcel(e){
   const file=e.target.files[0];if(!file)return;
   const reader=new FileReader();
   reader.onload=async evt=>{
-    const wb=XLSX.read(evt.target.result,{type:'binary'}),ws=wb.Sheets[wb.SheetNames[0]],rows=XLSX.utils.sheet_to_json(ws);
+    const wb=XLSX.read(evt.target.result,{type:'binary',cellDates:false}),ws=wb.Sheets[wb.SheetNames[0]],rows=XLSX.utils.sheet_to_json(ws,{raw:true});
     const sm={'개발 중':'dev','테스트':'test','운영안정화':'stable','설계':'plan','종료':'done'};
     const rm={'낮음':'low','보통':'mid','높음':'high'};
-    // 기존 프로젝트명 목록
     const existingNames=new Set(projects.map(p=>p.name.trim()));
-    let added=0,skipped=0;
+    let added=0,skipped=0,errors=[];
     for(const row of rows){
       const name=(row['프로젝트명']||'').trim();
-      if(!name||name.startsWith('(예시)'))continue; // 빈 행 또는 예시 행 무시
-      if(existingNames.has(name)){skipped++;continue;} // 중복 건너뜀
+      if(!name||name.startsWith('(예시)'))continue;
+      if(existingNames.has(name)){skipped++;continue;}
+      // 위도/경도: 없으면 본사 좌표 기본값
+      const lat=parseFloat(row['위도'])||37.5665;
+      const lng=parseFloat(row['경도'])||126.9780;
+      // 날짜: 숫자 시리얼 대비 변환
+      const start=excelDateToStr(row['시작일']);
+      const end=excelDateToStr(row['종료일']);
+      // 팀원: "이름:역할, 이름:역할" 형식 파싱
+      const team=row['팀원']?row['팀원'].toString().split(',').map(s=>{const[n,r]=s.trim().split(':');return{name:(n||'').trim(),role:(r||'').trim()};}).filter(t=>t.name):[];
       const docId='p'+Date.now()+added;
-      await db.collection('projects').doc(docId).set({
-        id:docId,name,
-        client:row['고객사']||'',pm:row['PM']||'',location:row['위치']||'',
-        lat:37.5665,lng:126.9780,
-        status:sm[row['상태']]||'plan',
-        start:String(row['시작일']||''),end:String(row['종료일']||''),
-        members:parseInt(row['투입인원'])||0,budget:String(row['계약규모']||''),
-        type:row['유형']||'신규개발',risk:rm[row['위험도']]||'mid',
-        langs:row['기술스택']?row['기술스택'].split(',').map(s=>s.trim()):[],
-        team:[],desc:row['개요']||''
-      });
-      existingNames.add(name);
-      added++;
+      try{
+        await db.collection('projects').doc(docId).set({
+          id:docId,name,
+          client:row['고객사']||'',pm:row['PM']||'',location:row['위치']||'',
+          lat,lng,
+          status:sm[row['상태']]||'plan',
+          start,end,
+          members:parseInt(row['투입인원'])||0,budget:String(row['계약규모']||''),
+          type:row['유형']||'신규개발',risk:rm[row['위험도']]||'mid',
+          langs:row['기술스택']?row['기술스택'].toString().split(',').map(s=>s.trim()).filter(Boolean):[],
+          team,desc:row['개요']||''
+        });
+        existingNames.add(name);added++;
+      }catch(err){errors.push(name);}
     }
-    showToast(`${added}개 추가 완료${skipped>0?`, ${skipped}개 중복 건너뜀`:''}`);
+    let msg=`${added}개 추가 완료`;
+    if(skipped>0)msg+=`, ${skipped}개 중복 건너뜀`;
+    if(errors.length)msg+=`, 오류 ${errors.length}건`;
+    showToast(msg);
     e.target.value='';
   };
   reader.readAsBinaryString(file);}
