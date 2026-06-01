@@ -566,7 +566,7 @@ async function doSetup(){
   if(pw!==pw2){err.textContent='비밀번호가 일치하지 않습니다.';err.style.display='block';return;}
   try{
     const cred=await auth.createUserWithEmailAndPassword(email,pw);
-    await db.collection('users').doc(cred.user.uid).set({uid:cred.user.uid,name,email,role:'admin',isOwner:true,mustChangePassword:false,isActive:true,createdAt:firebase.firestore.FieldValue.serverTimestamp()});
+    await db.collection('users').doc(cred.user.uid).set({uid:cred.user.uid,name,email,role:'admin',mustChangePassword:false,isActive:true,createdAt:firebase.firestore.FieldValue.serverTimestamp()});
     showToast('관리자 계정이 생성됐습니다.');
   }catch(e){err.textContent=firebaseErrMsg(e.code);err.style.display='block';}}
 
@@ -805,9 +805,8 @@ async function renderUsers(){
     const statusBadge=u.isActive===false?`<span class="user-status-badge badge-inactive">비활성</span>`:u.mustChangePassword?`<span class="user-status-badge badge-pending">초대됨</span>`:`<span class="user-status-badge badge-active">활성</span>`;
     const roleBadge=u.role==='admin'?`<span class="role-badge role-admin">관리자</span>`:`<span class="role-badge role-viewer">일반직원</span>`;
     const isSelf=currentUser&&u.uid===currentUser.uid;
-    const isOwner=!!u.isOwner;
     const createdAt=u.createdAt?new Date(u.createdAt.seconds*1000).toLocaleDateString('ko-KR'):'-';
-    const actions=isSelf?'<span style="font-size:11px;color:var(--text3)">(본인)</span>':isOwner?'<span style="font-size:11px;color:var(--gold)">👑 오너</span>':`
+    const actions=isSelf?'<span style="font-size:11px;color:var(--text3)">(본인)</span>':`
       <div class="action-btns">
         <button class="btn-sm btn-edit" onclick="toggleRole('${u.uid}','${u.role}')">${u.role==='admin'?'일반으로':'관리자로'}</button>
         <button class="btn-sm btn-warn" onclick="resendInvite('${u.email}')">재초대</button>
@@ -853,8 +852,6 @@ async function inviteUser(){
   btn.disabled=false;btn.textContent='✉️ 초대 이메일 발송';}
 
 async function toggleRole(uid,currentRole){
-  const target=appUsers.find(u=>u.uid===uid);
-  if(target&&target.isOwner){showToast('최초 관리자(오너)의 역할은 변경할 수 없습니다.');return;}
   const newRole=currentRole==='admin'?'viewer':'admin';
   if(!confirm(`역할을 ${newRole==='admin'?'관리자':'일반직원'}로 변경하시겠습니까?`))return;
   await db.collection('users').doc(uid).update({role:newRole});
@@ -954,4 +951,14 @@ function onGlobalSearch(val){searchQuery=val.toLowerCase();if(currentPage==='map
 // ═══════════════════════════════════
 //  유틸
 // ═══════════════════════════════════
-function firebaseErrMsg(code){const msgs={'auth/email-already-in-use':'이미 사용 중인 이메일입니다.','auth/invalid-email':'올바른 이메일 형식이 아닙니다.','auth/weak-password':'비밀번호가 너무 짧습니다. (6자 이상)','auth/user-no
+function firebaseErrMsg(code){const msgs={'auth/email-already-in-use':'이미 사용 중인 이메일입니다.','auth/invalid-email':'올바른 이메일 형식이 아닙니다.','auth/weak-password':'비밀번호가 너무 짧습니다. (6자 이상)','auth/user-not-found':'등록된 이메일이 아닙니다.','auth/wrong-password':'비밀번호가 올바르지 않습니다.','auth/too-many-requests':'너무 많은 시도입니다. 잠시 후 다시 시도해주세요.','auth/requires-recent-login':'보안을 위해 다시 로그인 후 시도해주세요.'};return msgs[code]||'오류가 발생했습니다. 다시 시도해주세요.';}
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2800);}
+document.getElementById('projModalOverlay').addEventListener('click',function(e){if(e.target===this)closeProjModal();});
+document.getElementById('addUserModalOverlay').addEventListener('click',function(e){if(e.target===this)closeAddUserModal();});
+document.getElementById('changePwModalOverlay').addEventListener('click',function(e){if(e.target===this)closeChangePwModal();});
+document.getElementById('setupPw').addEventListener('input',e=>checkPwStrength(e.target.value,'setupPwBar','setupPwHint'));
+function toggleUserMenu(){const m=document.getElementById('userMenu');m.classList.toggle('open');}
+document.addEventListener('click',e=>{const chip=document.getElementById('userChip');if(chip&&!chip.contains(e.target)){document.getElementById('userMenu')?.classList.remove('open');}});
+</script>
+</body>
+</html>
