@@ -376,8 +376,8 @@ tr:hover td{background:var(--bg3);}
           <div class="page-title">프로젝트 목록 <span id="projCount"></span></div>
           <div style="display:flex;gap:8px;margin-left:auto;flex-wrap:wrap;">
             <button class="btn-secondary admin-only" onclick="downloadTemplate()">📋 양식 다운로드</button>
-            <button class="btn-green admin-only" onclick="downloadExcel()">⬇ 데이터 다운로드</button>
-            <button class="btn-secondary admin-only" onclick="document.getElementById('excelFileInput').click()">⬆ 엑셀 업로드</button>
+            <button class="btn-green admin-only" onclick="downloadExcel()">⬇ 엑셀 다운로드</button>
+            <button class="btn-green admin-only" onclick="document.getElementById('excelFileInput').click()">⬆ 엑셀 업로드</button>
             <input type="file" id="excelFileInput" accept=".xlsx,.xls" style="display:none" onchange="uploadExcel(event)"/>
             <button class="btn-primary admin-only" onclick="openProjModal()">＋ 추가</button>
           </div>
