@@ -231,6 +231,15 @@ tr:hover td{background:var(--bg3);}
 .pu-pm-av{width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,#4f9eff33,#a855f733);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;border:1px solid #4f9eff33;}
 .pu-pm-name{font-size:11px;font-weight:700;}
 .pu-pm-role{font-size:10px;color:var(--text3);}
+.pu-team{padding:10px 18px 14px;border-top:1px solid var(--border);background:var(--bg);border-radius:0 0 12px 12px;}
+.pu-team-title{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;}
+.pu-team-row{display:flex;align-items:center;gap:8px;padding:3px 0;}
+.pu-team-av{width:22px;height:22px;border-radius:50%;background:linear-gradient(135deg,#4f9eff33,#a855f733);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;border:1px solid #4f9eff22;flex-shrink:0;}
+.pu-team-name{font-size:11px;font-weight:600;color:var(--text);}
+.pu-team-role{font-size:10px;color:var(--text3);margin-left:auto;background:var(--bg3);padding:1px 7px;border-radius:8px;}
+.team-toggle-btn{background:var(--bg3);border:1px solid var(--border2);color:var(--text2);font-size:11px;padding:4px 10px;border-radius:6px;cursor:pointer;display:flex;align-items:center;gap:4px;}
+.team-toggle-btn:hover{background:var(--bg4);color:var(--text);}
+.team-toggle-btn.active{background:#4f9eff18;border-color:#4f9eff33;color:var(--blue);}
 .risk-pill{padding:3px 9px;border-radius:6px;font-size:10px;font-weight:600;}
 
 /* ── 모달 ── */
@@ -745,6 +754,14 @@ async function doModalChangePw(){
 // ═══════════════════════════════════
 //  앱 초기화
 // ═══════════════════════════════════
+function toggleTeam(id){
+  const el=document.getElementById('team-'+id);
+  const btn=document.getElementById('teambtn-'+id);
+  if(!el)return;
+  const open=el.style.display==='none'||!el.style.display;
+  el.style.display=open?'block':'none';
+  if(btn){btn.classList.toggle('active',open);btn.innerHTML=open?'👥 멤버 숨기기':'👥 멤버 보기';}
+}
 function initAppUI(){
   const isAdmin=userProfile.role==='admin';
   document.getElementById('userName').textContent=userProfile.name||userProfile.email;
