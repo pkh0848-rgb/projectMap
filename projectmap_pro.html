@@ -616,7 +616,13 @@ async function doSignup(){
     await auth.signOut();
     ok.textContent='✅ 가입 완료! '+email+'로 인증 이메일을 발송했습니다. 받은 편지함을 확인하고 링크를 클릭한 뒤 로그인해주세요.';
     ok.style.display='block';
-  }catch(e){err.textContent=firebaseErrMsg(e.code);err.style.display='block';}}
+  }catch(e){
+    if(e.code==='auth/email-already-in-use'){
+      err.textContent='이미 가입된 이메일입니다. 관리자로부터 초대를 받으셨다면 초대 이메일의 링크로 비밀번호를 설정한 뒤 로그인해주세요.';
+    }else{
+      err.textContent=firebaseErrMsg(e.code);
+    }
+    err.style.display='block';}}
 
 async function doLogin(){
   const email=document.getElementById('loginEmail').value.trim();
