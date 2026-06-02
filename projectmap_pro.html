@@ -9,7 +9,8 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-<script src="//dapi.kakao.com/v2/maps/sdk.js?appkey=bcb23f61df537a7ef92c57a48d63806e&libraries=services"></script>
+<script src="//dapi.kakao.com/v2/maps/sdk.js?appkey=bcb23f61df537a7ef92c57a48d63806e&libraries=services&autoload=false"></script>
+<script>kakao.maps.load(function(){window._kakaoReady=true;});</script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 <style>
@@ -774,37 +775,48 @@ async function doModalChangePw(){
 // ═══════════════════════════════════
 //  앱 초기화
 // ═══════════════════════════════════
-async function searchAddress(){
+function searchAddress(){
   const query=document.getElementById('fLocation').value.trim();
   if(!query){showToast('주소를 입력해주세요.');return;}
   const resultEl=document.getElementById('addrSearchResult');
   resultEl.style.display='block';
   resultEl.innerHTML='<div style="padding:10px 12px;font-size:12px;color:var(--text3)">🔍 검색 중...</div>';
-  try{
-    const res=await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&limit=5&countrycodes=kr&addressdetails=1`,{
-      headers:{'Accept-Language':'ko','User-Agent':'ProjectMapPro/1.0'}
-    });
-    const data=await res.json();
-    if(data&&data.length>0){
-      if(data.length===1){
-        applyAddress(data[0]);
-      } else {
-        window._addrResults=data;
-        resultEl.innerHTML=data.map((r,i)=>
-          `<div onclick="applyAddressIdx(${i})" style="padding:8px 12px;font-size:12px;cursor:pointer;border-bottom:1px solid var(--border);color:var(--text2);" onmouseover="this.style.background='var(--bg3)'" onmouseout="this.style.background=''">
-            <span style="color:var(--text);font-weight:600">${r.display_name.split(',').slice(0,3).join(', ')}</span>
-          </div>`).join('');
-      }
-    } else {
-      resultEl.innerHTML='<div style="padding:10px 12px;font-size:12px;color:var(--text3)">검색 결과가 없습니다. 도로명 주소로 다시 시도해보세요.</div>';
+  if(!window._kakaoReady){
+    // SDK 아직 로딩 중이면 재시도
+    setTimeout(searchAddress,800);
+    return;
+  }
+  const geocoder=new kakao.maps.services.Geocoder();
+  const places=new kakao.maps.services.Places();
+  const results=[];
+  let done=0;
+  // 주소 검색
+  geocoder.addressSearch(query,function(res,status){
+    if(status===kakao.maps.services.Status.OK)res.forEach(r=>results.push({name:r.address_name,lat:r.y,lng:r.x,type:'주소'}));
+    done++;if(done===2)showResults();
+  });
+  // 키워드 검색 (건물명 등)
+  places.keywordSearch(query,function(res,status){
+    if(status===kakao.maps.services.Status.OK)res.forEach(r=>results.push({name:r.place_name+(r.road_address_name?' ('+r.road_address_name+')':''),lat:r.y,lng:r.x,type:'장소'}));
+    done++;if(done===2)showResults();
+  },{size:5});
+  function showResults(){
+    if(results.length===0){
+      resultEl.innerHTML='<div style="padding:10px 12px;font-size:12px;color:var(--text3)">검색 결과가 없습니다.</div>';
+      return;
     }
-  }catch(e){
-    resultEl.innerHTML='<div style="padding:10px 12px;font-size:12px;color:var(--red)">검색 오류: '+e.message+'</div>';
+    window._addrResults=results;
+    if(results.length===1){applyAddress(results[0]);return;}
+    resultEl.innerHTML=results.map((r,i)=>
+      `<div onclick="applyAddressIdx(${i})" style="padding:8px 12px;font-size:12px;cursor:pointer;border-bottom:1px solid var(--border);color:var(--text2);" onmouseover="this.style.background='var(--bg3)'" onmouseout="this.style.background=''">
+        <span style="color:var(--text);font-weight:600">${r.name}</span>
+        <span style="margin-left:6px;font-size:10px;color:var(--blue);background:var(--bg3);padding:1px 5px;border-radius:4px;">${r.type}</span>
+      </div>`).join('');
   }
 }
 function applyAddressIdx(i){applyAddress(window._addrResults[i]);}
 function applyAddress(r){
-  const name=r.display_name?r.display_name.split(',').slice(0,3).join(', '):r.address_name;
+  const name=r.name||r.address_name;
   document.getElementById('fLocation').value=name;
   document.getElementById('fLat').value=parseFloat(r.lat||r.y).toFixed(6);
   document.getElementById('fLng').value=parseFloat(r.lon||r.x).toFixed(6);
