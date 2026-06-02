@@ -782,7 +782,7 @@ async function searchAddress(){
   resultEl.innerHTML='<div style="padding:10px 12px;font-size:12px;color:var(--text3)">🔍 검색 중...</div>';
   try{
     const res=await fetch(`https://dapi.kakao.com/v2/local/search/address.json?query=${encodeURIComponent(query)}&size=5`,{
-      headers:{'Authorization':'KakaoAK bcb23f61df537a7ef92c57a48d63806e'}
+      headers:{'Authorization':'KakaoAK e60f1f3639b724374c1c20d1b6b493c2'}
     });
     const data=await res.json();
     if(data.documents&&data.documents.length>0){
