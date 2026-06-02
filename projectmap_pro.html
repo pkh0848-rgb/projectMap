@@ -101,7 +101,7 @@ body{font-family:'Segoe UI',sans-serif;background:var(--bg);color:var(--text);he
 .kpi-value{font-size:28px;font-weight:800;margin-bottom:4px;}
 .kpi-sub{font-size:11px;color:var(--text3);}
 .kpi-icon{position:absolute;top:16px;right:16px;font-size:22px;opacity:0.5;}
-.dash-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px;}
+.dash-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px;align-items:stretch;}
 .dash-card{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:20px;}
 .dash-card h3{font-size:13px;font-weight:700;margin-bottom:16px;}
 
@@ -388,7 +388,7 @@ tr:hover td{background:var(--bg3);}
               </div>
             </div>
           </div>
-          <div class="dash-card"><h3>⚡ 알림 센터</h3><div class="alert-list" id="alertList"></div></div>
+          <div class="dash-card" style="display:flex;flex-direction:column;"><h3>⚡ 알림 센터</h3><div class="alert-list" id="alertList" style="flex:1;overflow-y:auto;max-height:none;"></div></div>
         </div>
         <div class="dash-card"><h3>🚀 진행률 현황</h3><div id="progressBars" style="margin-top:8px"></div></div>
       </div></div>
@@ -528,15 +528,15 @@ const DEFAULT_PROJECTS=[
 {id:'p1',name:'SBI 프로젝트',client:'SBI저축은행',location:'서울 광화문',lat:37.5759,lng:126.9768,status:'done',start:'2024.03.04',end:'2025.12.31',openDate:'2025.12.01',members:9,budget:'12억',type:'신규개발',risk:'low',pm:'금승철 상무',langs:['Java','Spring','Oracle','React'],team:[{name:'금승철',role:'PM'},{name:'홍길동',role:'개발리드'}],desc:'저축은행 차세대 뱅킹 시스템 구축'},
 {id:'p2',name:'우리카드 통합단말 재구축',client:'우리카드',location:'서울 상암',lat:37.5793,lng:126.8897,status:'stable',start:'2024.06.03',end:'2026.05.29',openDate:'2026.01.12',members:11,budget:'28억',type:'재구축',risk:'low',pm:'김정후 상무',langs:['C++','Java','PostgreSQL'],team:[{name:'김정후',role:'PM'},{name:'박서연',role:'개발리드'}],desc:'카드 통합단말기 소프트웨어 전면 재구축 및 운영 안정화'},
 {id:'p3',name:'현대커머셜 2차 개발',client:'현대커머셜',location:'서울 여의도',lat:37.5219,lng:126.9245,status:'dev',start:'2025.09.01',end:'2026.12.31',openDate:'2026.10.01',members:8,budget:'19억',type:'고도화',risk:'mid',pm:'나한주 이사',langs:['Java','Spring Boot','Oracle'],team:[{name:'나한주',role:'PM'},{name:'박민수',role:'개발리드'}],desc:'캐피탈 여신 관리 시스템 2차 고도화'},
-{id:'p4',name:'OOO 프로젝트',client:'미공개',location:'서울 시청 (본사)',lat:37.5657,lng:126.9779,status:'plan',start:'2026.08.03',end:'2027.06.30',openDate:'',members:5,budget:'TBD',type:'신규개발',risk:'mid',pm:'정영상 이사',langs:['미정'],team:[{name:'정영상',role:'PM'}],desc:'사내 핵심 전략 프로젝트'},
+{id:'p4',name:'OOO 프로젝트',client:'미공개',location:'서울 시청 (본사)',lat:37.5657,lng:126.9779,status:'plan',start:'2026.08.03',end:'2027.06.30',openDate:'2027.04.14',members:5,budget:'TBD',type:'신규개발',risk:'mid',pm:'정영상 이사',langs:['미정'],team:[{name:'정영상',role:'PM'}],desc:'사내 핵심 전략 프로젝트'},
 {id:'p5',name:'NH농협 디지털뱅킹',client:'NH농협은행',location:'서울 중구',lat:37.5600,lng:126.9950,status:'dev',start:'2025.04.07',end:'2026.10.30',openDate:'2026.08.17',members:14,budget:'45억',type:'고도화',risk:'mid',pm:'박민수 부장',langs:['Java','MSA','Kubernetes'],team:[{name:'박민수',role:'PM'},{name:'최수진',role:'개발리드'}],desc:'농협 모바일뱅킹 앱 전면 리뉴얼 및 MSA 전환'},
 {id:'p6',name:'신한카드 AI 심사엔진',client:'신한카드',location:'서울 강남',lat:37.5087,lng:127.0630,status:'dev',start:'2025.11.03',end:'2027.03.31',openDate:'2026.12.01',members:7,budget:'22억',type:'신규개발',risk:'high',pm:'이재훈 부장',langs:['Python','TensorFlow','FastAPI'],team:[{name:'이재훈',role:'PM'},{name:'박서연',role:'ML엔지니어'}],desc:'머신러닝 기반 실시간 카드 발급 심사 엔진'},
 {id:'p7',name:'롯데카드 마이데이터',client:'롯데카드',location:'서울 서초',lat:37.4870,lng:127.0160,status:'test',start:'2025.01.06',end:'2026.06.30',openDate:'2026.05.11',members:9,budget:'17억',type:'신규개발',risk:'low',pm:'최수진 차장',langs:['Java','Spring','MySQL'],team:[{name:'최수진',role:'PM'},{name:'강태양',role:'개발리드'}],desc:'마이데이터 플랫폼 구축 및 오픈API 연동'},
 {id:'p8',name:'삼성화재 전산 고도화',client:'삼성화재',location:'서울 서초 삼성타운',lat:37.4980,lng:127.0276,status:'test',start:'2024.08.05',end:'2026.04.30',openDate:'2026.03.16',members:16,budget:'52억',type:'고도화',risk:'low',pm:'한동훈 수석',langs:['COBOL','Java','Oracle'],team:[{name:'한동훈',role:'PM'},{name:'오승환',role:'개발리드'}],desc:'차세대 보험 핵심계정 시스템 고도화'},
 {id:'p9',name:'KT 망관리 시스템',client:'KT',location:'서울 광화문 KT사옥',lat:37.5722,lng:126.9795,status:'test',start:'2025.03.03',end:'2026.08.31',openDate:'2026.07.06',members:12,budget:'31억',type:'재구축',risk:'mid',pm:'오승환 수석',langs:['Go','gRPC','Kubernetes'],team:[{name:'오승환',role:'PM'},{name:'이재훈',role:'개발리드'}],desc:'5G 통신 망 실시간 모니터링 및 장애 대응'},
-{id:'p10',name:'국민건강보험 EDI',client:'국민건강보험공단',location:'서울 마포',lat:37.5540,lng:126.9104,status:'plan',start:'2026.10.05',end:'2028.02.28',openDate:'',members:6,budget:'38억',type:'재구축',risk:'mid',pm:'강태양 부장',langs:['미정'],team:[{name:'강태양',role:'PM'}],desc:'EDI 전산 시스템 차세대 전환'},
+{id:'p10',name:'국민건강보험 EDI',client:'국민건강보험공단',location:'서울 마포',lat:37.5540,lng:126.9104,status:'plan',start:'2026.10.05',end:'2028.02.28',openDate:'2027.12.01',members:6,budget:'38억',type:'재구축',risk:'mid',pm:'강태양 부장',langs:['미정'],team:[{name:'강태양',role:'PM'}],desc:'EDI 전산 시스템 차세대 전환'},
 {id:'p11',name:'대전 스마트시티 플랫폼',client:'대전광역시',location:'대전 유성구',lat:36.3624,lng:127.3569,status:'dev',start:'2025.06.02',end:'2027.05.31',openDate:'2027.03.01',members:10,budget:'67억',type:'신규개발',risk:'mid',pm:'윤성민 이사',langs:['Python','IoT','React'],team:[{name:'윤성민',role:'PM'},{name:'서지민',role:'개발리드'}],desc:'스마트시티 통합관제 및 빅데이터 분석 플랫폼'},
-{id:'p12',name:'베트남 VPBank 뱅킹앱',client:'VPBank',location:'베트남 호치민',lat:10.8231,lng:106.6297,status:'plan',start:'2026.07.06',end:'2027.12.31',openDate:'',members:8,budget:'USD 1.8M',type:'신규개발',risk:'high',pm:'서지민 이사',langs:['Flutter','Go','Firebase'],team:[{name:'서지민',role:'PM'}],desc:'베트남 현지 맞춤형 모바일 뱅킹 앱'}
+{id:'p12',name:'베트남 VPBank 뱅킹앱',client:'VPBank',location:'베트남 호치민',lat:10.8231,lng:106.6297,status:'plan',start:'2026.07.06',end:'2027.12.31',openDate:'2027.09.01',members:8,budget:'USD 1.8M',type:'신규개발',risk:'high',pm:'서지민 이사',langs:['Flutter','Go','Firebase'],team:[{name:'서지민',role:'PM'}],desc:'베트남 현지 맞춤형 모바일 뱅킹 앱'}
 ];
 
 // ═══════════════════════════════════
