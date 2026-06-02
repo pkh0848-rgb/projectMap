@@ -9,8 +9,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-<script src="//dapi.kakao.com/v2/maps/sdk.js?appkey=bcb23f61df537a7ef92c57a48d63806e&libraries=services&autoload=false"></script>
-<script>kakao.maps.load(function(){window._kakaoReady=true;});</script>
+<script src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 <style>
@@ -18,7 +17,7 @@
 *{margin:0;padding:0;box-sizing:border-box;}
 body{font-family:'Segoe UI',sans-serif;background:var(--bg);color:var(--text);height:100vh;overflow:hidden;}
 
-/* ââ ê³µíµ íë©´ ë ì´ìì ââ */
+/* Ã¢ÂÂÃ¢ÂÂ ÃªÂ³ÂµÃ­ÂÂµ Ã­ÂÂÃ«Â©Â´ Ã«Â ÂÃ¬ÂÂ´Ã¬ÂÂÃ¬ÂÂ Ã¢ÂÂÃ¢ÂÂ */
 .auth-screen{position:fixed;inset:0;background:radial-gradient(ellipse at 30% 50%,#1a1d3a 0%,#0b0d14 70%);display:flex;align-items:center;justify-content:center;z-index:9000;}
 .auth-box{background:var(--bg2);border:1px solid var(--border2);border-radius:20px;padding:40px;width:400px;box-shadow:0 24px 60px rgba(0,0,0,0.6);}
 .auth-logo{text-align:center;margin-bottom:28px;}
@@ -42,13 +41,13 @@ body{font-family:'Segoe UI',sans-serif;background:var(--bg);color:var(--text);he
 .pw-strength{height:3px;border-radius:2px;margin-top:5px;transition:all 0.3s;}
 .pw-hint{font-size:10px;color:var(--text3);margin-top:4px;}
 
-/* ââ ì´ê¸° ë¡ë© ââ */
+/* Ã¢ÂÂÃ¢ÂÂ Ã¬Â´ÂÃªÂ¸Â° Ã«Â¡ÂÃ«ÂÂ© Ã¢ÂÂÃ¢ÂÂ */
 #initScreen{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;}
 .init-logo{font-size:40px;animation:pulse 1.5s ease-in-out infinite;margin-bottom:16px;}
 @keyframes pulse{0%,100%{transform:scale(1);opacity:1;}50%{transform:scale(1.1);opacity:0.7;}}
 #initScreen p{color:var(--text3);font-size:14px;}
 
-/* ââ APP ââ */
+/* Ã¢ÂÂÃ¢ÂÂ APP Ã¢ÂÂÃ¢ÂÂ */
 #app{display:none;height:100vh;flex-direction:column;}
 #app.visible{display:flex;}
 .app-header{height:var(--header-h);background:var(--bg2);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 20px;gap:16px;flex-shrink:0;z-index:100;}
@@ -91,7 +90,7 @@ body{font-family:'Segoe UI',sans-serif;background:var(--bg);color:var(--text);he
 .page.active{display:flex;flex-direction:column;}
 .page-inner{flex:1;overflow-y:auto;padding:24px;}
 
-/* ââ ëìë³´ë ââ */
+/* Ã¢ÂÂÃ¢ÂÂ Ã«ÂÂÃ¬ÂÂÃ«Â³Â´Ã«ÂÂ Ã¢ÂÂÃ¢ÂÂ */
 .kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px;}
 .kpi-card{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:18px 20px;position:relative;overflow:hidden;}
 .kpi-card::before{content:'';position:absolute;top:0;right:0;width:80px;height:80px;border-radius:50%;opacity:0.06;transform:translate(20px,-20px);}
@@ -107,7 +106,7 @@ body{font-family:'Segoe UI',sans-serif;background:var(--bg);color:var(--text);he
 .dash-card{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:20px;}
 .dash-card h3{font-size:13px;font-weight:700;margin-bottom:16px;}
 
-/* ââ ìºë¦°ë ââ */
+/* Ã¢ÂÂÃ¢ÂÂ Ã¬ÂºÂÃ«Â¦Â°Ã«ÂÂ Ã¢ÂÂÃ¢ÂÂ */
 .cal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
 .cal-nav{background:none;border:none;color:var(--text2);cursor:pointer;font-size:18px;padding:2px 8px;border-radius:6px;}
 .cal-nav:hover{background:var(--bg3);}
@@ -136,7 +135,7 @@ body{font-family:'Segoe UI',sans-serif;background:var(--bg);color:var(--text);he
 .alert-desc{font-size:11px;color:var(--text3);}
 .chart-wrap{position:relative;height:180px;}
 
-/* ââ íì´ë¸ ââ */
+/* Ã¢ÂÂÃ¢ÂÂ Ã­ÂÂÃ¬ÂÂ´Ã«Â¸Â Ã¢ÂÂÃ¢ÂÂ */
 .page-header{display:flex;align-items:center;gap:12px;margin-bottom:20px;flex-wrap:wrap;}
 .page-title{font-size:18px;font-weight:800;}
 .page-title span{font-size:13px;color:var(--text3);font-weight:400;margin-left:8px;}
@@ -165,7 +164,7 @@ tr:hover td{background:var(--bg3);}
 .btn-warn{background:#f59e0b11;border-color:#f59e0b33;color:var(--orange);}
 .btn-warn:hover{background:#f59e0b22;}
 
-/* ââ ì¬ì©ì ê´ë¦¬ ââ */
+/* Ã¢ÂÂÃ¢ÂÂ Ã¬ÂÂ¬Ã¬ÂÂ©Ã¬ÂÂ ÃªÂ´ÂÃ«Â¦Â¬ Ã¢ÂÂÃ¢ÂÂ */
 .user-status-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:600;}
 .badge-active{background:#4fcc7a18;color:var(--green);border:1px solid #4fcc7a33;}
 .badge-pending{background:#f59e0b18;color:var(--orange);border:1px solid #f59e0b33;}
@@ -174,7 +173,7 @@ tr:hover td{background:var(--bg3);}
 .role-admin{background:#4f9eff18;color:var(--blue);border:1px solid #4f9eff33;}
 .role-viewer{background:#a855f718;color:var(--purple);border:1px solid #a855f733;}
 
-/* ââ ì¸ë ¥ íí© ââ */
+/* Ã¢ÂÂÃ¢ÂÂ Ã¬ÂÂ¸Ã«Â Â¥ Ã­ÂÂÃ­ÂÂ© Ã¢ÂÂÃ¢ÂÂ */
 .resource-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
 .resource-card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:16px;}
 .rc-top{display:flex;align-items:center;gap:10px;margin-bottom:12px;}
@@ -187,7 +186,7 @@ tr:hover td{background:var(--bg3);}
 .rc-util{font-size:10px;font-weight:700;padding:1px 6px;border-radius:4px;}
 .conflict-badge{display:inline-flex;align-items:center;gap:4px;font-size:10px;color:var(--red);background:#ef444411;border:1px solid #ef444422;border-radius:6px;padding:3px 8px;margin-top:8px;}
 
-/* ââ ì§ë ââ */
+/* Ã¢ÂÂÃ¢ÂÂ Ã¬Â§ÂÃ«ÂÂ Ã¢ÂÂÃ¢ÂÂ */
 #theMap{width:100%;height:100%;}
 .map-filter-panel{position:absolute;top:16px;right:16px;z-index:999;background:var(--bg2);border:1px solid var(--border2);border-radius:12px;padding:14px;min-width:150px;box-shadow:0 8px 24px rgba(0,0,0,0.5);}
 .mfp-title{font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;}
@@ -244,7 +243,7 @@ tr:hover td{background:var(--bg3);}
 .team-toggle-btn.active{background:#4f9eff18;border-color:#4f9eff33;color:var(--blue);}
 .risk-pill{padding:3px 9px;border-radius:6px;font-size:10px;font-weight:600;}
 
-/* ââ ëª¨ë¬ ââ */
+/* Ã¢ÂÂÃ¢ÂÂ Ã«ÂªÂ¨Ã«ÂÂ¬ Ã¢ÂÂÃ¢ÂÂ */
 .modal-overlay{position:fixed;inset:0;background:#000000aa;z-index:2000;display:none;align-items:center;justify-content:center;}
 .modal-overlay.open{display:flex;}
 .modal{background:var(--bg2);border:1px solid var(--border2);border-radius:18px;padding:28px;width:620px;max-height:85vh;overflow-y:auto;box-shadow:0 24px 60px rgba(0,0,0,0.7);}
@@ -271,95 +270,95 @@ tr:hover td{background:var(--bg3);}
 </head>
 <body>
 
-<!-- ì´ê¸° ë¡ë© -->
+<!-- Ã¬Â´ÂÃªÂ¸Â° Ã«Â¡ÂÃ«ÂÂ© -->
 <div id="initScreen">
-  <div class="init-logo">ðº</div>
-  <p>ProjectMap Pro ë¡ë© ì¤...</p>
+  <div class="init-logo">Ã°ÂÂÂº</div>
+  <p>ProjectMap Pro Ã«Â¡ÂÃ«ÂÂ© Ã¬Â¤Â...</p>
 </div>
 
-<!-- ìµì´ ê´ë¦¬ì ì¤ì  -->
+<!-- Ã¬ÂµÂÃ¬Â´Â ÃªÂ´ÂÃ«Â¦Â¬Ã¬ÂÂ Ã¬ÂÂ¤Ã¬Â Â -->
 <div class="auth-screen" id="setupScreen" style="display:none">
   <div class="auth-box">
-    <div class="auth-logo"><div class="icon">ðº</div><h1>ì´ê¸° ì¤ì </h1><p>ê´ë¦¬ì ê³ì ì ìì±í´ì£¼ì¸ì</p></div>
-    <div class="auth-field"><label>ê´ë¦¬ì ì´ë¦</label><input id="setupName" type="text" placeholder="ì: ë°ê´í"/></div>
-    <div class="auth-field"><label>ì´ë©ì¼</label><input id="setupEmail" type="email" placeholder="admin@company.com"/></div>
-    <div class="auth-field"><label>ë¹ë°ë²í¸</label><input id="setupPw" type="password" placeholder="8ì ì´ì"/><div class="pw-strength" id="setupPwBar"></div><div class="pw-hint" id="setupPwHint"></div></div>
-    <div class="auth-field"><label>ë¹ë°ë²í¸ íì¸</label><input id="setupPw2" type="password" placeholder="ë¹ë°ë²í¸ ì¬ìë ¥"/></div>
-    <button class="auth-btn" onclick="doSetup()">ê´ë¦¬ì ê³ì  ìì±</button>
+    <div class="auth-logo"><div class="icon">Ã°ÂÂÂº</div><h1>Ã¬Â´ÂÃªÂ¸Â° Ã¬ÂÂ¤Ã¬Â Â</h1><p>ÃªÂ´ÂÃ«Â¦Â¬Ã¬ÂÂ ÃªÂ³ÂÃ¬Â ÂÃ¬ÂÂ Ã¬ÂÂÃ¬ÂÂ±Ã­ÂÂ´Ã¬Â£Â¼Ã¬ÂÂ¸Ã¬ÂÂ</p></div>
+    <div class="auth-field"><label>ÃªÂ´ÂÃ«Â¦Â¬Ã¬ÂÂ Ã¬ÂÂ´Ã«Â¦Â</label><input id="setupName" type="text" placeholder="Ã¬ÂÂ: Ã«Â°ÂÃªÂ´ÂÃ­ÂÂ"/></div>
+    <div class="auth-field"><label>Ã¬ÂÂ´Ã«Â©ÂÃ¬ÂÂ¼</label><input id="setupEmail" type="email" placeholder="admin@company.com"/></div>
+    <div class="auth-field"><label>Ã«Â¹ÂÃ«Â°ÂÃ«Â²ÂÃ­ÂÂ¸</label><input id="setupPw" type="password" placeholder="8Ã¬ÂÂ Ã¬ÂÂ´Ã¬ÂÂ"/><div class="pw-strength" id="setupPwBar"></div><div class="pw-hint" id="setupPwHint"></div></div>
+    <div class="auth-field"><label>Ã«Â¹ÂÃ«Â°ÂÃ«Â²ÂÃ­ÂÂ¸ Ã­ÂÂÃ¬ÂÂ¸</label><input id="setupPw2" type="password" placeholder="Ã«Â¹ÂÃ«Â°ÂÃ«Â²ÂÃ­ÂÂ¸ Ã¬ÂÂ¬Ã¬ÂÂÃ«Â Â¥"/></div>
+    <button class="auth-btn" onclick="doSetup()">ÃªÂ´ÂÃ«Â¦Â¬Ã¬ÂÂ ÃªÂ³ÂÃ¬Â Â Ã¬ÂÂÃ¬ÂÂ±</button>
     <div class="auth-err" id="setupErr"></div>
   </div>
 </div>
 
-<!-- ë¡ê·¸ì¸ / íìê°ì -->
+<!-- Ã«Â¡ÂÃªÂ·Â¸Ã¬ÂÂ¸ / Ã­ÂÂÃ¬ÂÂÃªÂ°ÂÃ¬ÂÂ -->
 <div class="auth-screen" id="loginScreen" style="display:none">
   <div class="auth-box">
-    <div class="auth-logo"><div class="icon">ðº</div><h1>ProjectMap Pro</h1><p>íë¡ì í¸ íí© íµí© ê´ë¦¬ íë«í¼</p></div>
+    <div class="auth-logo"><div class="icon">Ã°ÂÂÂº</div><h1>ProjectMap Pro</h1><p>Ã­ÂÂÃ«Â¡ÂÃ¬Â ÂÃ­ÂÂ¸ Ã­ÂÂÃ­ÂÂ© Ã­ÂÂµÃ­ÂÂ© ÃªÂ´ÂÃ«Â¦Â¬ Ã­ÂÂÃ«ÂÂ«Ã­ÂÂ¼</p></div>
 
-    <!-- í­ -->
+    <!-- Ã­ÂÂ­ -->
     <div style="display:flex;background:var(--bg);border-radius:10px;padding:4px;margin-bottom:20px;" id="authTabs">
-      <button id="tabLogin" onclick="switchTab('login')" style="flex:1;padding:7px;border:none;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;background:var(--bg2);color:var(--text);">ë¡ê·¸ì¸</button>
-      <button id="tabSignup" onclick="switchTab('signup')" style="flex:1;padding:7px;border:none;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;background:transparent;color:var(--text3);">íìê°ì</button>
+      <button id="tabLogin" onclick="switchTab('login')" style="flex:1;padding:7px;border:none;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;background:var(--bg2);color:var(--text);">Ã«Â¡ÂÃªÂ·Â¸Ã¬ÂÂ¸</button>
+      <button id="tabSignup" onclick="switchTab('signup')" style="flex:1;padding:7px;border:none;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;background:transparent;color:var(--text3);">Ã­ÂÂÃ¬ÂÂÃªÂ°ÂÃ¬ÂÂ</button>
     </div>
 
-    <!-- ë¡ê·¸ì¸ í¼ -->
+    <!-- Ã«Â¡ÂÃªÂ·Â¸Ã¬ÂÂ¸ Ã­ÂÂ¼ -->
     <div id="loginForm">
-      <div class="auth-field"><label>ì´ë©ì¼</label><input id="loginEmail" type="email" placeholder="ì´ë©ì¼ ìë ¥" onkeydown="if(event.key==='Enter')doLogin()"/></div>
-      <div class="auth-field"><label>ë¹ë°ë²í¸</label><input id="loginPw" type="password" placeholder="ë¹ë°ë²í¸ ìë ¥" onkeydown="if(event.key==='Enter')doLogin()"/></div>
-      <button class="auth-btn" onclick="doLogin()">ë¡ê·¸ì¸</button>
+      <div class="auth-field"><label>Ã¬ÂÂ´Ã«Â©ÂÃ¬ÂÂ¼</label><input id="loginEmail" type="email" placeholder="Ã¬ÂÂ´Ã«Â©ÂÃ¬ÂÂ¼ Ã¬ÂÂÃ«Â Â¥" onkeydown="if(event.key==='Enter')doLogin()"/></div>
+      <div class="auth-field"><label>Ã«Â¹ÂÃ«Â°ÂÃ«Â²ÂÃ­ÂÂ¸</label><input id="loginPw" type="password" placeholder="Ã«Â¹ÂÃ«Â°ÂÃ«Â²ÂÃ­ÂÂ¸ Ã¬ÂÂÃ«Â Â¥" onkeydown="if(event.key==='Enter')doLogin()"/></div>
+      <button class="auth-btn" onclick="doLogin()">Ã«Â¡ÂÃªÂ·Â¸Ã¬ÂÂ¸</button>
       <div class="auth-err" id="loginErr"></div>
-      <div class="auth-link" style="margin-top:10px"><a onclick="showForgot()">ë¹ë°ë²í¸ë¥¼ ìì¼ì¨ëì?</a></div>
+      <div class="auth-link" style="margin-top:10px"><a onclick="showForgot()">Ã«Â¹ÂÃ«Â°ÂÃ«Â²ÂÃ­ÂÂ¸Ã«Â¥Â¼ Ã¬ÂÂÃ¬ÂÂ¼Ã¬ÂÂ¨Ã«ÂÂÃ¬ÂÂ?</a></div>
     </div>
 
-    <!-- íìê°ì í¼ -->
+    <!-- Ã­ÂÂÃ¬ÂÂÃªÂ°ÂÃ¬ÂÂ Ã­ÂÂ¼ -->
     <div id="signupForm" style="display:none">
-      <div class="auth-field"><label>ì´ë¦</label><input id="signupName" type="text" placeholder="ì: ê¹ì² ì"/></div>
-      <div class="auth-field"><label>ì´ë©ì¼</label><input id="signupEmail" type="email" placeholder="ì´ë©ì¼ ìë ¥"/></div>
-      <div class="auth-field"><label>ë¹ë°ë²í¸</label><input id="signupPw" type="password" placeholder="8ì ì´ì" oninput="checkPwStrength(this.value,'signupPwBar','signupPwHint')"/><div class="pw-strength" id="signupPwBar"></div><div class="pw-hint" id="signupPwHint"></div></div>
-      <div class="auth-field"><label>ë¹ë°ë²í¸ íì¸</label><input id="signupPw2" type="password" placeholder="ë¹ë°ë²í¸ ì¬ìë ¥" onkeydown="if(event.key==='Enter')doSignup()"/></div>
-      <button class="auth-btn" onclick="doSignup()">ê°ìíê¸°</button>
+      <div class="auth-field"><label>Ã¬ÂÂ´Ã«Â¦Â</label><input id="signupName" type="text" placeholder="Ã¬ÂÂ: ÃªÂ¹ÂÃ¬Â²Â Ã¬ÂÂ"/></div>
+      <div class="auth-field"><label>Ã¬ÂÂ´Ã«Â©ÂÃ¬ÂÂ¼</label><input id="signupEmail" type="email" placeholder="Ã¬ÂÂ´Ã«Â©ÂÃ¬ÂÂ¼ Ã¬ÂÂÃ«Â Â¥"/></div>
+      <div class="auth-field"><label>Ã«Â¹ÂÃ«Â°ÂÃ«Â²ÂÃ­ÂÂ¸</label><input id="signupPw" type="password" placeholder="8Ã¬ÂÂ Ã¬ÂÂ´Ã¬ÂÂ" oninput="checkPwStrength(this.value,'signupPwBar','signupPwHint')"/><div class="pw-strength" id="signupPwBar"></div><div class="pw-hint" id="signupPwHint"></div></div>
+      <div class="auth-field"><label>Ã«Â¹ÂÃ«Â°ÂÃ«Â²ÂÃ­ÂÂ¸ Ã­ÂÂÃ¬ÂÂ¸</label><input id="signupPw2" type="password" placeholder="Ã«Â¹ÂÃ«Â°ÂÃ«Â²ÂÃ­ÂÂ¸ Ã¬ÂÂ¬Ã¬ÂÂÃ«Â Â¥" onkeydown="if(event.key==='Enter')doSignup()"/></div>
+      <button class="auth-btn" onclick="doSignup()">ÃªÂ°ÂÃ¬ÂÂÃ­ÂÂÃªÂ¸Â°</button>
       <div class="auth-err" id="signupErr"></div>
       <div class="auth-ok" id="signupOk"></div>
-      <p style="font-size:11px;color:var(--text3);margin-top:12px;text-align:center">ê°ì í <b style="color:var(--text2)">ì¼ë°ì§ì</b> ê¶íì¼ë¡ ììí©ëë¤.<br>ê´ë¦¬ì ê¶íì ê´ë¦¬ììê² ìì²­íì¸ì.</p>
+      <p style="font-size:11px;color:var(--text3);margin-top:12px;text-align:center">ÃªÂ°ÂÃ¬ÂÂ Ã­ÂÂ <b style="color:var(--text2)">Ã¬ÂÂ¼Ã«Â°ÂÃ¬Â§ÂÃ¬ÂÂ</b> ÃªÂ¶ÂÃ­ÂÂÃ¬ÂÂ¼Ã«Â¡Â Ã¬ÂÂÃ¬ÂÂÃ­ÂÂ©Ã«ÂÂÃ«ÂÂ¤.<br>ÃªÂ´ÂÃ«Â¦Â¬Ã¬ÂÂ ÃªÂ¶ÂÃ­ÂÂÃ¬ÂÂ ÃªÂ´ÂÃ«Â¦Â¬Ã¬ÂÂÃ¬ÂÂÃªÂ²Â Ã¬ÂÂÃ¬Â²Â­Ã­ÂÂÃ¬ÂÂ¸Ã¬ÂÂ.</p>
     </div>
 
-    <!-- ë¹ë°ë²í¸ ì°¾ê¸° í¼ -->
+    <!-- Ã«Â¹ÂÃ«Â°ÂÃ«Â²ÂÃ­ÂÂ¸ Ã¬Â°Â¾ÃªÂ¸Â° Ã­ÂÂ¼ -->
     <div id="forgotForm" style="display:none">
-      <p style="font-size:13px;color:var(--text2);margin-bottom:16px">ê°ìí ì´ë©ì¼ë¡ ë¹ë°ë²í¸ ì¬ì¤ì  ë§í¬ë¥¼ ë³´ë´ëë¦½ëë¤.</p>
-      <div class="auth-field"><label>ì´ë©ì¼</label><input id="forgotEmail" type="email" placeholder="ì´ë©ì¼ ìë ¥"/></div>
-      <button class="auth-btn" onclick="doForgot()">ì¬ì¤ì  ì´ë©ì¼ ë°ì¡</button>
+      <p style="font-size:13px;color:var(--text2);margin-bottom:16px">ÃªÂ°ÂÃ¬ÂÂÃ­ÂÂ Ã¬ÂÂ´Ã«Â©ÂÃ¬ÂÂ¼Ã«Â¡Â Ã«Â¹ÂÃ«Â°ÂÃ«Â²ÂÃ­ÂÂ¸ Ã¬ÂÂ¬Ã¬ÂÂ¤Ã¬Â Â Ã«Â§ÂÃ­ÂÂ¬Ã«Â¥Â¼ Ã«Â³Â´Ã«ÂÂ´Ã«ÂÂÃ«Â¦Â½Ã«ÂÂÃ«ÂÂ¤.</p>
+      <div class="auth-field"><label>Ã¬ÂÂ´Ã«Â©ÂÃ¬ÂÂ¼</label><input id="forgotEmail" type="email" placeholder="Ã¬ÂÂ´Ã«Â©ÂÃ¬ÂÂ¼ Ã¬ÂÂÃ«Â Â¥"/></div>
+      <button class="auth-btn" onclick="doForgot()">Ã¬ÂÂ¬Ã¬ÂÂ¤Ã¬Â Â Ã¬ÂÂ´Ã«Â©ÂÃ¬ÂÂ¼ Ã«Â°ÂÃ¬ÂÂ¡</button>
       <div class="auth-err" id="forgotErr"></div>
       <div class="auth-ok" id="forgotOk"></div>
-      <div class="auth-link"><a onclick="switchTab('login')">â ë¡ê·¸ì¸ì¼ë¡ ëìê°ê¸°</a></div>
+      <div class="auth-link"><a onclick="switchTab('login')">Ã¢ÂÂ Ã«Â¡ÂÃªÂ·Â¸Ã¬ÂÂ¸Ã¬ÂÂ¼Ã«Â¡Â Ã«ÂÂÃ¬ÂÂÃªÂ°ÂÃªÂ¸Â°</a></div>
     </div>
   </div>
 </div>
 
-<!-- ë¹ë°ë²í¸ ë³ê²½ (ìµì´ ë¡ê·¸ì¸) -->
+<!-- Ã«Â¹ÂÃ«Â°ÂÃ«Â²ÂÃ­ÂÂ¸ Ã«Â³ÂÃªÂ²Â½ (Ã¬ÂµÂÃ¬Â´Â Ã«Â¡ÂÃªÂ·Â¸Ã¬ÂÂ¸) -->
 <div class="auth-screen" id="changePwScreen" style="display:none">
   <div class="auth-box">
-    <div class="auth-logo"><div class="icon">ð</div><h1>ë¹ë°ë²í¸ ì¤ì </h1><p>ì²ì ë¡ê·¸ì¸íì¨ìµëë¤. ì ë¹ë°ë²í¸ë¥¼ ì¤ì í´ì£¼ì¸ì.</p></div>
-    <div class="auth-field"><label>ì ë¹ë°ë²í¸</label><input id="newPw" type="password" placeholder="8ì ì´ì" oninput="checkPwStrength(this.value,'newPwBar','newPwHint')"/><div class="pw-strength" id="newPwBar"></div><div class="pw-hint" id="newPwHint"></div></div>
-    <div class="auth-field"><label>ë¹ë°ë²í¸ íì¸</label><input id="newPw2" type="password" placeholder="ë¹ë°ë²í¸ ì¬ìë ¥"/></div>
-    <button class="auth-btn" onclick="doChangePw()">ë¹ë°ë²í¸ ì¤ì  ìë£</button>
+    <div class="auth-logo"><div class="icon">Ã°ÂÂÂ</div><h1>Ã«Â¹ÂÃ«Â°ÂÃ«Â²ÂÃ­ÂÂ¸ Ã¬ÂÂ¤Ã¬Â Â</h1><p>Ã¬Â²ÂÃ¬ÂÂ Ã«Â¡ÂÃªÂ·Â¸Ã¬ÂÂ¸Ã­ÂÂÃ¬ÂÂ¨Ã¬ÂÂµÃ«ÂÂÃ«ÂÂ¤. Ã¬ÂÂ Ã«Â¹ÂÃ«Â°ÂÃ«Â²ÂÃ­ÂÂ¸Ã«Â¥Â¼ Ã¬ÂÂ¤Ã¬Â ÂÃ­ÂÂ´Ã¬Â£Â¼Ã¬ÂÂ¸Ã¬ÂÂ.</p></div>
+    <div class="auth-field"><label>Ã¬ÂÂ Ã«Â¹ÂÃ«Â°ÂÃ«Â²ÂÃ­ÂÂ¸</label><input id="newPw" type="password" placeholder="8Ã¬ÂÂ Ã¬ÂÂ´Ã¬ÂÂ" oninput="checkPwStrength(this.value,'newPwBar','newPwHint')"/><div class="pw-strength" id="newPwBar"></div><div class="pw-hint" id="newPwHint"></div></div>
+    <div class="auth-field"><label>Ã«Â¹ÂÃ«Â°ÂÃ«Â²ÂÃ­ÂÂ¸ Ã­ÂÂÃ¬ÂÂ¸</label><input id="newPw2" type="password" placeholder="Ã«Â¹ÂÃ«Â°ÂÃ«Â²ÂÃ­ÂÂ¸ Ã¬ÂÂ¬Ã¬ÂÂÃ«Â Â¥"/></div>
+    <button class="auth-btn" onclick="doChangePw()">Ã«Â¹ÂÃ«Â°ÂÃ«Â²ÂÃ­ÂÂ¸ Ã¬ÂÂ¤Ã¬Â Â Ã¬ÂÂÃ«Â£Â</button>
     <div class="auth-err" id="changePwErr"></div>
   </div>
 </div>
 
-<!-- ì± -->
+<!-- Ã¬ÂÂ± -->
 <div id="app">
   <header class="app-header">
-    <div class="app-logo"><div class="icon">ðº</div><h1>ProjectMap</h1><span class="ver">Pro</span><span class="sync-ok" id="syncIndicator">â ì¤ìê° ì°ê²°</span></div>
-    <div class="header-search"><input type="text" placeholder="ð  íë¡ì í¸Â·ê³ ê°ì¬Â·ë©¤ë² ê²ì..." id="globalSearch" oninput="onGlobalSearch(this.value)"/></div>
+    <div class="app-logo"><div class="icon">Ã°ÂÂÂº</div><h1>ProjectMap</h1><span class="ver">Pro</span><span class="sync-ok" id="syncIndicator">Ã¢ÂÂ Ã¬ÂÂ¤Ã¬ÂÂÃªÂ°Â Ã¬ÂÂ°ÃªÂ²Â°</span></div>
+    <div class="header-search"><input type="text" placeholder="Ã°ÂÂÂ  Ã­ÂÂÃ«Â¡ÂÃ¬Â ÂÃ­ÂÂ¸ÃÂ·ÃªÂ³Â ÃªÂ°ÂÃ¬ÂÂ¬ÃÂ·Ã«Â©Â¤Ã«Â²Â ÃªÂ²ÂÃ¬ÂÂ..." id="globalSearch" oninput="onGlobalSearch(this.value)"/></div>
     <div class="header-right">
-      <button class="notif-btn" onclick="goPage('dashboard')">ð<span class="notif-dot" id="notifDot" style="display:none"></span></button>
+      <button class="notif-btn" onclick="goPage('dashboard')">Ã°ÂÂÂ<span class="notif-dot" id="notifDot" style="display:none"></span></button>
       <div class="user-chip" id="userChip" onclick="toggleUserMenu()">
         <div class="user-avatar" id="userAvatar">?</div>
         <div><div class="user-name" id="userName"></div><div class="user-role" id="userRoleLabel"></div></div>
-        <span style="font-size:10px;color:var(--text3);margin-left:2px">â¾</span>
+        <span style="font-size:10px;color:var(--text3);margin-left:2px">Ã¢ÂÂ¾</span>
         <div class="user-menu" id="userMenu">
           <div class="user-menu-inner">
-            <div class="user-menu-item" onclick="showChangePwModal()">ð ë¹ë°ë²í¸ ë³ê²½</div>
-            <div class="user-menu-item danger" onclick="doLogout()">ðª ë¡ê·¸ìì</div>
+            <div class="user-menu-item" onclick="showChangePwModal()">Ã°ÂÂÂ Ã«Â¹ÂÃ«Â°ÂÃ«Â²ÂÃ­ÂÂ¸ Ã«Â³ÂÃªÂ²Â½</div>
+            <div class="user-menu-item danger" onclick="doLogout()">Ã°ÂÂÂª Ã«Â¡ÂÃªÂ·Â¸Ã¬ÂÂÃ¬ÂÂ</div>
           </div>
         </div>
       </div>
@@ -368,89 +367,89 @@ tr:hover td{background:var(--bg3);}
   <div class="app-body">
     <nav class="sidebar">
       <div class="nav-section">
-        <div class="nav-label">ë©ì¸</div>
-        <button class="nav-item active" onclick="goPage('dashboard')" id="nav-dashboard"><span class="nav-icon">ð</span> ëìë³´ë</button>
-        <button class="nav-item" onclick="goPage('map')" id="nav-map"><span class="nav-icon">ðº</span> íë¡ì í¸ ì§ë</button>
-        <button class="nav-item" onclick="goPage('projects')" id="nav-projects"><span class="nav-icon">ð</span> íë¡ì í¸ ëª©ë¡</button>
-        <button class="nav-item" onclick="goPage('resources')" id="nav-resources"><span class="nav-icon">ð¥</span> ì¸ë ¥ íí©<span class="nav-badge" id="conflictBadge" style="display:none">!</span></button>
-        <button class="nav-item" onclick="goPage('users')" id="nav-users" style="display:none"><span class="nav-icon">âï¸</span> ì¬ì©ì ê´ë¦¬</button>
+        <div class="nav-label">Ã«Â©ÂÃ¬ÂÂ¸</div>
+        <button class="nav-item active" onclick="goPage('dashboard')" id="nav-dashboard"><span class="nav-icon">Ã°ÂÂÂ</span> Ã«ÂÂÃ¬ÂÂÃ«Â³Â´Ã«ÂÂ</button>
+        <button class="nav-item" onclick="goPage('map')" id="nav-map"><span class="nav-icon">Ã°ÂÂÂº</span> Ã­ÂÂÃ«Â¡ÂÃ¬Â ÂÃ­ÂÂ¸ Ã¬Â§ÂÃ«ÂÂ</button>
+        <button class="nav-item" onclick="goPage('projects')" id="nav-projects"><span class="nav-icon">Ã°ÂÂÂ</span> Ã­ÂÂÃ«Â¡ÂÃ¬Â ÂÃ­ÂÂ¸ Ã«ÂªÂ©Ã«Â¡Â</button>
+        <button class="nav-item" onclick="goPage('resources')" id="nav-resources"><span class="nav-icon">Ã°ÂÂÂ¥</span> Ã¬ÂÂ¸Ã«Â Â¥ Ã­ÂÂÃ­ÂÂ©<span class="nav-badge" id="conflictBadge" style="display:none">!</span></button>
+        <button class="nav-item" onclick="goPage('users')" id="nav-users" style="display:none"><span class="nav-icon">Ã¢ÂÂÃ¯Â¸Â</span> Ã¬ÂÂ¬Ã¬ÂÂ©Ã¬ÂÂ ÃªÂ´ÂÃ«Â¦Â¬</button>
       </div>
-      <div class="sidebar-bottom"><button class="nav-item" onclick="doLogout()" style="color:var(--text3)"><span class="nav-icon">ðª</span> ë¡ê·¸ìì</button></div>
+      <div class="sidebar-bottom"><button class="nav-item" onclick="doLogout()" style="color:var(--text3)"><span class="nav-icon">Ã°ÂÂÂª</span> Ã«Â¡ÂÃªÂ·Â¸Ã¬ÂÂÃ¬ÂÂ</button></div>
     </nav>
     <div class="content">
 
-      <!-- ëìë³´ë -->
+      <!-- Ã«ÂÂÃ¬ÂÂÃ«Â³Â´Ã«ÂÂ -->
       <div class="page active" id="page-dashboard"><div class="page-inner">
         <div class="kpi-grid" id="kpiGrid"></div>
         <div class="dash-grid">
           <div style="display:flex;flex-direction:column;gap:16px;height:100%;">
-            <div class="dash-card"><h3>ð ìíë³ íí©</h3><div class="chart-wrap"><canvas id="statusChart"></canvas></div></div>
-            <div class="dash-card" style="flex:1;display:flex;flex-direction:column;"><h3>ð íë¡ì í¸ ìºë¦°ë</h3>
+            <div class="dash-card"><h3>Ã°ÂÂÂ Ã¬ÂÂÃ­ÂÂÃ«Â³Â Ã­ÂÂÃ­ÂÂ©</h3><div class="chart-wrap"><canvas id="statusChart"></canvas></div></div>
+            <div class="dash-card" style="flex:1;display:flex;flex-direction:column;"><h3>Ã°ÂÂÂ Ã­ÂÂÃ«Â¡ÂÃ¬Â ÂÃ­ÂÂ¸ Ã¬ÂºÂÃ«Â¦Â°Ã«ÂÂ</h3>
               <div class="cal-header">
-                <button class="cal-nav" onclick="calPrev()">â¹</button>
+                <button class="cal-nav" onclick="calPrev()">Ã¢ÂÂ¹</button>
                 <span class="cal-title" id="calTitle"></span>
-                <button class="cal-nav" onclick="calNext()">âº</button>
+                <button class="cal-nav" onclick="calNext()">Ã¢ÂÂº</button>
               </div>
               <div class="cal-grid" id="calGrid"></div>
               <div id="calMonthlyList" style="display:none;margin-top:10px;padding:10px 12px;background:var(--bg);border-radius:8px;border:1px solid var(--border);"></div>
               <div class="cal-legend">
-                <span><div class="cal-legend-dot" style="background:#4f9eff"></div>ìì</span>
-                <span><div class="cal-legend-dot" style="background:#a855f7"></div>ì¤í</span>
-                <span><div class="cal-legend-dot" style="background:#ef4444"></div>ì¢ë£</span>
+                <span><div class="cal-legend-dot" style="background:#4f9eff"></div>Ã¬ÂÂÃ¬ÂÂ</span>
+                <span><div class="cal-legend-dot" style="background:#a855f7"></div>Ã¬ÂÂ¤Ã­ÂÂ</span>
+                <span><div class="cal-legend-dot" style="background:#ef4444"></div>Ã¬Â¢ÂÃ«Â£Â</span>
               </div>
             </div>
           </div>
-          <div class="dash-card" style="display:flex;flex-direction:column;"><h3>â¡ ìë¦¼ ì¼í°</h3><div class="alert-list" id="alertList" style="flex:1;overflow-y:auto;max-height:none;"></div></div>
+          <div class="dash-card" style="display:flex;flex-direction:column;"><h3>Ã¢ÂÂ¡ Ã¬ÂÂÃ«Â¦Â¼ Ã¬ÂÂ¼Ã­ÂÂ°</h3><div class="alert-list" id="alertList" style="flex:1;overflow-y:auto;max-height:none;"></div></div>
         </div>
-        <div class="dash-card"><h3>ð ì§íë¥  íí©</h3><div id="progressBars" style="margin-top:8px"></div></div>
+        <div class="dash-card"><h3>Ã°ÂÂÂ Ã¬Â§ÂÃ­ÂÂÃ«Â¥Â  Ã­ÂÂÃ­ÂÂ©</h3><div id="progressBars" style="margin-top:8px"></div></div>
       </div></div>
 
-      <!-- ì§ë -->
+      <!-- Ã¬Â§ÂÃ«ÂÂ -->
       <div class="page" id="page-map" style="display:none;flex-direction:column;"><div style="flex:1;position:relative;">
         <div id="theMap"></div>
         <div class="map-filter-panel">
-          <div class="mfp-title">ìí íí°</div>
-          <button class="mfp-btn active" onclick="mapFilter('all',this)"><span class="mfp-dot" style="background:var(--blue)"></span>ì ì²´</button>
-          <button class="mfp-btn" onclick="mapFilter('dev',this)" style="color:var(--blue)"><span class="mfp-dot" style="background:var(--blue)"></span>ê°ë° ì¤</button>
-          <button class="mfp-btn" onclick="mapFilter('test',this)" style="color:var(--green)"><span class="mfp-dot" style="background:var(--green)"></span>íì¤í¸</button>
-          <button class="mfp-btn" onclick="mapFilter('stable',this)" style="color:var(--purple)"><span class="mfp-dot" style="background:var(--purple)"></span>ì´ììì í</button>
-          <button class="mfp-btn" onclick="mapFilter('plan',this)" style="color:var(--orange)"><span class="mfp-dot" style="background:var(--orange)"></span>ì¤ê³</button>
-          <button class="mfp-btn" onclick="mapFilter('done',this)" style="color:var(--gray)"><span class="mfp-dot" style="background:var(--gray)"></span>ì¢ë£</button>
+          <div class="mfp-title">Ã¬ÂÂÃ­ÂÂ Ã­ÂÂÃ­ÂÂ°</div>
+          <button class="mfp-btn active" onclick="mapFilter('all',this)"><span class="mfp-dot" style="background:var(--blue)"></span>Ã¬Â ÂÃ¬Â²Â´</button>
+          <button class="mfp-btn" onclick="mapFilter('dev',this)" style="color:var(--blue)"><span class="mfp-dot" style="background:var(--blue)"></span>ÃªÂ°ÂÃ«Â°Â Ã¬Â¤Â</button>
+          <button class="mfp-btn" onclick="mapFilter('test',this)" style="color:var(--green)"><span class="mfp-dot" style="background:var(--green)"></span>Ã­ÂÂÃ¬ÂÂ¤Ã­ÂÂ¸</button>
+          <button class="mfp-btn" onclick="mapFilter('stable',this)" style="color:var(--purple)"><span class="mfp-dot" style="background:var(--purple)"></span>Ã¬ÂÂ´Ã¬ÂÂÃ¬ÂÂÃ¬Â ÂÃ­ÂÂ</button>
+          <button class="mfp-btn" onclick="mapFilter('plan',this)" style="color:var(--orange)"><span class="mfp-dot" style="background:var(--orange)"></span>Ã¬ÂÂ¤ÃªÂ³Â</button>
+          <button class="mfp-btn" onclick="mapFilter('done',this)" style="color:var(--gray)"><span class="mfp-dot" style="background:var(--gray)"></span>Ã¬Â¢ÂÃ«Â£Â</button>
         </div>
       </div></div>
 
-      <!-- íë¡ì í¸ ëª©ë¡ -->
+      <!-- Ã­ÂÂÃ«Â¡ÂÃ¬Â ÂÃ­ÂÂ¸ Ã«ÂªÂ©Ã«Â¡Â -->
       <div class="page" id="page-projects" style="display:none;flex-direction:column;"><div class="page-inner">
         <div class="page-header">
-          <div class="page-title">íë¡ì í¸ ëª©ë¡ <span id="projCount"></span></div>
+          <div class="page-title">Ã­ÂÂÃ«Â¡ÂÃ¬Â ÂÃ­ÂÂ¸ Ã«ÂªÂ©Ã«Â¡Â <span id="projCount"></span></div>
           <div style="display:flex;gap:8px;margin-left:auto;flex-wrap:wrap;">
-            <button class="btn-secondary admin-only" onclick="downloadTemplate()">ð ìì ë¤ì´ë¡ë</button>
-            <button class="btn-green admin-only" onclick="downloadExcel()">â¬ ìì ë¤ì´ë¡ë</button>
-            <button class="btn-green admin-only" onclick="document.getElementById('excelFileInput').click()">â¬ ìì ìë¡ë</button>
+            <button class="btn-secondary admin-only" onclick="downloadTemplate()">Ã°ÂÂÂ Ã¬ÂÂÃ¬ÂÂ Ã«ÂÂ¤Ã¬ÂÂ´Ã«Â¡ÂÃ«ÂÂ</button>
+            <button class="btn-green admin-only" onclick="downloadExcel()">Ã¢Â¬Â Ã¬ÂÂÃ¬ÂÂ Ã«ÂÂ¤Ã¬ÂÂ´Ã«Â¡ÂÃ«ÂÂ</button>
+            <button class="btn-green admin-only" onclick="document.getElementById('excelFileInput').click()">Ã¢Â¬Â Ã¬ÂÂÃ¬ÂÂ Ã¬ÂÂÃ«Â¡ÂÃ«ÂÂ</button>
             <input type="file" id="excelFileInput" accept=".xlsx,.xls" style="display:none" onchange="uploadExcel(event)"/>
-            <button class="btn-primary admin-only" onclick="openProjModal()">ï¼ ì¶ê°</button>
+            <button class="btn-primary admin-only" onclick="openProjModal()">Ã¯Â¼Â Ã¬Â¶ÂÃªÂ°Â</button>
           </div>
         </div>
         <div class="table-wrap"><table>
-          <thead><tr><th>íë¡ì í¸ëª</th><th>ê³ ê°ì¬</th><th>PM</th><th>ìí</th><th>ê¸°ê°</th><th>ì¸ì</th><th>ì§íë¥ </th><th class="admin-only">ìíë</th><th class="admin-only">ê³ì½ê·ëª¨</th><th class="admin-only">ìµì¢ ìì </th><th class="admin-only">ê´ë¦¬</th></tr></thead>
+          <thead><tr><th>Ã­ÂÂÃ«Â¡ÂÃ¬Â ÂÃ­ÂÂ¸Ã«ÂªÂ</th><th>ÃªÂ³Â ÃªÂ°ÂÃ¬ÂÂ¬</th><th>PM</th><th>Ã¬ÂÂÃ­ÂÂ</th><th>ÃªÂ¸Â°ÃªÂ°Â</th><th>Ã¬ÂÂ¸Ã¬ÂÂ</th><th>Ã¬Â§ÂÃ­ÂÂÃ«Â¥Â </th><th class="admin-only">Ã¬ÂÂÃ­ÂÂÃ«ÂÂ</th><th class="admin-only">ÃªÂ³ÂÃ¬ÂÂ½ÃªÂ·ÂÃ«ÂªÂ¨</th><th class="admin-only">Ã¬ÂµÂÃ¬Â¢Â Ã¬ÂÂÃ¬Â Â</th><th class="admin-only">ÃªÂ´ÂÃ«Â¦Â¬</th></tr></thead>
           <tbody id="projTable"></tbody>
         </table></div>
       </div></div>
 
-      <!-- ì¸ë ¥ íí© -->
+      <!-- Ã¬ÂÂ¸Ã«Â Â¥ Ã­ÂÂÃ­ÂÂ© -->
       <div class="page" id="page-resources" style="display:none;flex-direction:column;"><div class="page-inner">
-        <div class="page-header"><div class="page-title">ì¸ë ¥ íí© <span id="resCount"></span></div></div>
+        <div class="page-header"><div class="page-title">Ã¬ÂÂ¸Ã«Â Â¥ Ã­ÂÂÃ­ÂÂ© <span id="resCount"></span></div></div>
         <div class="resource-grid" id="resourceGrid"></div>
       </div></div>
 
-      <!-- ì¬ì©ì ê´ë¦¬ (ê´ë¦¬ì ì ì©) -->
+      <!-- Ã¬ÂÂ¬Ã¬ÂÂ©Ã¬ÂÂ ÃªÂ´ÂÃ«Â¦Â¬ (ÃªÂ´ÂÃ«Â¦Â¬Ã¬ÂÂ Ã¬Â ÂÃ¬ÂÂ©) -->
       <div class="page" id="page-users" style="display:none;flex-direction:column;"><div class="page-inner">
         <div class="page-header">
-          <div class="page-title">ì¬ì©ì ê´ë¦¬ <span id="userCount"></span></div>
-          <button class="btn-primary" onclick="openAddUserModal()" style="margin-left:auto">ï¼ ì¬ì©ì ì´ë</button>
+          <div class="page-title">Ã¬ÂÂ¬Ã¬ÂÂ©Ã¬ÂÂ ÃªÂ´ÂÃ«Â¦Â¬ <span id="userCount"></span></div>
+          <button class="btn-primary" onclick="openAddUserModal()" style="margin-left:auto">Ã¯Â¼Â Ã¬ÂÂ¬Ã¬ÂÂ©Ã¬ÂÂ Ã¬Â´ÂÃ«ÂÂ</button>
         </div>
         <div class="table-wrap"><table>
-          <thead><tr><th>ì´ë¦</th><th>ì´ë©ì¼</th><th>ì­í </th><th>ìí</th><th>ê°ìì¼</th><th>ê´ë¦¬</th></tr></thead>
+          <thead><tr><th>Ã¬ÂÂ´Ã«Â¦Â</th><th>Ã¬ÂÂ´Ã«Â©ÂÃ¬ÂÂ¼</th><th>Ã¬ÂÂ­Ã­ÂÂ </th><th>Ã¬ÂÂÃ­ÂÂ</th><th>ÃªÂ°ÂÃ¬ÂÂÃ¬ÂÂ¼</th><th>ÃªÂ´ÂÃ«Â¦Â¬</th></tr></thead>
           <tbody id="usersTable"></tbody>
         </table></div>
       </div></div>
@@ -459,131 +458,131 @@ tr:hover td{background:var(--bg3);}
   </div>
 </div>
 
-<!-- íë¡ì í¸ ëª¨ë¬ -->
+<!-- Ã­ÂÂÃ«Â¡ÂÃ¬Â ÂÃ­ÂÂ¸ Ã«ÂªÂ¨Ã«ÂÂ¬ -->
 <div class="modal-overlay" id="projModalOverlay">
   <div class="modal">
-    <h2 id="projModalTitle">íë¡ì í¸ ì¶ê°</h2>
+    <h2 id="projModalTitle">Ã­ÂÂÃ«Â¡ÂÃ¬Â ÂÃ­ÂÂ¸ Ã¬Â¶ÂÃªÂ°Â</h2>
     <div class="form-grid">
       <input type="hidden" id="fId"/>
-      <div class="form-group form-full"><label>íë¡ì í¸ëª</label><input id="fName" placeholder="ì: ì°ë¦¬ì¹´ë íµí©ë¨ë§ ì¬êµ¬ì¶"/></div>
-      <div class="form-group"><label>ê³ ê°ì¬</label><input id="fClient"/></div>
-      <div class="form-group"><label>PM</label><input id="fPm" placeholder="ì: ê¹ì í ìë¬´"/></div>
+      <div class="form-group form-full"><label>Ã­ÂÂÃ«Â¡ÂÃ¬Â ÂÃ­ÂÂ¸Ã«ÂªÂ</label><input id="fName" placeholder="Ã¬ÂÂ: Ã¬ÂÂ°Ã«Â¦Â¬Ã¬Â¹Â´Ã«ÂÂ Ã­ÂÂµÃ­ÂÂ©Ã«ÂÂ¨Ã«Â§Â Ã¬ÂÂ¬ÃªÂµÂ¬Ã¬Â¶Â"/></div>
+      <div class="form-group"><label>ÃªÂ³Â ÃªÂ°ÂÃ¬ÂÂ¬</label><input id="fClient"/></div>
+      <div class="form-group"><label>PM</label><input id="fPm" placeholder="Ã¬ÂÂ: ÃªÂ¹ÂÃ¬Â ÂÃ­ÂÂ Ã¬ÂÂÃ«Â¬Â´"/></div>
       <div class="form-group" style="grid-column:1/-1">
-        <label>ìì¹ (ì£¼ì ê²ì)</label>
+        <label>Ã¬ÂÂÃ¬Â¹Â (Ã¬Â£Â¼Ã¬ÂÂ ÃªÂ²ÂÃ¬ÂÂ)</label>
         <div style="display:flex;gap:8px;">
-          <input id="fLocation" placeholder="ì: ìì¸ ì¬ìë êµ­ì ê¸ìµì¼í°" onkeydown="if(event.key==='Enter'){event.preventDefault();searchAddress();}" style="flex:1"/>
-          <button type="button" onclick="searchAddress()" style="background:var(--blue);border:none;color:#fff;padding:0 16px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;">ð ê²ì</button>
+          <input id="fLocation" placeholder="Ã¬ÂÂ: Ã¬ÂÂÃ¬ÂÂ¸ Ã¬ÂÂ¬Ã¬ÂÂÃ«ÂÂ ÃªÂµÂ­Ã¬Â ÂÃªÂ¸ÂÃ¬ÂÂµÃ¬ÂÂ¼Ã­ÂÂ°" onkeydown="if(event.key==='Enter'){event.preventDefault();searchAddress();}" style="flex:1"/>
+          <button type="button" onclick="searchAddress()" style="background:var(--blue);border:none;color:#fff;padding:0 16px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;">Ã°ÂÂÂ ÃªÂ²ÂÃ¬ÂÂ</button>
         </div>
         <div id="addrSearchResult" style="display:none;margin-top:6px;background:var(--bg);border:1px solid var(--border2);border-radius:8px;overflow:hidden;max-height:160px;overflow-y:auto;"></div>
         <div style="display:flex;gap:8px;margin-top:6px;">
-          <input id="fLat" placeholder="ìë (ìëìë ¥)" style="flex:1;font-size:12px;"/>
-          <input id="fLng" placeholder="ê²½ë (ìëìë ¥)" style="flex:1;font-size:12px;"/>
+          <input id="fLat" placeholder="Ã¬ÂÂÃ«ÂÂ (Ã¬ÂÂÃ«ÂÂÃ¬ÂÂÃ«Â Â¥)" style="flex:1;font-size:12px;"/>
+          <input id="fLng" placeholder="ÃªÂ²Â½Ã«ÂÂ (Ã¬ÂÂÃ«ÂÂÃ¬ÂÂÃ«Â Â¥)" style="flex:1;font-size:12px;"/>
         </div>
       </div>
-      <div class="form-group"><label>ìí <span style="font-size:10px;color:var(--text3)">(ë§ì¼ì¤í¤ ìì ëë§ ì ì©)</span></label><select id="fStatus"><option value="plan">ì¤ê³</option><option value="dev">ê°ë° ì¤</option><option value="test">íì¤í¸</option><option value="stable">ì´ììì í</option><option value="done">ì¢ë£</option></select></div>
-      <div class="form-group"><label>ìíë</label><select id="fRisk"><option value="low">ë®ì</option><option value="mid">ë³´íµ</option><option value="high">ëì</option></select></div>
-      <div class="form-group"><label>ììì¼</label><input id="fStart" placeholder="2025.03.15"/></div>
-      <div class="form-group"><label>ì¢ë£ì¼ (ê³ì½)</label><input id="fEnd" placeholder="2026.12.31"/></div>
+      <div class="form-group"><label>Ã¬ÂÂÃ­ÂÂ <span style="font-size:10px;color:var(--text3)">(Ã«Â§ÂÃ¬ÂÂ¼Ã¬ÂÂ¤Ã­ÂÂ¤ Ã¬ÂÂÃ¬ÂÂ Ã«ÂÂÃ«Â§Â Ã¬Â ÂÃ¬ÂÂ©)</span></label><select id="fStatus"><option value="plan">Ã¬ÂÂ¤ÃªÂ³Â</option><option value="dev">ÃªÂ°ÂÃ«Â°Â Ã¬Â¤Â</option><option value="test">Ã­ÂÂÃ¬ÂÂ¤Ã­ÂÂ¸</option><option value="stable">Ã¬ÂÂ´Ã¬ÂÂÃ¬ÂÂÃ¬Â ÂÃ­ÂÂ</option><option value="done">Ã¬Â¢ÂÃ«Â£Â</option></select></div>
+      <div class="form-group"><label>Ã¬ÂÂÃ­ÂÂÃ«ÂÂ</label><select id="fRisk"><option value="low">Ã«ÂÂ®Ã¬ÂÂ</option><option value="mid">Ã«Â³Â´Ã­ÂÂµ</option><option value="high">Ã«ÂÂÃ¬ÂÂ</option></select></div>
+      <div class="form-group"><label>Ã¬ÂÂÃ¬ÂÂÃ¬ÂÂ¼</label><input id="fStart" placeholder="2025.03.15"/></div>
+      <div class="form-group"><label>Ã¬Â¢ÂÃ«Â£ÂÃ¬ÂÂ¼ (ÃªÂ³ÂÃ¬ÂÂ½)</label><input id="fEnd" placeholder="2026.12.31"/></div>
       <div style="background:var(--bg);border:1px solid var(--border2);border-radius:10px;padding:12px 14px;margin-bottom:4px;">
-        <div style="font-size:11px;color:var(--blue);font-weight:700;margin-bottom:10px;">ð ë¨ê³ë³ ë§ì¼ì¤í¤ (ìë ¥ ì ìí ìë ê³ì°)</div>
+        <div style="font-size:11px;color:var(--blue);font-weight:700;margin-bottom:10px;">Ã°ÂÂÂ Ã«ÂÂ¨ÃªÂ³ÂÃ«Â³Â Ã«Â§ÂÃ¬ÂÂ¼Ã¬ÂÂ¤Ã­ÂÂ¤ (Ã¬ÂÂÃ«Â Â¥ Ã¬ÂÂ Ã¬ÂÂÃ­ÂÂ Ã¬ÂÂÃ«ÂÂ ÃªÂ³ÂÃ¬ÂÂ°)</div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
-          <div class="form-group" style="margin:0"><label>ì¤ê³ ìë£ì¼</label><input id="fDesignEnd" placeholder="2025.05.30" oninput="updateAutoStatusPreview()"/></div>
-          <div class="form-group" style="margin:0"><label>ê°ë° ìë£ì¼</label><input id="fDevEnd" placeholder="2026.03.31" oninput="updateAutoStatusPreview()"/></div>
-          <div class="form-group" style="margin:0"><label>íì¤í¸ ìë£ì¼</label><input id="fTestEnd" placeholder="2026.05.31" oninput="updateAutoStatusPreview()"/></div>
-          <div class="form-group" style="margin:0"><label>ì¤íì¼ ð</label><input id="fOpenDate" placeholder="2026.06.01" oninput="updateAutoStatusPreview()"/></div>
+          <div class="form-group" style="margin:0"><label>Ã¬ÂÂ¤ÃªÂ³Â Ã¬ÂÂÃ«Â£ÂÃ¬ÂÂ¼</label><input id="fDesignEnd" placeholder="2025.05.30" oninput="updateAutoStatusPreview()"/></div>
+          <div class="form-group" style="margin:0"><label>ÃªÂ°ÂÃ«Â°Â Ã¬ÂÂÃ«Â£ÂÃ¬ÂÂ¼</label><input id="fDevEnd" placeholder="2026.03.31" oninput="updateAutoStatusPreview()"/></div>
+          <div class="form-group" style="margin:0"><label>Ã­ÂÂÃ¬ÂÂ¤Ã­ÂÂ¸ Ã¬ÂÂÃ«Â£ÂÃ¬ÂÂ¼</label><input id="fTestEnd" placeholder="2026.05.31" oninput="updateAutoStatusPreview()"/></div>
+          <div class="form-group" style="margin:0"><label>Ã¬ÂÂ¤Ã­ÂÂÃ¬ÂÂ¼ Ã°ÂÂÂ</label><input id="fOpenDate" placeholder="2026.06.01" oninput="updateAutoStatusPreview()"/></div>
         </div>
-        <div style="margin-top:8px;font-size:10px;color:var(--text3)">íì¬ ìë ìí: <span id="autoStatusPreview" style="color:var(--blue);font-weight:600">-</span></div>
+        <div style="margin-top:8px;font-size:10px;color:var(--text3)">Ã­ÂÂÃ¬ÂÂ¬ Ã¬ÂÂÃ«ÂÂ Ã¬ÂÂÃ­ÂÂ: <span id="autoStatusPreview" style="color:var(--blue);font-weight:600">-</span></div>
       </div>
-      <div class="form-group form-full"><div class="progress-auto-info">ð ì§íë¥ ì ììì¼Â·ì¢ë£ì¼ ê¸°ì¤ì¼ë¡ ìë ê³ì°ë©ëë¤.</div></div>
-      <div class="form-group"><label>í¬ìì¸ì (ìë)</label><input id="fMembers" type="number" placeholder="íì ì ìë" readonly style="opacity:0.5;cursor:not-allowed;"/></div>
-      <div class="form-group"><label>ê³ì½ ê·ëª¨</label><input id="fBudget" placeholder="ì: 15ìµ"/></div>
-      <div class="form-group"><label>íë¡ì í¸ ì í</label><select id="fType"><option>ì ê·ê°ë°</option><option>ê³ ëí</option><option>ì¬êµ¬ì¶</option><option>ì ì§ë³´ì</option></select></div>
-      <div class="form-group form-full"><label>ê¸°ì  ì¤í (ì¼í êµ¬ë¶)</label><input id="fLangs" placeholder="Java, Spring, Oracle, React"/></div>
-      <div class="form-group form-full"><label>íì (ì´ë¦:ì­í , ì¼í êµ¬ë¶)</label><input id="fTeam" placeholder="ê¹ì² ì:ê°ë°, ì´ìí¬:ê¸°í"/></div>
-      <div class="form-group form-full"><label>íë¡ì í¸ ê°ì</label><textarea id="fDesc"></textarea></div>
+      <div class="form-group form-full"><div class="progress-auto-info">Ã°ÂÂÂ Ã¬Â§ÂÃ­ÂÂÃ«Â¥Â Ã¬ÂÂ Ã¬ÂÂÃ¬ÂÂÃ¬ÂÂ¼ÃÂ·Ã¬Â¢ÂÃ«Â£ÂÃ¬ÂÂ¼ ÃªÂ¸Â°Ã¬Â¤ÂÃ¬ÂÂ¼Ã«Â¡Â Ã¬ÂÂÃ«ÂÂ ÃªÂ³ÂÃ¬ÂÂ°Ã«ÂÂ©Ã«ÂÂÃ«ÂÂ¤.</div></div>
+      <div class="form-group"><label>Ã­ÂÂ¬Ã¬ÂÂÃ¬ÂÂ¸Ã¬ÂÂ (Ã¬ÂÂÃ«ÂÂ)</label><input id="fMembers" type="number" placeholder="Ã­ÂÂÃ¬ÂÂ Ã¬ÂÂ Ã¬ÂÂÃ«ÂÂ" readonly style="opacity:0.5;cursor:not-allowed;"/></div>
+      <div class="form-group"><label>ÃªÂ³ÂÃ¬ÂÂ½ ÃªÂ·ÂÃ«ÂªÂ¨</label><input id="fBudget" placeholder="Ã¬ÂÂ: 15Ã¬ÂÂµ"/></div>
+      <div class="form-group"><label>Ã­ÂÂÃ«Â¡ÂÃ¬Â ÂÃ­ÂÂ¸ Ã¬ÂÂ Ã­ÂÂ</label><select id="fType"><option>Ã¬ÂÂ ÃªÂ·ÂÃªÂ°ÂÃ«Â°Â</option><option>ÃªÂ³Â Ã«ÂÂÃ­ÂÂ</option><option>Ã¬ÂÂ¬ÃªÂµÂ¬Ã¬Â¶Â</option><option>Ã¬ÂÂ Ã¬Â§ÂÃ«Â³Â´Ã¬ÂÂ</option></select></div>
+      <div class="form-group form-full"><label>ÃªÂ¸Â°Ã¬ÂÂ  Ã¬ÂÂ¤Ã­ÂÂ (Ã¬ÂÂ¼Ã­ÂÂ ÃªÂµÂ¬Ã«Â¶Â)</label><input id="fLangs" placeholder="Java, Spring, Oracle, React"/></div>
+      <div class="form-group form-full"><label>Ã­ÂÂÃ¬ÂÂ (Ã¬ÂÂ´Ã«Â¦Â:Ã¬ÂÂ­Ã­ÂÂ , Ã¬ÂÂ¼Ã­ÂÂ ÃªÂµÂ¬Ã«Â¶Â)</label><input id="fTeam" placeholder="ÃªÂ¹ÂÃ¬Â²Â Ã¬ÂÂ:ÃªÂ°ÂÃ«Â°Â, Ã¬ÂÂ´Ã¬ÂÂÃ­ÂÂ¬:ÃªÂ¸Â°Ã­ÂÂ"/></div>
+      <div class="form-group form-full"><label>Ã­ÂÂÃ«Â¡ÂÃ¬Â ÂÃ­ÂÂ¸ ÃªÂ°ÂÃ¬ÂÂ</label><textarea id="fDesc"></textarea></div>
     </div>
-    <div class="modal-footer"><button class="btn-cancel" onclick="closeProjModal()">ì·¨ì</button><button class="btn-primary" onclick="saveProject()">ð¾ ì ì¥</button></div>
+    <div class="modal-footer"><button class="btn-cancel" onclick="closeProjModal()">Ã¬Â·Â¨Ã¬ÂÂ</button><button class="btn-primary" onclick="saveProject()">Ã°ÂÂÂ¾ Ã¬Â ÂÃ¬ÂÂ¥</button></div>
   </div>
 </div>
 
-<!-- ì¬ì©ì ì¶ê° ëª¨ë¬ -->
+<!-- Ã¬ÂÂ¬Ã¬ÂÂ©Ã¬ÂÂ Ã¬Â¶ÂÃªÂ°Â Ã«ÂªÂ¨Ã«ÂÂ¬ -->
 <div class="modal-overlay" id="addUserModalOverlay">
   <div class="modal modal-sm">
-    <h2>ì¬ì©ì ì´ë</h2>
-    <p style="font-size:12px;color:var(--text3);margin-bottom:20px">ìë ¥í ì´ë©ì¼ë¡ ì´ë ë§í¬ê° ë°ì¡ë©ëë¤. ì¬ì©ìë ë§í¬ë¥¼ í´ë¦­í´ ë¹ë°ë²í¸ë¥¼ ì§ì  ì¤ì í©ëë¤.</p>
+    <h2>Ã¬ÂÂ¬Ã¬ÂÂ©Ã¬ÂÂ Ã¬Â´ÂÃ«ÂÂ</h2>
+    <p style="font-size:12px;color:var(--text3);margin-bottom:20px">Ã¬ÂÂÃ«Â Â¥Ã­ÂÂ Ã¬ÂÂ´Ã«Â©ÂÃ¬ÂÂ¼Ã«Â¡Â Ã¬Â´ÂÃ«ÂÂ Ã«Â§ÂÃ­ÂÂ¬ÃªÂ°Â Ã«Â°ÂÃ¬ÂÂ¡Ã«ÂÂ©Ã«ÂÂÃ«ÂÂ¤. Ã¬ÂÂ¬Ã¬ÂÂ©Ã¬ÂÂÃ«ÂÂ Ã«Â§ÂÃ­ÂÂ¬Ã«Â¥Â¼ Ã­ÂÂ´Ã«Â¦Â­Ã­ÂÂ´ Ã«Â¹ÂÃ«Â°ÂÃ«Â²ÂÃ­ÂÂ¸Ã«Â¥Â¼ Ã¬Â§ÂÃ¬Â Â Ã¬ÂÂ¤Ã¬Â ÂÃ­ÂÂ©Ã«ÂÂÃ«ÂÂ¤.</p>
     <div class="form-grid">
-      <div class="form-group form-full"><label>ì´ë¦</label><input id="inviteName" placeholder="ì: ê¹ì² ì"/></div>
-      <div class="form-group form-full"><label>ì´ë©ì¼</label><input id="inviteEmail" type="email" placeholder="user@company.com"/></div>
-      <div class="form-group form-full"><label>ì­í </label>
-        <select id="inviteRole"><option value="viewer">ì¼ë° ì§ì (ì¡°íë§ ê°ë¥)</option><option value="admin">ê´ë¦¬ì (ì¶ê°Â·ìì Â·ì­ì  ê°ë¥)</option></select>
+      <div class="form-group form-full"><label>Ã¬ÂÂ´Ã«Â¦Â</label><input id="inviteName" placeholder="Ã¬ÂÂ: ÃªÂ¹ÂÃ¬Â²Â Ã¬ÂÂ"/></div>
+      <div class="form-group form-full"><label>Ã¬ÂÂ´Ã«Â©ÂÃ¬ÂÂ¼</label><input id="inviteEmail" type="email" placeholder="user@company.com"/></div>
+      <div class="form-group form-full"><label>Ã¬ÂÂ­Ã­ÂÂ </label>
+        <select id="inviteRole"><option value="viewer">Ã¬ÂÂ¼Ã«Â°Â Ã¬Â§ÂÃ¬ÂÂ (Ã¬Â¡Â°Ã­ÂÂÃ«Â§Â ÃªÂ°ÂÃ«ÂÂ¥)</option><option value="admin">ÃªÂ´ÂÃ«Â¦Â¬Ã¬ÂÂ (Ã¬Â¶ÂÃªÂ°ÂÃÂ·Ã¬ÂÂÃ¬Â ÂÃÂ·Ã¬ÂÂ­Ã¬Â Â ÃªÂ°ÂÃ«ÂÂ¥)</option></select>
       </div>
     </div>
     <div class="auth-err" id="inviteErr" style="margin-top:12px"></div>
     <div class="auth-ok" id="inviteOk" style="margin-top:12px"></div>
-    <div class="modal-footer"><button class="btn-cancel" onclick="closeAddUserModal()">ì·¨ì</button><button class="btn-primary" id="inviteBtn" onclick="inviteUser()">âï¸ ì´ë ì´ë©ì¼ ë°ì¡</button></div>
+    <div class="modal-footer"><button class="btn-cancel" onclick="closeAddUserModal()">Ã¬Â·Â¨Ã¬ÂÂ</button><button class="btn-primary" id="inviteBtn" onclick="inviteUser()">Ã¢ÂÂÃ¯Â¸Â Ã¬Â´ÂÃ«ÂÂ Ã¬ÂÂ´Ã«Â©ÂÃ¬ÂÂ¼ Ã«Â°ÂÃ¬ÂÂ¡</button></div>
   </div>
 </div>
 
-<!-- ë¹ë°ë²í¸ ë³ê²½ ëª¨ë¬ (ì± ë´) -->
+<!-- Ã«Â¹ÂÃ«Â°ÂÃ«Â²ÂÃ­ÂÂ¸ Ã«Â³ÂÃªÂ²Â½ Ã«ÂªÂ¨Ã«ÂÂ¬ (Ã¬ÂÂ± Ã«ÂÂ´) -->
 <div class="modal-overlay" id="changePwModalOverlay">
   <div class="modal modal-sm">
-    <h2>ð ë¹ë°ë²í¸ ë³ê²½</h2>
+    <h2>Ã°ÂÂÂ Ã«Â¹ÂÃ«Â°ÂÃ«Â²ÂÃ­ÂÂ¸ Ã«Â³ÂÃªÂ²Â½</h2>
     <div class="form-grid">
-      <div class="form-group form-full"><label>ì ë¹ë°ë²í¸</label><input id="modalNewPw" type="password" placeholder="8ì ì´ì" oninput="checkPwStrength(this.value,'modalPwBar','modalPwHint')"/><div class="pw-strength" id="modalPwBar"></div><div class="pw-hint" id="modalPwHint"></div></div>
-      <div class="form-group form-full"><label>ë¹ë°ë²í¸ íì¸</label><input id="modalNewPw2" type="password" placeholder="ë¹ë°ë²í¸ ì¬ìë ¥"/></div>
+      <div class="form-group form-full"><label>Ã¬ÂÂ Ã«Â¹ÂÃ«Â°ÂÃ«Â²ÂÃ­ÂÂ¸</label><input id="modalNewPw" type="password" placeholder="8Ã¬ÂÂ Ã¬ÂÂ´Ã¬ÂÂ" oninput="checkPwStrength(this.value,'modalPwBar','modalPwHint')"/><div class="pw-strength" id="modalPwBar"></div><div class="pw-hint" id="modalPwHint"></div></div>
+      <div class="form-group form-full"><label>Ã«Â¹ÂÃ«Â°ÂÃ«Â²ÂÃ­ÂÂ¸ Ã­ÂÂÃ¬ÂÂ¸</label><input id="modalNewPw2" type="password" placeholder="Ã«Â¹ÂÃ«Â°ÂÃ«Â²ÂÃ­ÂÂ¸ Ã¬ÂÂ¬Ã¬ÂÂÃ«Â Â¥"/></div>
     </div>
     <div class="auth-err" id="modalPwErr" style="margin-top:12px"></div>
-    <div class="modal-footer"><button class="btn-cancel" onclick="closeChangePwModal()">ì·¨ì</button><button class="btn-primary" onclick="doModalChangePw()">ë³ê²½ ìë£</button></div>
+    <div class="modal-footer"><button class="btn-cancel" onclick="closeChangePwModal()">Ã¬Â·Â¨Ã¬ÂÂ</button><button class="btn-primary" onclick="doModalChangePw()">Ã«Â³ÂÃªÂ²Â½ Ã¬ÂÂÃ«Â£Â</button></div>
   </div>
 </div>
 
 <div class="toast" id="toast"></div>
 
 <script>
-// âââââââââââââââââââââââââââââââââââ
+// Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 //  FIREBASE
-// âââââââââââââââââââââââââââââââââââ
+// Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 const firebaseConfig={apiKey:"AIzaSyDQzKLPN1folL0tH9HI0z4lv1j-g-_kfrE",authDomain:"projectmap-pro.firebaseapp.com",projectId:"projectmap-pro",storageBucket:"projectmap-pro.firebasestorage.app",messagingSenderId:"411857625882",appId:"1:411857625882:web:14a65ada1a345448d282a3"};
 firebase.initializeApp(firebaseConfig);
 const auth=firebase.auth();
 const db=firebase.firestore();
 
-// âââââââââââââââââââââââââââââââââââ
+// Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 //  CONSTANTS
-// âââââââââââââââââââââââââââââââââââ
-const HQ={name:'ë±í¬ì¨ì´ê¸ë¡ë² ë³¸ì¬',address:'ìì¸ ì¤êµ¬ ììë¬¸ë¡ 11ê¸¸ 19',lat:37.5643,lng:126.9752};
-const STATUS_CFG={dev:{label:'ê°ë° ì¤',color:'#4f9eff',bg:'#1e3a5f'},test:{label:'íì¤í¸',color:'#4fcc7a',bg:'#1e4d2e'},stable:{label:'ì´ììì í',color:'#a855f7',bg:'#2d1e5f'},plan:{label:'ì¤ê³',color:'#f59e0b',bg:'#3a2e1e'},done:{label:'ì¢ë£',color:'#666',bg:'#222'}};
-const RISK_CFG={low:{label:'ë®ì',color:'#4fcc7a',bg:'#1e4d2e'},mid:{label:'ë³´íµ',color:'#f59e0b',bg:'#3a2e1e'},high:{label:'ëì',color:'#ef4444',bg:'#4d1e1e'}};
+// Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
+const HQ={name:'Ã«Â±ÂÃ­ÂÂ¬Ã¬ÂÂ¨Ã¬ÂÂ´ÃªÂ¸ÂÃ«Â¡ÂÃ«Â²Â Ã«Â³Â¸Ã¬ÂÂ¬',address:'Ã¬ÂÂÃ¬ÂÂ¸ Ã¬Â¤ÂÃªÂµÂ¬ Ã¬ÂÂÃ¬ÂÂÃ«Â¬Â¸Ã«Â¡Â 11ÃªÂ¸Â¸ 19',lat:37.5643,lng:126.9752};
+const STATUS_CFG={dev:{label:'ÃªÂ°ÂÃ«Â°Â Ã¬Â¤Â',color:'#4f9eff',bg:'#1e3a5f'},test:{label:'Ã­ÂÂÃ¬ÂÂ¤Ã­ÂÂ¸',color:'#4fcc7a',bg:'#1e4d2e'},stable:{label:'Ã¬ÂÂ´Ã¬ÂÂÃ¬ÂÂÃ¬Â ÂÃ­ÂÂ',color:'#a855f7',bg:'#2d1e5f'},plan:{label:'Ã¬ÂÂ¤ÃªÂ³Â',color:'#f59e0b',bg:'#3a2e1e'},done:{label:'Ã¬Â¢ÂÃ«Â£Â',color:'#666',bg:'#222'}};
+const RISK_CFG={low:{label:'Ã«ÂÂ®Ã¬ÂÂ',color:'#4fcc7a',bg:'#1e4d2e'},mid:{label:'Ã«Â³Â´Ã­ÂÂµ',color:'#f59e0b',bg:'#3a2e1e'},high:{label:'Ã«ÂÂÃ¬ÂÂ',color:'#ef4444',bg:'#4d1e1e'}};
 const DEFAULT_PROJECTS=[
-{id:'p1',name:'SBI íë¡ì í¸',client:'SBIì ì¶ìí',location:'ìì¸ ê´íë¬¸',lat:37.5759,lng:126.9768,status:'done',start:'2024.03.04',end:'2025.12.31',designEnd:'2024.05.31',devEnd:'2025.06.30',testEnd:'2025.10.31',openDate:'2025.12.01',members:9,budget:'12ìµ',type:'ì ê·ê°ë°',risk:'low',pm:'ê¸ì¹ì²  ìë¬´',langs:['Java','Spring','Oracle','React'],team:[{name:'ê¸ì¹ì² ',role:'PM'},{name:'íê¸¸ë',role:'ê°ë°ë¦¬ë'},{name:'ì´ìë¹',role:'ê°ë°ì'},{name:'ë°ì¤í',role:'ê°ë°ì'},{name:'ê¹ë¯¼ì§',role:'ê°ë°ì'},{name:'ìµì¬ì',role:'DBA'},{name:'ì¥íì',role:'ê°ë°ì'},{name:'ì¤ëí',role:'QA'},{name:'ì ìì',role:'ë¶ìê°'}],desc:'ì ì¶ìí ì°¨ì¸ë ë±í¹ ìì¤í êµ¬ì¶'},
-{id:'p2',name:'ì°ë¦¬ì¹´ë íµí©ë¨ë§ ì¬êµ¬ì¶',client:'ì°ë¦¬ì¹´ë',location:'ìì¸ ìì',lat:37.5793,lng:126.8897,status:'stable',start:'2024.06.03',end:'2026.05.29',designEnd:'2024.08.31',devEnd:'2025.08.31',testEnd:'2025.11.30',openDate:'2026.01.12',members:11,budget:'28ìµ',type:'ì¬êµ¬ì¶',risk:'low',pm:'ê¹ì í ìë¬´',langs:['C++','Java','PostgreSQL'],team:[{name:'ê¹ì í',role:'PM'},{name:'ë°ìì°',role:'ê°ë°ë¦¬ë'},{name:'ì´íì',role:'ê°ë°ì'},{name:'íìì§',role:'ê°ë°ì'},{name:'ì¤ë¯¼ì¤',role:'ê°ë°ì'},{name:'ììì§',role:'ê°ë°ì'},{name:'ë°°ì§í',role:'ê°ë°ì'},{name:'ë¥íì°',role:'DBA'},{name:'ìëì°',role:'QA'},{name:'ì¡°ì±ë¯¼',role:'QA'},{name:'ì ì§ì',role:'ë¶ìê°'}],desc:'ì¹´ë íµí©ë¨ë§ê¸° ìíí¸ì¨ì´ ì ë©´ ì¬êµ¬ì¶ ë° ì´ì ìì í'},
-{id:'p3',name:'íëì»¤ë¨¸ì 2ì°¨ ê°ë°',client:'íëì»¤ë¨¸ì',location:'ìì¸ ì¬ìë',lat:37.5219,lng:126.9245,status:'dev',start:'2025.09.01',end:'2026.12.31',designEnd:'2025.11.30',devEnd:'2026.07.31',testEnd:'2026.10.31',openDate:'2026.10.01',members:8,budget:'19ìµ',type:'ê³ ëí',risk:'mid',pm:'ëíì£¼ ì´ì¬',langs:['Java','Spring Boot','Oracle'],team:[{name:'ëíì£¼',role:'PM'},{name:'ë°ë¯¼ì',role:'ê°ë°ë¦¬ë'},{name:'ì´íì§',role:'ê°ë°ì'},{name:'ê¹íí¸',role:'ê°ë°ì'},{name:'ìµì ë',role:'ê°ë°ì'},{name:'ì ë¯¼í',role:'DBA'},{name:'ê°ë¤ì',role:'ë¶ìê°'},{name:'ì¤ì¬ì',role:'QA'}],desc:'ìºí¼í ì¬ì  ê´ë¦¬ ìì¤í 2ì°¨ ê³ ëí'},
-{id:'p4',name:'OOO íë¡ì í¸',client:'ë¯¸ê³µê°',location:'ìì¸ ìì²­ (ë³¸ì¬)',lat:37.5657,lng:126.9779,status:'plan',start:'2026.08.03',end:'2027.06.30',designEnd:'2026.10.31',devEnd:'2027.03.31',testEnd:'2027.05.31',openDate:'2027.04.14',members:5,budget:'TBD',type:'ì ê·ê°ë°',risk:'mid',pm:'ì ìì ì´ì¬',langs:['ë¯¸ì '],team:[{name:'ì ìì',role:'PM'},{name:'íì¹ì',role:'PL'},{name:'ì´ì¤í¸',role:'ë¶ìê°'},{name:'ë°ìì°',role:'ê°ë°ì'},{name:'ê¹íì',role:'ê°ë°ì'}],desc:'ì¬ë´ íµì¬ ì ëµ íë¡ì í¸'},
-{id:'p5',name:'NHëí ëì§í¸ë±í¹',client:'NHëíìí',location:'ìì¸ ì¤êµ¬',lat:37.5600,lng:126.9950,status:'dev',start:'2025.04.07',end:'2026.10.30',designEnd:'2025.07.31',devEnd:'2026.05.31',testEnd:'2026.07.31',openDate:'2026.08.17',members:14,budget:'45ìµ',type:'ê³ ëí',risk:'mid',pm:'ë°ë¯¼ì ë¶ì¥',langs:['Java','MSA','Kubernetes'],team:[{name:'ë°ë¯¼ì',role:'PM'},{name:'ìµìì§',role:'ê°ë°ë¦¬ë'},{name:'ì´ëí',role:'ìí¤íí¸'},{name:'ê°ë¯¼ì',role:'ê°ë°ì'},{name:'ì¡°ìë¦°',role:'ê°ë°ì'},{name:'íì§ì',role:'ê°ë°ì'},{name:'ì¤íì¤',role:'ê°ë°ì'},{name:'ìë¯¼ì',role:'ê°ë°ì'},{name:'ìì¤ì',role:'ê°ë°ì'},{name:'ë¸íì£¼',role:'DBA'},{name:'í©ì§í',role:'DBA'},{name:'ë°±ì¹ë¯¼',role:'QA'},{name:'ì¥ì ë¦¬',role:'QA'},{name:'ê¹ëì¤',role:'ë¶ìê°'}],desc:'ëí ëª¨ë°ì¼ë±í¹ ì± ì ë©´ ë¦¬ë´ì¼ ë° MSA ì í'},
-{id:'p6',name:'ì íì¹´ë AI ì¬ì¬ìì§',client:'ì íì¹´ë',location:'ìì¸ ê°ë¨',lat:37.5087,lng:127.0630,status:'dev',start:'2025.11.03',end:'2027.03.31',designEnd:'2026.01.31',devEnd:'2026.09.30',testEnd:'2026.11.30',openDate:'2026.12.01',members:7,budget:'22ìµ',type:'ì ê·ê°ë°',risk:'high',pm:'ì´ì¬í ë¶ì¥',langs:['Python','TensorFlow','FastAPI'],team:[{name:'ì´ì¬í',role:'PM'},{name:'ë°ìì°',role:'MLìì§ëì´'},{name:'ê¹ì±ì¤',role:'ë°ì´í°ìì§ëì´'},{name:'ìµìë¦',role:'ë°ì´í°ìì§ëì´'},{name:'ì ì°ì§',role:'ë°±ìëê°ë°ì'},{name:'ë¥ì¹í',role:'ë°±ìëê°ë°ì'},{name:'ì ìì¬',role:'DevOps'}],desc:'ë¨¸ì ë¬ë ê¸°ë° ì¤ìê° ì¹´ë ë°ê¸ ì¬ì¬ ìì§'},
-{id:'p7',name:'ë¡¯ë°ì¹´ë ë§ì´ë°ì´í°',client:'ë¡¯ë°ì¹´ë',location:'ìì¸ ìì´',lat:37.4870,lng:127.0160,status:'test',start:'2025.01.06',end:'2026.06.30',designEnd:'2025.03.31',devEnd:'2026.01.31',testEnd:'2026.04.30',openDate:'2026.05.11',members:9,budget:'17ìµ',type:'ì ê·ê°ë°',risk:'low',pm:'ìµìì§ ì°¨ì¥',langs:['Java','Spring','MySQL'],team:[{name:'ìµìì§',role:'PM'},{name:'ê°íì',role:'ê°ë°ë¦¬ë'},{name:'ì´ì§í',role:'ê°ë°ì'},{name:'ë°íë',role:'ê°ë°ì'},{name:'ê¹ìì¤',role:'ê°ë°ì'},{name:'ì¤ë¤ì¸',role:'ê°ë°ì'},{name:'ì ì±ì',role:'DBA'},{name:'ììí¬',role:'QA'},{name:'íì¤í',role:'ë¶ìê°'}],desc:'ë§ì´ë°ì´í° íë«í¼ êµ¬ì¶ ë° ì¤íAPI ì°ë'},
-{id:'p8',name:'ì¼ì±íì¬ ì ì° ê³ ëí',client:'ì¼ì±íì¬',location:'ìì¸ ìì´ ì¼ì±íì´',lat:37.4980,lng:127.0276,status:'test',start:'2024.08.05',end:'2026.04.30',designEnd:'2024.11.30',devEnd:'2025.10.31',testEnd:'2026.02.28',openDate:'2026.03.16',members:16,budget:'52ìµ',type:'ê³ ëí',risk:'low',pm:'íëí ìì',langs:['COBOL','Java','Oracle'],team:[{name:'íëí',role:'PM'},{name:'ì¤ì¹í',role:'ê°ë°ë¦¬ë'},{name:'ì´ìí',role:'ìí¤íí¸'},{name:'ê¹ë¯¼ì¤',role:'ê°ë°ì'},{name:'ë°ì§ì',role:'ê°ë°ì'},{name:'ìµíì°',role:'ê°ë°ì'},{name:'ì ë¤í',role:'ê°ë°ì'},{name:'ê°ì¤í¸',role:'ê°ë°ì'},{name:'ì¡°ë¯¼ì',role:'ê°ë°ì'},{name:'ìì§í',role:'ê°ë°ì'},{name:'ì¤ìë¼',role:'DBA'},{name:'ìì² ì',role:'DBA'},{name:'ë°°ìì°',role:'QA'},{name:'ë¥ë¯¼ì ',role:'QA'},{name:'ì¥íì',role:'QA'},{name:'ì ëì°',role:'ë¶ìê°'}],desc:'ì°¨ì¸ë ë³´í íµì¬ê³ì  ìì¤í ê³ ëí'},
-{id:'p9',name:'KT ë§ê´ë¦¬ ìì¤í',client:'KT',location:'ìì¸ ê´íë¬¸ KTì¬ì¥',lat:37.5722,lng:126.9795,status:'test',start:'2025.03.03',end:'2026.08.31',designEnd:'2025.06.30',devEnd:'2026.03.31',testEnd:'2026.06.30',openDate:'2026.07.06',members:12,budget:'31ìµ',type:'ì¬êµ¬ì¶',risk:'mid',pm:'ì¤ì¹í ìì',langs:['Go','gRPC','Kubernetes'],team:[{name:'ì¤ì¹í',role:'PM'},{name:'ì´ì¬í',role:'ê°ë°ë¦¬ë'},{name:'ê¹íì',role:'ë¤í¸ìí¬ìì§ëì´'},{name:'ë°ì§ì°',role:'ë¤í¸ìí¬ìì§ëì´'},{name:'ìµìí',role:'ê°ë°ì'},{name:'ì ë¯¼í¸',role:'ê°ë°ì'},{name:'ê°íì§',role:'ê°ë°ì'},{name:'ì¡°ì°ì§',role:'ê°ë°ì'},{name:'íë¤ì',role:'DBA'},{name:'ìì¬í',role:'QA'},{name:'ë¸ìì§',role:'QA'},{name:'í©ì±ë¯¼',role:'DevOps'}],desc:'5G íµì  ë§ ì¤ìê° ëª¨ëí°ë§ ë° ì¥ì  ëì'},
-{id:'p10',name:'êµ­ë¯¼ê±´ê°ë³´í EDI',client:'êµ­ë¯¼ê±´ê°ë³´íê³µë¨',location:'ìì¸ ë§í¬',lat:37.5540,lng:126.9104,status:'plan',start:'2026.10.05',end:'2028.02.28',designEnd:'2027.01.31',devEnd:'2027.09.30',testEnd:'2027.12.31',openDate:'2027.12.01',members:6,budget:'38ìµ',type:'ì¬êµ¬ì¶',risk:'mid',pm:'ê°íì ë¶ì¥',langs:['ë¯¸ì '],team:[{name:'ê°íì',role:'PM'},{name:'ì´ìê²½',role:'PL'},{name:'ë°ì¬ë¯¼',role:'ë¶ìê°'},{name:'ìµì§ì',role:'ê°ë°ì'},{name:'ì íì',role:'ê°ë°ì'},{name:'ê¹ëì',role:'DBA'}],desc:'EDI ì ì° ìì¤í ì°¨ì¸ë ì í'},
-{id:'p11',name:'ëì  ì¤ë§í¸ìí° íë«í¼',client:'ëì ê´ì­ì',location:'ëì  ì ì±êµ¬',lat:36.3624,lng:127.3569,status:'dev',start:'2025.06.02',end:'2027.05.31',designEnd:'2025.09.30',devEnd:'2026.09.30',testEnd:'2027.01.31',openDate:'2027.03.01',members:10,budget:'67ìµ',type:'ì ê·ê°ë°',risk:'mid',pm:'ì¤ì±ë¯¼ ì´ì¬',langs:['Python','IoT','React'],team:[{name:'ì¤ì±ë¯¼',role:'PM'},{name:'ìì§ë¯¼',role:'ê°ë°ë¦¬ë'},{name:'ì´ë¤ì',role:'IoTìì§ëì´'},{name:'ë°ì±í¸',role:'IoTìì§ëì´'},{name:'ê¹ì£¼ì',role:'ê°ë°ì'},{name:'ìµë¯¼ì',role:'ê°ë°ì'},{name:'ì ìì',role:'ê°ë°ì'},{name:'ê°ì¸ì¤',role:'DBA'},{name:'ì¡°ìì',role:'QA'},{name:'íëì°',role:'ë¶ìê°'}],desc:'ì¤ë§í¸ìí° íµí©ê´ì  ë° ë¹ë°ì´í° ë¶ì íë«í¼'},
-{id:'p12',name:'ë² í¸ë¨ VPBank ë±í¹ì±',client:'VPBank',location:'ë² í¸ë¨ í¸ì¹ë¯¼',lat:10.8231,lng:106.6297,status:'plan',start:'2026.07.06',end:'2027.12.31',designEnd:'2026.10.31',devEnd:'2027.05.31',testEnd:'2027.07.31',openDate:'2027.09.01',members:8,budget:'USD 1.8M',type:'ì ê·ê°ë°',risk:'high',pm:'ìì§ë¯¼ ì´ì¬',langs:['Flutter','Go','Firebase'],team:[{name:'ìì§ë¯¼',role:'PM'},{name:'ì´ì¤í',role:'Flutterê°ë°ì'},{name:'ë°ì§ì',role:'Flutterê°ë°ì'},{name:'ê¹ì±í',role:'Flutterê°ë°ì'},{name:'ìµíë¯¼',role:'ë°±ìëê°ë°ì'},{name:'ì í´ì¸',role:'ë°±ìëê°ë°ì'},{name:'ê°ë¤í¬',role:'DevOps'},{name:'ìì±ì',role:'QA'}],desc:'ë² í¸ë¨ íì§ ë§ì¶¤í ëª¨ë°ì¼ ë±í¹ ì±'}
+{id:'p1',name:'SBI Ã­ÂÂÃ«Â¡ÂÃ¬Â ÂÃ­ÂÂ¸',client:'SBIÃ¬Â ÂÃ¬Â¶ÂÃ¬ÂÂÃ­ÂÂ',location:'Ã¬ÂÂÃ¬ÂÂ¸ ÃªÂ´ÂÃ­ÂÂÃ«Â¬Â¸',lat:37.5759,lng:126.9768,status:'done',start:'2024.03.04',end:'2025.12.31',designEnd:'2024.05.31',devEnd:'2025.06.30',testEnd:'2025.10.31',openDate:'2025.12.01',members:9,budget:'12Ã¬ÂÂµ',type:'Ã¬ÂÂ ÃªÂ·ÂÃªÂ°ÂÃ«Â°Â',risk:'low',pm:'ÃªÂ¸ÂÃ¬ÂÂ¹Ã¬Â²Â  Ã¬ÂÂÃ«Â¬Â´',langs:['Java','Spring','Oracle','React'],team:[{name:'ÃªÂ¸ÂÃ¬ÂÂ¹Ã¬Â²Â ',role:'PM'},{name:'Ã­ÂÂÃªÂ¸Â¸Ã«ÂÂ',role:'ÃªÂ°ÂÃ«Â°ÂÃ«Â¦Â¬Ã«ÂÂ'},{name:'Ã¬ÂÂ´Ã¬ÂÂÃ«Â¹Â',role:'ÃªÂ°ÂÃ«Â°ÂÃ¬ÂÂ'},{name:'Ã«Â°ÂÃ¬Â¤ÂÃ­ÂÂ',role:'ÃªÂ°ÂÃ«Â°ÂÃ¬ÂÂ'},{name:'ÃªÂ¹ÂÃ«Â¯Â¼Ã¬Â§Â',role:'ÃªÂ°ÂÃ«Â°ÂÃ¬ÂÂ'},{name:'Ã¬ÂµÂÃ¬ÂÂ¬Ã¬ÂÂ',role:'DBA'},{name:'Ã¬ÂÂ¥Ã­ÂÂÃ¬ÂÂ',role:'ÃªÂ°ÂÃ«Â°ÂÃ¬ÂÂ'},{name:'Ã¬ÂÂ¤Ã«ÂÂÃ­ÂÂ',role:'QA'},{name:'Ã¬Â ÂÃ¬ÂÂÃ¬ÂÂ',role:'Ã«Â¶ÂÃ¬ÂÂÃªÂ°Â'}],desc:'Ã¬Â ÂÃ¬Â¶ÂÃ¬ÂÂÃ­ÂÂ Ã¬Â°Â¨Ã¬ÂÂ¸Ã«ÂÂ Ã«Â±ÂÃ­ÂÂ¹ Ã¬ÂÂÃ¬ÂÂ¤Ã­ÂÂ ÃªÂµÂ¬Ã¬Â¶Â'},
+{id:'p2',name:'Ã¬ÂÂ°Ã«Â¦Â¬Ã¬Â¹Â´Ã«ÂÂ Ã­ÂÂµÃ­ÂÂ©Ã«ÂÂ¨Ã«Â§Â Ã¬ÂÂ¬ÃªÂµÂ¬Ã¬Â¶Â',client:'Ã¬ÂÂ°Ã«Â¦Â¬Ã¬Â¹Â´Ã«ÂÂ',location:'Ã¬ÂÂÃ¬ÂÂ¸ Ã¬ÂÂÃ¬ÂÂ',lat:37.5793,lng:126.8897,status:'stable',start:'2024.06.03',end:'2026.05.29',designEnd:'2024.08.31',devEnd:'2025.08.31',testEnd:'2025.11.30',openDate:'2026.01.12',members:11,budget:'28Ã¬ÂÂµ',type:'Ã¬ÂÂ¬ÃªÂµÂ¬Ã¬Â¶Â',risk:'low',pm:'ÃªÂ¹ÂÃ¬Â ÂÃ­ÂÂ Ã¬ÂÂÃ«Â¬Â´',langs:['C++','Java','PostgreSQL'],team:[{name:'ÃªÂ¹ÂÃ¬Â ÂÃ­ÂÂ',role:'PM'},{name:'Ã«Â°ÂÃ¬ÂÂÃ¬ÂÂ°',role:'ÃªÂ°ÂÃ«Â°ÂÃ«Â¦Â¬Ã«ÂÂ'},{name:'Ã¬ÂÂ´Ã­ÂÂÃ¬ÂÂ',role:'ÃªÂ°ÂÃ«Â°ÂÃ¬ÂÂ'},{name:'Ã­ÂÂÃ¬ÂÂÃ¬Â§Â',role:'ÃªÂ°ÂÃ«Â°ÂÃ¬ÂÂ'},{name:'Ã¬ÂÂ¤Ã«Â¯Â¼Ã¬Â¤Â',role:'ÃªÂ°ÂÃ«Â°ÂÃ¬ÂÂ'},{name:'Ã¬ÂÂÃ¬ÂÂÃ¬Â§Â',role:'ÃªÂ°ÂÃ«Â°ÂÃ¬ÂÂ'},{name:'Ã«Â°Â°Ã¬Â§ÂÃ­ÂÂ',role:'ÃªÂ°ÂÃ«Â°ÂÃ¬ÂÂ'},{name:'Ã«Â¥ÂÃ­ÂÂÃ¬ÂÂ°',role:'DBA'},{name:'Ã¬ÂÂÃ«ÂÂÃ¬ÂÂ°',role:'QA'},{name:'Ã¬Â¡Â°Ã¬ÂÂ±Ã«Â¯Â¼',role:'QA'},{name:'Ã¬ÂÂ Ã¬Â§ÂÃ¬ÂÂ',role:'Ã«Â¶ÂÃ¬ÂÂÃªÂ°Â'}],desc:'Ã¬Â¹Â´Ã«ÂÂ Ã­ÂÂµÃ­ÂÂ©Ã«ÂÂ¨Ã«Â§ÂÃªÂ¸Â° Ã¬ÂÂÃ­ÂÂÃ­ÂÂ¸Ã¬ÂÂ¨Ã¬ÂÂ´ Ã¬Â ÂÃ«Â©Â´ Ã¬ÂÂ¬ÃªÂµÂ¬Ã¬Â¶Â Ã«Â°Â Ã¬ÂÂ´Ã¬ÂÂ Ã¬ÂÂÃ¬Â ÂÃ­ÂÂ'},
+{id:'p3',name:'Ã­ÂÂÃ«ÂÂÃ¬Â»Â¤Ã«Â¨Â¸Ã¬ÂÂ 2Ã¬Â°Â¨ ÃªÂ°ÂÃ«Â°Â',client:'Ã­ÂÂÃ«ÂÂÃ¬Â»Â¤Ã«Â¨Â¸Ã¬ÂÂ',location:'Ã¬ÂÂÃ¬ÂÂ¸ Ã¬ÂÂ¬Ã¬ÂÂÃ«ÂÂ',lat:37.5219,lng:126.9245,status:'dev',start:'2025.09.01',end:'2026.12.31',designEnd:'2025.11.30',devEnd:'2026.07.31',testEnd:'2026.10.31',openDate:'2026.10.01',members:8,budget:'19Ã¬ÂÂµ',type:'ÃªÂ³Â Ã«ÂÂÃ­ÂÂ',risk:'mid',pm:'Ã«ÂÂÃ­ÂÂÃ¬Â£Â¼ Ã¬ÂÂ´Ã¬ÂÂ¬',langs:['Java','Spring Boot','Oracle'],team:[{name:'Ã«ÂÂÃ­ÂÂÃ¬Â£Â¼',role:'PM'},{name:'Ã«Â°ÂÃ«Â¯Â¼Ã¬ÂÂ',role:'ÃªÂ°ÂÃ«Â°ÂÃ«Â¦Â¬Ã«ÂÂ'},{name:'Ã¬ÂÂ´Ã­ÂÂÃ¬Â§Â',role:'ÃªÂ°ÂÃ«Â°ÂÃ¬ÂÂ'},{name:'ÃªÂ¹ÂÃ­ÂÂÃ­ÂÂ¸',role:'ÃªÂ°ÂÃ«Â°ÂÃ¬ÂÂ'},{name:'Ã¬ÂµÂÃ¬ÂÂ Ã«ÂÂ',role:'ÃªÂ°ÂÃ«Â°ÂÃ¬ÂÂ'},{name:'Ã¬Â ÂÃ«Â¯Â¼Ã­ÂÂ',role:'DBA'},{name:'ÃªÂ°ÂÃ«ÂÂ¤Ã¬ÂÂ',role:'Ã«Â¶ÂÃ¬ÂÂÃªÂ°Â'},{name:'Ã¬ÂÂ¤Ã¬ÂÂ¬Ã¬ÂÂ',role:'QA'}],desc:'Ã¬ÂºÂÃ­ÂÂ¼Ã­ÂÂ Ã¬ÂÂ¬Ã¬ÂÂ  ÃªÂ´ÂÃ«Â¦Â¬ Ã¬ÂÂÃ¬ÂÂ¤Ã­ÂÂ 2Ã¬Â°Â¨ ÃªÂ³Â Ã«ÂÂÃ­ÂÂ'},
+{id:'p4',name:'OOO Ã­ÂÂÃ«Â¡ÂÃ¬Â ÂÃ­ÂÂ¸',client:'Ã«Â¯Â¸ÃªÂ³ÂµÃªÂ°Â',location:'Ã¬ÂÂÃ¬ÂÂ¸ Ã¬ÂÂÃ¬Â²Â­ (Ã«Â³Â¸Ã¬ÂÂ¬)',lat:37.5657,lng:126.9779,status:'plan',start:'2026.08.03',end:'2027.06.30',designEnd:'2026.10.31',devEnd:'2027.03.31',testEnd:'2027.05.31',openDate:'2027.04.14',members:5,budget:'TBD',type:'Ã¬ÂÂ ÃªÂ·ÂÃªÂ°ÂÃ«Â°Â',risk:'mid',pm:'Ã¬Â ÂÃ¬ÂÂÃ¬ÂÂ Ã¬ÂÂ´Ã¬ÂÂ¬',langs:['Ã«Â¯Â¸Ã¬Â Â'],team:[{name:'Ã¬Â ÂÃ¬ÂÂÃ¬ÂÂ',role:'PM'},{name:'Ã­ÂÂÃ¬ÂÂ¹Ã¬ÂÂ',role:'PL'},{name:'Ã¬ÂÂ´Ã¬Â¤ÂÃ­ÂÂ¸',role:'Ã«Â¶ÂÃ¬ÂÂÃªÂ°Â'},{name:'Ã«Â°ÂÃ¬ÂÂÃ¬ÂÂ°',role:'ÃªÂ°ÂÃ«Â°ÂÃ¬ÂÂ'},{name:'ÃªÂ¹ÂÃ­ÂÂÃ¬ÂÂ',role:'ÃªÂ°ÂÃ«Â°ÂÃ¬ÂÂ'}],desc:'Ã¬ÂÂ¬Ã«ÂÂ´ Ã­ÂÂµÃ¬ÂÂ¬ Ã¬Â ÂÃ«ÂÂµ Ã­ÂÂÃ«Â¡ÂÃ¬Â ÂÃ­ÂÂ¸'},
+{id:'p5',name:'NHÃ«ÂÂÃ­ÂÂ Ã«ÂÂÃ¬Â§ÂÃ­ÂÂ¸Ã«Â±ÂÃ­ÂÂ¹',client:'NHÃ«ÂÂÃ­ÂÂÃ¬ÂÂÃ­ÂÂ',location:'Ã¬ÂÂÃ¬ÂÂ¸ Ã¬Â¤ÂÃªÂµÂ¬',lat:37.5600,lng:126.9950,status:'dev',start:'2025.04.07',end:'2026.10.30',designEnd:'2025.07.31',devEnd:'2026.05.31',testEnd:'2026.07.31',openDate:'2026.08.17',members:14,budget:'45Ã¬ÂÂµ',type:'ÃªÂ³Â Ã«ÂÂÃ­ÂÂ',risk:'mid',pm:'Ã«Â°ÂÃ«Â¯Â¼Ã¬ÂÂ Ã«Â¶ÂÃ¬ÂÂ¥',langs:['Java','MSA','Kubernetes'],team:[{name:'Ã«Â°ÂÃ«Â¯Â¼Ã¬ÂÂ',role:'PM'},{name:'Ã¬ÂµÂÃ¬ÂÂÃ¬Â§Â',role:'ÃªÂ°ÂÃ«Â°ÂÃ«Â¦Â¬Ã«ÂÂ'},{name:'Ã¬ÂÂ´Ã«ÂÂÃ­ÂÂ',role:'Ã¬ÂÂÃ­ÂÂ¤Ã­ÂÂÃ­ÂÂ¸'},{name:'ÃªÂ°ÂÃ«Â¯Â¼Ã¬ÂÂ',role:'ÃªÂ°ÂÃ«Â°ÂÃ¬ÂÂ'},{name:'Ã¬Â¡Â°Ã¬ÂÂÃ«Â¦Â°',role:'ÃªÂ°ÂÃ«Â°ÂÃ¬ÂÂ'},{name:'Ã­ÂÂÃ¬Â§ÂÃ¬ÂÂ',role:'ÃªÂ°ÂÃ«Â°ÂÃ¬ÂÂ'},{name:'Ã¬ÂÂ¤Ã­ÂÂÃ¬Â¤Â',role:'ÃªÂ°ÂÃ«Â°ÂÃ¬ÂÂ'},{name:'Ã¬ÂÂÃ«Â¯Â¼Ã¬ÂÂ',role:'ÃªÂ°ÂÃ«Â°ÂÃ¬ÂÂ'},{name:'Ã¬ÂÂÃ¬Â¤ÂÃ¬ÂÂ',role:'ÃªÂ°ÂÃ«Â°ÂÃ¬ÂÂ'},{name:'Ã«ÂÂ¸Ã­ÂÂÃ¬Â£Â¼',role:'DBA'},{name:'Ã­ÂÂ©Ã¬Â§ÂÃ­ÂÂ',role:'DBA'},{name:'Ã«Â°Â±Ã¬ÂÂ¹Ã«Â¯Â¼',role:'QA'},{name:'Ã¬ÂÂ¥Ã¬ÂÂ Ã«Â¦Â¬',role:'QA'},{name:'ÃªÂ¹ÂÃ«ÂÂÃ¬ÂÂ¤',role:'Ã«Â¶ÂÃ¬ÂÂÃªÂ°Â'}],desc:'Ã«ÂÂÃ­ÂÂ Ã«ÂªÂ¨Ã«Â°ÂÃ¬ÂÂ¼Ã«Â±ÂÃ­ÂÂ¹ Ã¬ÂÂ± Ã¬Â ÂÃ«Â©Â´ Ã«Â¦Â¬Ã«ÂÂ´Ã¬ÂÂ¼ Ã«Â°Â MSA Ã¬Â ÂÃ­ÂÂ'},
+{id:'p6',name:'Ã¬ÂÂ Ã­ÂÂÃ¬Â¹Â´Ã«ÂÂ AI Ã¬ÂÂ¬Ã¬ÂÂ¬Ã¬ÂÂÃ¬Â§Â',client:'Ã¬ÂÂ Ã­ÂÂÃ¬Â¹Â´Ã«ÂÂ',location:'Ã¬ÂÂÃ¬ÂÂ¸ ÃªÂ°ÂÃ«ÂÂ¨',lat:37.5087,lng:127.0630,status:'dev',start:'2025.11.03',end:'2027.03.31',designEnd:'2026.01.31',devEnd:'2026.09.30',testEnd:'2026.11.30',openDate:'2026.12.01',members:7,budget:'22Ã¬ÂÂµ',type:'Ã¬ÂÂ ÃªÂ·ÂÃªÂ°ÂÃ«Â°Â',risk:'high',pm:'Ã¬ÂÂ´Ã¬ÂÂ¬Ã­ÂÂ Ã«Â¶ÂÃ¬ÂÂ¥',langs:['Python','TensorFlow','FastAPI'],team:[{name:'Ã¬ÂÂ´Ã¬ÂÂ¬Ã­ÂÂ',role:'PM'},{name:'Ã«Â°ÂÃ¬ÂÂÃ¬ÂÂ°',role:'MLÃ¬ÂÂÃ¬Â§ÂÃ«ÂÂÃ¬ÂÂ´'},{name:'ÃªÂ¹ÂÃ¬ÂÂ±Ã¬Â¤Â',role:'Ã«ÂÂ°Ã¬ÂÂ´Ã­ÂÂ°Ã¬ÂÂÃ¬Â§ÂÃ«ÂÂÃ¬ÂÂ´'},{name:'Ã¬ÂµÂÃ¬ÂÂÃ«Â¦Â',role:'Ã«ÂÂ°Ã¬ÂÂ´Ã­ÂÂ°Ã¬ÂÂÃ¬Â§ÂÃ«ÂÂÃ¬ÂÂ´'},{name:'Ã¬Â ÂÃ¬ÂÂ°Ã¬Â§Â',role:'Ã«Â°Â±Ã¬ÂÂÃ«ÂÂÃªÂ°ÂÃ«Â°ÂÃ¬ÂÂ'},{name:'Ã«Â¥ÂÃ¬ÂÂ¹Ã­ÂÂ',role:'Ã«Â°Â±Ã¬ÂÂÃ«ÂÂÃªÂ°ÂÃ«Â°ÂÃ¬ÂÂ'},{name:'Ã¬ÂÂ Ã¬ÂÂÃ¬ÂÂ¬',role:'DevOps'}],desc:'Ã«Â¨Â¸Ã¬ÂÂ Ã«ÂÂ¬Ã«ÂÂ ÃªÂ¸Â°Ã«Â°Â Ã¬ÂÂ¤Ã¬ÂÂÃªÂ°Â Ã¬Â¹Â´Ã«ÂÂ Ã«Â°ÂÃªÂ¸Â Ã¬ÂÂ¬Ã¬ÂÂ¬ Ã¬ÂÂÃ¬Â§Â'},
+{id:'p7',name:'Ã«Â¡Â¯Ã«ÂÂ°Ã¬Â¹Â´Ã«ÂÂ Ã«Â§ÂÃ¬ÂÂ´Ã«ÂÂ°Ã¬ÂÂ´Ã­ÂÂ°',client:'Ã«Â¡Â¯Ã«ÂÂ°Ã¬Â¹Â´Ã«ÂÂ',location:'Ã¬ÂÂÃ¬ÂÂ¸ Ã¬ÂÂÃ¬Â´Â',lat:37.4870,lng:127.0160,status:'test',start:'2025.01.06',end:'2026.06.30',designEnd:'2025.03.31',devEnd:'2026.01.31',testEnd:'2026.04.30',openDate:'2026.05.11',members:9,budget:'17Ã¬ÂÂµ',type:'Ã¬ÂÂ ÃªÂ·ÂÃªÂ°ÂÃ«Â°Â',risk:'low',pm:'Ã¬ÂµÂÃ¬ÂÂÃ¬Â§Â Ã¬Â°Â¨Ã¬ÂÂ¥',langs:['Java','Spring','MySQL'],team:[{name:'Ã¬ÂµÂÃ¬ÂÂÃ¬Â§Â',role:'PM'},{name:'ÃªÂ°ÂÃ­ÂÂÃ¬ÂÂ',role:'ÃªÂ°ÂÃ«Â°ÂÃ«Â¦Â¬Ã«ÂÂ'},{name:'Ã¬ÂÂ´Ã¬Â§ÂÃ­ÂÂ',role:'ÃªÂ°ÂÃ«Â°ÂÃ¬ÂÂ'},{name:'Ã«Â°ÂÃ­ÂÂÃ«ÂÂ',role:'ÃªÂ°ÂÃ«Â°ÂÃ¬ÂÂ'},{name:'ÃªÂ¹ÂÃ¬ÂÂÃ¬Â¤Â',role:'ÃªÂ°ÂÃ«Â°ÂÃ¬ÂÂ'},{name:'Ã¬ÂÂ¤Ã«ÂÂ¤Ã¬ÂÂ¸',role:'ÃªÂ°ÂÃ«Â°ÂÃ¬ÂÂ'},{name:'Ã¬Â ÂÃ¬Â±ÂÃ¬ÂÂ',role:'DBA'},{name:'Ã¬ÂÂÃ¬ÂÂÃ­ÂÂ¬',role:'QA'},{name:'Ã­ÂÂÃ¬Â¤ÂÃ­ÂÂ',role:'Ã«Â¶ÂÃ¬ÂÂÃªÂ°Â'}],desc:'Ã«Â§ÂÃ¬ÂÂ´Ã«ÂÂ°Ã¬ÂÂ´Ã­ÂÂ° Ã­ÂÂÃ«ÂÂ«Ã­ÂÂ¼ ÃªÂµÂ¬Ã¬Â¶Â Ã«Â°Â Ã¬ÂÂ¤Ã­ÂÂAPI Ã¬ÂÂ°Ã«ÂÂ'},
+{id:'p8',name:'Ã¬ÂÂ¼Ã¬ÂÂ±Ã­ÂÂÃ¬ÂÂ¬ Ã¬Â ÂÃ¬ÂÂ° ÃªÂ³Â Ã«ÂÂÃ­ÂÂ',client:'Ã¬ÂÂ¼Ã¬ÂÂ±Ã­ÂÂÃ¬ÂÂ¬',location:'Ã¬ÂÂÃ¬ÂÂ¸ Ã¬ÂÂÃ¬Â´Â Ã¬ÂÂ¼Ã¬ÂÂ±Ã­ÂÂÃ¬ÂÂ´',lat:37.4980,lng:127.0276,status:'test',start:'2024.08.05',end:'2026.04.30',designEnd:'2024.11.30',devEnd:'2025.10.31',testEnd:'2026.02.28',openDate:'2026.03.16',members:16,budget:'52Ã¬ÂÂµ',type:'ÃªÂ³Â Ã«ÂÂÃ­ÂÂ',risk:'low',pm:'Ã­ÂÂÃ«ÂÂÃ­ÂÂ Ã¬ÂÂÃ¬ÂÂ',langs:['COBOL','Java','Oracle'],team:[{name:'Ã­ÂÂÃ«ÂÂÃ­ÂÂ',role:'PM'},{name:'Ã¬ÂÂ¤Ã¬ÂÂ¹Ã­ÂÂ',role:'ÃªÂ°ÂÃ«Â°ÂÃ«Â¦Â¬Ã«ÂÂ'},{name:'Ã¬ÂÂ´Ã¬ÂÂÃ­ÂÂ',role:'Ã¬ÂÂÃ­ÂÂ¤Ã­ÂÂÃ­ÂÂ¸'},{name:'ÃªÂ¹ÂÃ«Â¯Â¼Ã¬Â¤Â',role:'ÃªÂ°ÂÃ«Â°ÂÃ¬ÂÂ'},{name:'Ã«Â°ÂÃ¬Â§ÂÃ¬ÂÂ',role:'ÃªÂ°ÂÃ«Â°ÂÃ¬ÂÂ'},{name:'Ã¬ÂµÂÃ­ÂÂÃ¬ÂÂ°',role:'ÃªÂ°ÂÃ«Â°ÂÃ¬ÂÂ'},{name:'Ã¬Â ÂÃ«ÂÂ¤Ã­ÂÂ',role:'ÃªÂ°ÂÃ«Â°ÂÃ¬ÂÂ'},{name:'ÃªÂ°ÂÃ¬Â¤ÂÃ­ÂÂ¸',role:'ÃªÂ°ÂÃ«Â°ÂÃ¬ÂÂ'},{name:'Ã¬Â¡Â°Ã«Â¯Â¼Ã¬ÂÂ',role:'ÃªÂ°ÂÃ«Â°ÂÃ¬ÂÂ'},{name:'Ã¬ÂÂÃ¬Â§ÂÃ­ÂÂ',role:'ÃªÂ°ÂÃ«Â°ÂÃ¬ÂÂ'},{name:'Ã¬ÂÂ¤Ã¬ÂÂÃ«ÂÂ¼',role:'DBA'},{name:'Ã¬ÂÂÃ¬Â²Â Ã¬ÂÂ',role:'DBA'},{name:'Ã«Â°Â°Ã¬ÂÂÃ¬ÂÂ°',role:'QA'},{name:'Ã«Â¥ÂÃ«Â¯Â¼Ã¬Â Â',role:'QA'},{name:'Ã¬ÂÂ¥Ã­ÂÂÃ¬ÂÂ',role:'QA'},{name:'Ã¬ÂÂ Ã«ÂÂÃ¬ÂÂ°',role:'Ã«Â¶ÂÃ¬ÂÂÃªÂ°Â'}],desc:'Ã¬Â°Â¨Ã¬ÂÂ¸Ã«ÂÂ Ã«Â³Â´Ã­ÂÂ Ã­ÂÂµÃ¬ÂÂ¬ÃªÂ³ÂÃ¬Â Â Ã¬ÂÂÃ¬ÂÂ¤Ã­ÂÂ ÃªÂ³Â Ã«ÂÂÃ­ÂÂ'},
+{id:'p9',name:'KT Ã«Â§ÂÃªÂ´ÂÃ«Â¦Â¬ Ã¬ÂÂÃ¬ÂÂ¤Ã­ÂÂ',client:'KT',location:'Ã¬ÂÂÃ¬ÂÂ¸ ÃªÂ´ÂÃ­ÂÂÃ«Â¬Â¸ KTÃ¬ÂÂ¬Ã¬ÂÂ¥',lat:37.5722,lng:126.9795,status:'test',start:'2025.03.03',end:'2026.08.31',designEnd:'2025.06.30',devEnd:'2026.03.31',testEnd:'2026.06.30',openDate:'2026.07.06',members:12,budget:'31Ã¬ÂÂµ',type:'Ã¬ÂÂ¬ÃªÂµÂ¬Ã¬Â¶Â',risk:'mid',pm:'Ã¬ÂÂ¤Ã¬ÂÂ¹Ã­ÂÂ Ã¬ÂÂÃ¬ÂÂ',langs:['Go','gRPC','Kubernetes'],team:[{name:'Ã¬ÂÂ¤Ã¬ÂÂ¹Ã­ÂÂ',role:'PM'},{name:'Ã¬ÂÂ´Ã¬ÂÂ¬Ã­ÂÂ',role:'ÃªÂ°ÂÃ«Â°ÂÃ«Â¦Â¬Ã«ÂÂ'},{name:'ÃªÂ¹ÂÃ­ÂÂÃ¬ÂÂ',role:'Ã«ÂÂ¤Ã­ÂÂ¸Ã¬ÂÂÃ­ÂÂ¬Ã¬ÂÂÃ¬Â§ÂÃ«ÂÂÃ¬ÂÂ´'},{name:'Ã«Â°ÂÃ¬Â§ÂÃ¬ÂÂ°',role:'Ã«ÂÂ¤Ã­ÂÂ¸Ã¬ÂÂÃ­ÂÂ¬Ã¬ÂÂÃ¬Â§ÂÃ«ÂÂÃ¬ÂÂ´'},{name:'Ã¬ÂµÂÃ¬ÂÂÃ­ÂÂ',role:'ÃªÂ°ÂÃ«Â°ÂÃ¬ÂÂ'},{name:'Ã¬Â ÂÃ«Â¯Â¼Ã­ÂÂ¸',role:'ÃªÂ°ÂÃ«Â°ÂÃ¬ÂÂ'},{name:'ÃªÂ°ÂÃ­ÂÂÃ¬Â§Â',role:'ÃªÂ°ÂÃ«Â°ÂÃ¬ÂÂ'},{name:'Ã¬Â¡Â°Ã¬ÂÂ°Ã¬Â§Â',role:'ÃªÂ°ÂÃ«Â°ÂÃ¬ÂÂ'},{name:'Ã­ÂÂÃ«ÂÂ¤Ã¬ÂÂ',role:'DBA'},{name:'Ã¬ÂÂÃ¬ÂÂ¬Ã­ÂÂ',role:'QA'},{name:'Ã«ÂÂ¸Ã¬ÂÂÃ¬Â§Â',role:'QA'},{name:'Ã­ÂÂ©Ã¬ÂÂ±Ã«Â¯Â¼',role:'DevOps'}],desc:'5G Ã­ÂÂµÃ¬ÂÂ  Ã«Â§Â Ã¬ÂÂ¤Ã¬ÂÂÃªÂ°Â Ã«ÂªÂ¨Ã«ÂÂÃ­ÂÂ°Ã«Â§Â Ã«Â°Â Ã¬ÂÂ¥Ã¬ÂÂ  Ã«ÂÂÃ¬ÂÂ'},
+{id:'p10',name:'ÃªÂµÂ­Ã«Â¯Â¼ÃªÂ±Â´ÃªÂ°ÂÃ«Â³Â´Ã­ÂÂ EDI',client:'ÃªÂµÂ­Ã«Â¯Â¼ÃªÂ±Â´ÃªÂ°ÂÃ«Â³Â´Ã­ÂÂÃªÂ³ÂµÃ«ÂÂ¨',location:'Ã¬ÂÂÃ¬ÂÂ¸ Ã«Â§ÂÃ­ÂÂ¬',lat:37.5540,lng:126.9104,status:'plan',start:'2026.10.05',end:'2028.02.28',designEnd:'2027.01.31',devEnd:'2027.09.30',testEnd:'2027.12.31',openDate:'2027.12.01',members:6,budget:'38Ã¬ÂÂµ',type:'Ã¬ÂÂ¬ÃªÂµÂ¬Ã¬Â¶Â',risk:'mid',pm:'ÃªÂ°ÂÃ­ÂÂÃ¬ÂÂ Ã«Â¶ÂÃ¬ÂÂ¥',langs:['Ã«Â¯Â¸Ã¬Â Â'],team:[{name:'ÃªÂ°ÂÃ­ÂÂÃ¬ÂÂ',role:'PM'},{name:'Ã¬ÂÂ´Ã¬ÂÂÃªÂ²Â½',role:'PL'},{name:'Ã«Â°ÂÃ¬ÂÂ¬Ã«Â¯Â¼',role:'Ã«Â¶ÂÃ¬ÂÂÃªÂ°Â'},{name:'Ã¬ÂµÂÃ¬Â§ÂÃ¬ÂÂ',role:'ÃªÂ°ÂÃ«Â°ÂÃ¬ÂÂ'},{name:'Ã¬Â ÂÃ­ÂÂÃ¬ÂÂ',role:'ÃªÂ°ÂÃ«Â°ÂÃ¬ÂÂ'},{name:'ÃªÂ¹ÂÃ«ÂÂÃ¬ÂÂ',role:'DBA'}],desc:'EDI Ã¬Â ÂÃ¬ÂÂ° Ã¬ÂÂÃ¬ÂÂ¤Ã­ÂÂ Ã¬Â°Â¨Ã¬ÂÂ¸Ã«ÂÂ Ã¬Â ÂÃ­ÂÂ'},
+{id:'p11',name:'Ã«ÂÂÃ¬Â Â Ã¬ÂÂ¤Ã«Â§ÂÃ­ÂÂ¸Ã¬ÂÂÃ­ÂÂ° Ã­ÂÂÃ«ÂÂ«Ã­ÂÂ¼',client:'Ã«ÂÂÃ¬Â ÂÃªÂ´ÂÃ¬ÂÂ­Ã¬ÂÂ',location:'Ã«ÂÂÃ¬Â Â Ã¬ÂÂ Ã¬ÂÂ±ÃªÂµÂ¬',lat:36.3624,lng:127.3569,status:'dev',start:'2025.06.02',end:'2027.05.31',designEnd:'2025.09.30',devEnd:'2026.09.30',testEnd:'2027.01.31',openDate:'2027.03.01',members:10,budget:'67Ã¬ÂÂµ',type:'Ã¬ÂÂ ÃªÂ·ÂÃªÂ°ÂÃ«Â°Â',risk:'mid',pm:'Ã¬ÂÂ¤Ã¬ÂÂ±Ã«Â¯Â¼ Ã¬ÂÂ´Ã¬ÂÂ¬',langs:['Python','IoT','React'],team:[{name:'Ã¬ÂÂ¤Ã¬ÂÂ±Ã«Â¯Â¼',role:'PM'},{name:'Ã¬ÂÂÃ¬Â§ÂÃ«Â¯Â¼',role:'ÃªÂ°ÂÃ«Â°ÂÃ«Â¦Â¬Ã«ÂÂ'},{name:'Ã¬ÂÂ´Ã«ÂÂ¤Ã¬ÂÂ',role:'IoTÃ¬ÂÂÃ¬Â§ÂÃ«ÂÂÃ¬ÂÂ´'},{name:'Ã«Â°ÂÃ¬ÂÂ±Ã­ÂÂ¸',role:'IoTÃ¬ÂÂÃ¬Â§ÂÃ«ÂÂÃ¬ÂÂ´'},{name:'ÃªÂ¹ÂÃ¬Â£Â¼Ã¬ÂÂ',role:'ÃªÂ°ÂÃ«Â°ÂÃ¬ÂÂ'},{name:'Ã¬ÂµÂÃ«Â¯Â¼Ã¬ÂÂ',role:'ÃªÂ°ÂÃ«Â°ÂÃ¬ÂÂ'},{name:'Ã¬Â ÂÃ¬ÂÂÃ¬ÂÂ',role:'ÃªÂ°ÂÃ«Â°ÂÃ¬ÂÂ'},{name:'ÃªÂ°ÂÃ¬ÂÂ¸Ã¬Â¤Â',role:'DBA'},{name:'Ã¬Â¡Â°Ã¬ÂÂÃ¬ÂÂ',role:'QA'},{name:'Ã­ÂÂÃ«ÂÂÃ¬ÂÂ°',role:'Ã«Â¶ÂÃ¬ÂÂÃªÂ°Â'}],desc:'Ã¬ÂÂ¤Ã«Â§ÂÃ­ÂÂ¸Ã¬ÂÂÃ­ÂÂ° Ã­ÂÂµÃ­ÂÂ©ÃªÂ´ÂÃ¬Â Â Ã«Â°Â Ã«Â¹ÂÃ«ÂÂ°Ã¬ÂÂ´Ã­ÂÂ° Ã«Â¶ÂÃ¬ÂÂ Ã­ÂÂÃ«ÂÂ«Ã­ÂÂ¼'},
+{id:'p12',name:'Ã«Â²Â Ã­ÂÂ¸Ã«ÂÂ¨ VPBank Ã«Â±ÂÃ­ÂÂ¹Ã¬ÂÂ±',client:'VPBank',location:'Ã«Â²Â Ã­ÂÂ¸Ã«ÂÂ¨ Ã­ÂÂ¸Ã¬Â¹ÂÃ«Â¯Â¼',lat:10.8231,lng:106.6297,status:'plan',start:'2026.07.06',end:'2027.12.31',designEnd:'2026.10.31',devEnd:'2027.05.31',testEnd:'2027.07.31',openDate:'2027.09.01',members:8,budget:'USD 1.8M',type:'Ã¬ÂÂ ÃªÂ·ÂÃªÂ°ÂÃ«Â°Â',risk:'high',pm:'Ã¬ÂÂÃ¬Â§ÂÃ«Â¯Â¼ Ã¬ÂÂ´Ã¬ÂÂ¬',langs:['Flutter','Go','Firebase'],team:[{name:'Ã¬ÂÂÃ¬Â§ÂÃ«Â¯Â¼',role:'PM'},{name:'Ã¬ÂÂ´Ã¬Â¤ÂÃ­ÂÂ',role:'FlutterÃªÂ°ÂÃ«Â°ÂÃ¬ÂÂ'},{name:'Ã«Â°ÂÃ¬Â§ÂÃ¬ÂÂ',role:'FlutterÃªÂ°ÂÃ«Â°ÂÃ¬ÂÂ'},{name:'ÃªÂ¹ÂÃ¬ÂÂ±Ã­ÂÂ',role:'FlutterÃªÂ°ÂÃ«Â°ÂÃ¬ÂÂ'},{name:'Ã¬ÂµÂÃ­ÂÂÃ«Â¯Â¼',role:'Ã«Â°Â±Ã¬ÂÂÃ«ÂÂÃªÂ°ÂÃ«Â°ÂÃ¬ÂÂ'},{name:'Ã¬Â ÂÃ­ÂÂ´Ã¬ÂÂ¸',role:'Ã«Â°Â±Ã¬ÂÂÃ«ÂÂÃªÂ°ÂÃ«Â°ÂÃ¬ÂÂ'},{name:'ÃªÂ°ÂÃ«ÂÂ¤Ã­ÂÂ¬',role:'DevOps'},{name:'Ã¬ÂÂÃ¬Â±ÂÃ¬ÂÂ',role:'QA'}],desc:'Ã«Â²Â Ã­ÂÂ¸Ã«ÂÂ¨ Ã­ÂÂÃ¬Â§Â Ã«Â§ÂÃ¬Â¶Â¤Ã­ÂÂ Ã«ÂªÂ¨Ã«Â°ÂÃ¬ÂÂ¼ Ã«Â±ÂÃ­ÂÂ¹ Ã¬ÂÂ±'}
 ];
 
-// âââââââââââââââââââââââââââââââââââ
+// Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 //  STATE
-// âââââââââââââââââââââââââââââââââââ
+// Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 let currentUser=null,userProfile=null,projects=[],appUsers=[],leafletMap=null,markerLayerGroup=null,statusChartObj=null,currentPage='dashboard',searchQuery='',unsubscribeProjFn=null;
 
-// âââââââââââââââââââââââââââââââââââ
+// Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 //  AUTH STATE
-// âââââââââââââââââââââââââââââââââââ
+// Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 auth.onAuthStateChanged(async fbUser=>{
   if(window._signingUp)return;
   if(fbUser){
     try{
       const doc=await db.collection('users').doc(fbUser.uid).get();
       if(!doc.exists||doc.data().isActive===false){await auth.signOut();showScreen('login');return;}
-      // ì´ë©ì¼ ì¸ì¦ ì²´í¬ (ì´ê¸° ì¤ì  ê´ë¦¬ìë ìì¸ - admin roleì´ë©´ íµê³¼)
+      // Ã¬ÂÂ´Ã«Â©ÂÃ¬ÂÂ¼ Ã¬ÂÂ¸Ã¬Â¦Â Ã¬Â²Â´Ã­ÂÂ¬ (Ã¬Â´ÂÃªÂ¸Â° Ã¬ÂÂ¤Ã¬Â Â ÃªÂ´ÂÃ«Â¦Â¬Ã¬ÂÂÃ«ÂÂ Ã¬ÂÂÃ¬ÂÂ¸ - admin roleÃ¬ÂÂ´Ã«Â©Â´ Ã­ÂÂµÃªÂ³Â¼)
       if(!fbUser.emailVerified && doc.data().role!=='admin'){
         await auth.signOut();showScreen('login');return;
       }
@@ -605,24 +604,24 @@ function showScreen(name){
   else{document.getElementById(name+'Screen').style.display='flex';}
 }
 
-// âââââââââââââââââââââââââââââââââââ
-//  ë¹ë°ë²í¸ ê°ë
-// âââââââââââââââââââââââââââââââââââ
+// Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
+//  Ã«Â¹ÂÃ«Â°ÂÃ«Â²ÂÃ­ÂÂ¸ ÃªÂ°ÂÃ«ÂÂ
+// Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 function checkPwStrength(pw,barId,hintId){
   let score=0,hint='';
   if(pw.length>=8)score++;if(pw.length>=12)score++;
   if(/[A-Z]/.test(pw))score++;if(/[0-9]/.test(pw))score++;if(/[^A-Za-z0-9]/.test(pw))score++;
   const colors=['#ef4444','#f59e0b','#f59e0b','#4fcc7a','#4fcc7a'];
-  const labels=['ë§¤ì° ì½í¨','ì½í¨','ë³´íµ','ê°í¨','ë§¤ì° ê°í¨'];
+  const labels=['Ã«Â§Â¤Ã¬ÂÂ° Ã¬ÂÂ½Ã­ÂÂ¨','Ã¬ÂÂ½Ã­ÂÂ¨','Ã«Â³Â´Ã­ÂÂµ','ÃªÂ°ÂÃ­ÂÂ¨','Ã«Â§Â¤Ã¬ÂÂ° ÃªÂ°ÂÃ­ÂÂ¨'];
   const widths=['20%','40%','60%','80%','100%'];
   if(pw.length===0){document.getElementById(barId).style.width='0';document.getElementById(hintId).textContent='';return score;}
   document.getElementById(barId).style.cssText=`height:3px;border-radius:2px;background:${colors[score-1]||colors[0]};width:${widths[score-1]||'10%'};transition:all 0.3s;`;
   document.getElementById(hintId).textContent=labels[score-1]||labels[0];
   return score;}
 
-// âââââââââââââââââââââââââââââââââââ
-//  ìµì´ ì¤ì 
-// âââââââââââââââââââââââââââââââââââ
+// Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
+//  Ã¬ÂµÂÃ¬Â´Â Ã¬ÂÂ¤Ã¬Â Â
+// Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 async function doSetup(){
   const name=document.getElementById('setupName').value.trim();
   const email=document.getElementById('setupEmail').value.trim();
@@ -630,19 +629,19 @@ async function doSetup(){
   const pw2=document.getElementById('setupPw2').value;
   const err=document.getElementById('setupErr');
   err.style.display='none';
-  if(!name||!email||!pw){err.textContent='ëª¨ë  í­ëª©ì ìë ¥í´ì£¼ì¸ì.';err.style.display='block';return;}
-  if(pw.length<8){err.textContent='ë¹ë°ë²í¸ë 8ì ì´ìì´ì´ì¼ í©ëë¤.';err.style.display='block';return;}
-  if(pw!==pw2){err.textContent='ë¹ë°ë²í¸ê° ì¼ì¹íì§ ììµëë¤.';err.style.display='block';return;}
+  if(!name||!email||!pw){err.textContent='Ã«ÂªÂ¨Ã«ÂÂ  Ã­ÂÂ­Ã«ÂªÂ©Ã¬ÂÂ Ã¬ÂÂÃ«Â Â¥Ã­ÂÂ´Ã¬Â£Â¼Ã¬ÂÂ¸Ã¬ÂÂ.';err.style.display='block';return;}
+  if(pw.length<8){err.textContent='Ã«Â¹ÂÃ«Â°ÂÃ«Â²ÂÃ­ÂÂ¸Ã«ÂÂ 8Ã¬ÂÂ Ã¬ÂÂ´Ã¬ÂÂÃ¬ÂÂ´Ã¬ÂÂ´Ã¬ÂÂ¼ Ã­ÂÂ©Ã«ÂÂÃ«ÂÂ¤.';err.style.display='block';return;}
+  if(pw!==pw2){err.textContent='Ã«Â¹ÂÃ«Â°ÂÃ«Â²ÂÃ­ÂÂ¸ÃªÂ°Â Ã¬ÂÂ¼Ã¬Â¹ÂÃ­ÂÂÃ¬Â§Â Ã¬ÂÂÃ¬ÂÂµÃ«ÂÂÃ«ÂÂ¤.';err.style.display='block';return;}
   try{
     const cred=await auth.createUserWithEmailAndPassword(email,pw);
     await db.collection('users').doc(cred.user.uid).set({uid:cred.user.uid,name,email,role:'admin',isOwner:true,mustChangePassword:false,isActive:true,createdAt:firebase.firestore.FieldValue.serverTimestamp()});
-    showToast('ê´ë¦¬ì ê³ì ì´ ìì±ëìµëë¤.');
+    showToast('ÃªÂ´ÂÃ«Â¦Â¬Ã¬ÂÂ ÃªÂ³ÂÃ¬Â ÂÃ¬ÂÂ´ Ã¬ÂÂÃ¬ÂÂ±Ã«ÂÂÃ¬ÂÂµÃ«ÂÂÃ«ÂÂ¤.');
   }catch(e){err.textContent=firebaseErrMsg(e.code);err.style.display='block';}}
 
-// âââââââââââââââââââââââââââââââââââ
-//  ë¡ê·¸ì¸
-// âââââââââââââââââââââââââââââââââââ
-// ââ í­ ì í ââ
+// Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
+//  Ã«Â¡ÂÃªÂ·Â¸Ã¬ÂÂ¸
+// Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
+// Ã¢ÂÂÃ¢ÂÂ Ã­ÂÂ­ Ã¬Â ÂÃ­ÂÂ Ã¢ÂÂÃ¢ÂÂ
 function switchTab(tab){
   const isLogin=tab==='login';
   document.getElementById('loginForm').style.display=isLogin?'block':'none';
@@ -653,7 +652,7 @@ function switchTab(tab){
   document.getElementById('tabSignup').style.cssText=`flex:1;padding:7px;border:none;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;background:${tab==='signup'?'var(--bg2)':'transparent'};color:${tab==='signup'?'var(--text)':'var(--text3)'};`;}
 function showForgot(){document.getElementById('loginForm').style.display='none';document.getElementById('forgotForm').style.display='block';document.getElementById('authTabs').style.display='none';}
 
-// ââ íìê°ì (ëë©ì¸ ì í + ì´ë©ì¼ ì¸ì¦) ââ
+// Ã¢ÂÂÃ¢ÂÂ Ã­ÂÂÃ¬ÂÂÃªÂ°ÂÃ¬ÂÂ (Ã«ÂÂÃ«Â©ÂÃ¬ÂÂ¸ Ã¬Â ÂÃ­ÂÂ + Ã¬ÂÂ´Ã«Â©ÂÃ¬ÂÂ¼ Ã¬ÂÂ¸Ã¬Â¦Â) Ã¢ÂÂÃ¢ÂÂ
 const ALLOWED_DOMAIN = 'bankwareglobal.com';
 async function doSignup(){
   const name=document.getElementById('signupName').value.trim();
@@ -662,34 +661,34 @@ async function doSignup(){
   const pw2=document.getElementById('signupPw2').value;
   const err=document.getElementById('signupErr'),ok=document.getElementById('signupOk');
   err.style.display='none';ok.style.display='none';
-  if(!name){err.textContent='ì´ë¦ì ìë ¥í´ì£¼ì¸ì.';err.style.display='block';return;}
-  if(!email){err.textContent='ì´ë©ì¼ì ìë ¥í´ì£¼ì¸ì.';err.style.display='block';return;}
-  // ëë©ì¸ ì í
+  if(!name){err.textContent='Ã¬ÂÂ´Ã«Â¦ÂÃ¬ÂÂ Ã¬ÂÂÃ«Â Â¥Ã­ÂÂ´Ã¬Â£Â¼Ã¬ÂÂ¸Ã¬ÂÂ.';err.style.display='block';return;}
+  if(!email){err.textContent='Ã¬ÂÂ´Ã«Â©ÂÃ¬ÂÂ¼Ã¬ÂÂ Ã¬ÂÂÃ«Â Â¥Ã­ÂÂ´Ã¬Â£Â¼Ã¬ÂÂ¸Ã¬ÂÂ.';err.style.display='block';return;}
+  // Ã«ÂÂÃ«Â©ÂÃ¬ÂÂ¸ Ã¬Â ÂÃ­ÂÂ
   if(!email.endsWith('@'+ALLOWED_DOMAIN)){
-    err.textContent=`ë±í¬ì¨ì´ê¸ë¡ë² ìì§ìë§ ê°ì ê°ë¥í©ëë¤. (@${ALLOWED_DOMAIN})`;
+    err.textContent=`Ã«Â±ÂÃ­ÂÂ¬Ã¬ÂÂ¨Ã¬ÂÂ´ÃªÂ¸ÂÃ«Â¡ÂÃ«Â²Â Ã¬ÂÂÃ¬Â§ÂÃ¬ÂÂÃ«Â§Â ÃªÂ°ÂÃ¬ÂÂ ÃªÂ°ÂÃ«ÂÂ¥Ã­ÂÂ©Ã«ÂÂÃ«ÂÂ¤. (@${ALLOWED_DOMAIN})`;
     err.style.display='block';return;}
-  if(pw.length<8){err.textContent='ë¹ë°ë²í¸ë 8ì ì´ìì´ì´ì¼ í©ëë¤.';err.style.display='block';return;}
-  if(pw!==pw2){err.textContent='ë¹ë°ë²í¸ê° ì¼ì¹íì§ ììµëë¤.';err.style.display='block';return;}
+  if(pw.length<8){err.textContent='Ã«Â¹ÂÃ«Â°ÂÃ«Â²ÂÃ­ÂÂ¸Ã«ÂÂ 8Ã¬ÂÂ Ã¬ÂÂ´Ã¬ÂÂÃ¬ÂÂ´Ã¬ÂÂ´Ã¬ÂÂ¼ Ã­ÂÂ©Ã«ÂÂÃ«ÂÂ¤.';err.style.display='block';return;}
+  if(pw!==pw2){err.textContent='Ã«Â¹ÂÃ«Â°ÂÃ«Â²ÂÃ­ÂÂ¸ÃªÂ°Â Ã¬ÂÂ¼Ã¬Â¹ÂÃ­ÂÂÃ¬Â§Â Ã¬ÂÂÃ¬ÂÂµÃ«ÂÂÃ«ÂÂ¤.';err.style.display='block';return;}
   try{
     window._signingUp=true;
     const cred=await auth.createUserWithEmailAndPassword(email,pw);
-    // Firestore íë¡í ì ì¥
+    // Firestore Ã­ÂÂÃ«Â¡ÂÃ­ÂÂ Ã¬Â ÂÃ¬ÂÂ¥
     await db.collection('users').doc(cred.user.uid).set({
       uid:cred.user.uid,name,email,role:'viewer',
       mustChangePassword:false,isActive:true,
       createdAt:firebase.firestore.FieldValue.serverTimestamp()
     });
-    // ì¸ì¦ ì´ë©ì¼ ë°ì¡
+    // Ã¬ÂÂ¸Ã¬Â¦Â Ã¬ÂÂ´Ã«Â©ÂÃ¬ÂÂ¼ Ã«Â°ÂÃ¬ÂÂ¡
     await cred.user.sendEmailVerification();
     await new Promise(r=>setTimeout(r,500));
     await auth.signOut();
     window._signingUp=false;
-    ok.textContent='â ê°ì ìë£! '+email+'ë¡ ì¸ì¦ ì´ë©ì¼ì ë°ì¡íìµëë¤. ë°ì í¸ì§í¨ì íì¸íê³  ë§í¬ë¥¼ í´ë¦­í ë¤ ë¡ê·¸ì¸í´ì£¼ì¸ì.';
+    ok.textContent='Ã¢ÂÂ ÃªÂ°ÂÃ¬ÂÂ Ã¬ÂÂÃ«Â£Â! '+email+'Ã«Â¡Â Ã¬ÂÂ¸Ã¬Â¦Â Ã¬ÂÂ´Ã«Â©ÂÃ¬ÂÂ¼Ã¬ÂÂ Ã«Â°ÂÃ¬ÂÂ¡Ã­ÂÂÃ¬ÂÂµÃ«ÂÂÃ«ÂÂ¤. Ã«Â°ÂÃ¬ÂÂ Ã­ÂÂ¸Ã¬Â§ÂÃ­ÂÂ¨Ã¬ÂÂ Ã­ÂÂÃ¬ÂÂ¸Ã­ÂÂÃªÂ³Â  Ã«Â§ÂÃ­ÂÂ¬Ã«Â¥Â¼ Ã­ÂÂ´Ã«Â¦Â­Ã­ÂÂ Ã«ÂÂ¤ Ã«Â¡ÂÃªÂ·Â¸Ã¬ÂÂ¸Ã­ÂÂ´Ã¬Â£Â¼Ã¬ÂÂ¸Ã¬ÂÂ.';
     ok.style.display='block';
   }catch(e){
     window._signingUp=false;
     if(e.code==='auth/email-already-in-use'){
-      err.textContent='ì´ë¯¸ ê°ìë ì´ë©ì¼ìëë¤. ê´ë¦¬ìë¡ë¶í° ì´ëë¥¼ ë°ì¼ì¨ë¤ë©´ ì´ë ì´ë©ì¼ì ë§í¬ë¡ ë¹ë°ë²í¸ë¥¼ ì¤ì í ë¤ ë¡ê·¸ì¸í´ì£¼ì¸ì.';
+      err.textContent='Ã¬ÂÂ´Ã«Â¯Â¸ ÃªÂ°ÂÃ¬ÂÂÃ«ÂÂ Ã¬ÂÂ´Ã«Â©ÂÃ¬ÂÂ¼Ã¬ÂÂÃ«ÂÂÃ«ÂÂ¤. ÃªÂ´ÂÃ«Â¦Â¬Ã¬ÂÂÃ«Â¡ÂÃ«Â¶ÂÃ­ÂÂ° Ã¬Â´ÂÃ«ÂÂÃ«Â¥Â¼ Ã«Â°ÂÃ¬ÂÂ¼Ã¬ÂÂ¨Ã«ÂÂ¤Ã«Â©Â´ Ã¬Â´ÂÃ«ÂÂ Ã¬ÂÂ´Ã«Â©ÂÃ¬ÂÂ¼Ã¬ÂÂ Ã«Â§ÂÃ­ÂÂ¬Ã«Â¡Â Ã«Â¹ÂÃ«Â°ÂÃ«Â²ÂÃ­ÂÂ¸Ã«Â¥Â¼ Ã¬ÂÂ¤Ã¬Â ÂÃ­ÂÂ Ã«ÂÂ¤ Ã«Â¡ÂÃªÂ·Â¸Ã¬ÂÂ¸Ã­ÂÂ´Ã¬Â£Â¼Ã¬ÂÂ¸Ã¬ÂÂ.';
     }else{
       err.textContent=firebaseErrMsg(e.code);
     }
@@ -700,17 +699,17 @@ async function doLogin(){
   const pw=document.getElementById('loginPw').value;
   const err=document.getElementById('loginErr');
   err.style.display='none';
-  if(!email||!pw){err.textContent='ì´ë©ì¼ê³¼ ë¹ë°ë²í¸ë¥¼ ìë ¥í´ì£¼ì¸ì.';err.style.display='block';return;}
+  if(!email||!pw){err.textContent='Ã¬ÂÂ´Ã«Â©ÂÃ¬ÂÂ¼ÃªÂ³Â¼ Ã«Â¹ÂÃ«Â°ÂÃ«Â²ÂÃ­ÂÂ¸Ã«Â¥Â¼ Ã¬ÂÂÃ«Â Â¥Ã­ÂÂ´Ã¬Â£Â¼Ã¬ÂÂ¸Ã¬ÂÂ.';err.style.display='block';return;}
   try{
     const cred=await auth.signInWithEmailAndPassword(email,pw);
-    // ì´ë©ì¼ ì¸ì¦ ì¬ë¶ íì¸
+    // Ã¬ÂÂ´Ã«Â©ÂÃ¬ÂÂ¼ Ã¬ÂÂ¸Ã¬Â¦Â Ã¬ÂÂ¬Ã«Â¶Â Ã­ÂÂÃ¬ÂÂ¸
     if(!cred.user.emailVerified){
       await auth.signOut();
-      // ì¬ë°ì¡ì ìí´ ì´ë©ì¼ë§ ì ì¥ (ë¹ë°ë²í¸ HTML ë¸ì¶ ë°©ì§)
+      // Ã¬ÂÂ¬Ã«Â°ÂÃ¬ÂÂ¡Ã¬ÂÂ Ã¬ÂÂÃ­ÂÂ´ Ã¬ÂÂ´Ã«Â©ÂÃ¬ÂÂ¼Ã«Â§Â Ã¬Â ÂÃ¬ÂÂ¥ (Ã«Â¹ÂÃ«Â°ÂÃ«Â²ÂÃ­ÂÂ¸ HTML Ã«ÂÂ¸Ã¬Â¶Â Ã«Â°Â©Ã¬Â§Â)
       window._pendingVerifyEmail=email;
-      err.textContent='ì´ë©ì¼ ì¸ì¦ì´ íìí©ëë¤. ë°ì í¸ì§í¨ì íì¸í´ì£¼ì¸ì. ';
+      err.textContent='Ã¬ÂÂ´Ã«Â©ÂÃ¬ÂÂ¼ Ã¬ÂÂ¸Ã¬Â¦ÂÃ¬ÂÂ´ Ã­ÂÂÃ¬ÂÂÃ­ÂÂ©Ã«ÂÂÃ«ÂÂ¤. Ã«Â°ÂÃ¬ÂÂ Ã­ÂÂ¸Ã¬Â§ÂÃ­ÂÂ¨Ã¬ÂÂ Ã­ÂÂÃ¬ÂÂ¸Ã­ÂÂ´Ã¬Â£Â¼Ã¬ÂÂ¸Ã¬ÂÂ. ';
       const link=document.createElement('a');
-      link.textContent='ì¸ì¦ ì´ë©ì¼ ì¬ë°ì¡';
+      link.textContent='Ã¬ÂÂ¸Ã¬Â¦Â Ã¬ÂÂ´Ã«Â©ÂÃ¬ÂÂ¼ Ã¬ÂÂ¬Ã«Â°ÂÃ¬ÂÂ¡';
       link.style.cssText='color:var(--blue);cursor:pointer;font-size:11px';
       link.onclick=()=>resendVerification(email,document.getElementById('loginPw').value);
       err.appendChild(link);
@@ -719,47 +718,47 @@ async function doLogin(){
     }
   }catch(e){err.textContent=firebaseErrMsg(e.code);err.style.display='block';}}
 
-// ì¸ì¦ ì´ë©ì¼ ì¬ë°ì¡
+// Ã¬ÂÂ¸Ã¬Â¦Â Ã¬ÂÂ´Ã«Â©ÂÃ¬ÂÂ¼ Ã¬ÂÂ¬Ã«Â°ÂÃ¬ÂÂ¡
 async function resendVerification(email,pw){
   try{
     const cred=await auth.signInWithEmailAndPassword(email,pw);
     await cred.user.sendEmailVerification();
     await auth.signOut();
-    document.getElementById('loginErr').textContent='ì¸ì¦ ì´ë©ì¼ì ì¬ë°ì¡íìµëë¤. ë°ì í¸ì§í¨ì íì¸í´ì£¼ì¸ì.';
+    document.getElementById('loginErr').textContent='Ã¬ÂÂ¸Ã¬Â¦Â Ã¬ÂÂ´Ã«Â©ÂÃ¬ÂÂ¼Ã¬ÂÂ Ã¬ÂÂ¬Ã«Â°ÂÃ¬ÂÂ¡Ã­ÂÂÃ¬ÂÂµÃ«ÂÂÃ«ÂÂ¤. Ã«Â°ÂÃ¬ÂÂ Ã­ÂÂ¸Ã¬Â§ÂÃ­ÂÂ¨Ã¬ÂÂ Ã­ÂÂÃ¬ÂÂ¸Ã­ÂÂ´Ã¬Â£Â¼Ã¬ÂÂ¸Ã¬ÂÂ.';
   }catch(e){console.error(e);}}
 
 async function doForgot(){
   const email=document.getElementById('forgotEmail').value.trim();
   const err=document.getElementById('forgotErr'),ok=document.getElementById('forgotOk');
   err.style.display='none';ok.style.display='none';
-  if(!email){err.textContent='ì´ë©ì¼ì ìë ¥í´ì£¼ì¸ì.';err.style.display='block';return;}
+  if(!email){err.textContent='Ã¬ÂÂ´Ã«Â©ÂÃ¬ÂÂ¼Ã¬ÂÂ Ã¬ÂÂÃ«Â Â¥Ã­ÂÂ´Ã¬Â£Â¼Ã¬ÂÂ¸Ã¬ÂÂ.';err.style.display='block';return;}
   try{
     await auth.sendPasswordResetEmail(email);
-    ok.textContent='â ì¬ì¤ì  ì´ë©ì¼ì ë°ì¡íìµëë¤. ë°ì í¸ì§í¨ì íì¸í´ì£¼ì¸ì.';
+    ok.textContent='Ã¢ÂÂ Ã¬ÂÂ¬Ã¬ÂÂ¤Ã¬Â Â Ã¬ÂÂ´Ã«Â©ÂÃ¬ÂÂ¼Ã¬ÂÂ Ã«Â°ÂÃ¬ÂÂ¡Ã­ÂÂÃ¬ÂÂµÃ«ÂÂÃ«ÂÂ¤. Ã«Â°ÂÃ¬ÂÂ Ã­ÂÂ¸Ã¬Â§ÂÃ­ÂÂ¨Ã¬ÂÂ Ã­ÂÂÃ¬ÂÂ¸Ã­ÂÂ´Ã¬Â£Â¼Ã¬ÂÂ¸Ã¬ÂÂ.';
     ok.style.display='block';
   }catch(e){err.textContent=firebaseErrMsg(e.code);err.style.display='block';}}
 
 async function doLogout(){await auth.signOut();showScreen('login');}
 
-// âââââââââââââââââââââââââââââââââââ
-//  ìµì´ ë¹ë°ë²í¸ ë³ê²½
-// âââââââââââââââââââââââââââââââââââ
+// Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
+//  Ã¬ÂµÂÃ¬Â´Â Ã«Â¹ÂÃ«Â°ÂÃ«Â²ÂÃ­ÂÂ¸ Ã«Â³ÂÃªÂ²Â½
+// Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 async function doChangePw(){
   const pw=document.getElementById('newPw').value;
   const pw2=document.getElementById('newPw2').value;
   const err=document.getElementById('changePwErr');
   err.style.display='none';
-  if(pw.length<8){err.textContent='ë¹ë°ë²í¸ë 8ì ì´ìì´ì´ì¼ í©ëë¤.';err.style.display='block';return;}
-  if(pw!==pw2){err.textContent='ë¹ë°ë²í¸ê° ì¼ì¹íì§ ììµëë¤.';err.style.display='block';return;}
+  if(pw.length<8){err.textContent='Ã«Â¹ÂÃ«Â°ÂÃ«Â²ÂÃ­ÂÂ¸Ã«ÂÂ 8Ã¬ÂÂ Ã¬ÂÂ´Ã¬ÂÂÃ¬ÂÂ´Ã¬ÂÂ´Ã¬ÂÂ¼ Ã­ÂÂ©Ã«ÂÂÃ«ÂÂ¤.';err.style.display='block';return;}
+  if(pw!==pw2){err.textContent='Ã«Â¹ÂÃ«Â°ÂÃ«Â²ÂÃ­ÂÂ¸ÃªÂ°Â Ã¬ÂÂ¼Ã¬Â¹ÂÃ­ÂÂÃ¬Â§Â Ã¬ÂÂÃ¬ÂÂµÃ«ÂÂÃ«ÂÂ¤.';err.style.display='block';return;}
   try{
     await currentUser.updatePassword(pw);
     await db.collection('users').doc(currentUser.uid).update({mustChangePassword:false});
     userProfile.mustChangePassword=false;
     initAppUI();showScreen('app');
-    showToast('ë¹ë°ë²í¸ê° ì¤ì ëìµëë¤. íìí©ëë¤!');
+    showToast('Ã«Â¹ÂÃ«Â°ÂÃ«Â²ÂÃ­ÂÂ¸ÃªÂ°Â Ã¬ÂÂ¤Ã¬Â ÂÃ«ÂÂÃ¬ÂÂµÃ«ÂÂÃ«ÂÂ¤. Ã­ÂÂÃ¬ÂÂÃ­ÂÂ©Ã«ÂÂÃ«ÂÂ¤!');
   }catch(e){err.textContent=firebaseErrMsg(e.code);err.style.display='block';}}
 
-// ì± ë´ ë¹ë°ë²í¸ ë³ê²½
+// Ã¬ÂÂ± Ã«ÂÂ´ Ã«Â¹ÂÃ«Â°ÂÃ«Â²ÂÃ­ÂÂ¸ Ã«Â³ÂÃªÂ²Â½
 function showChangePwModal(){document.getElementById('changePwModalOverlay').classList.add('open');}
 function closeChangePwModal(){document.getElementById('changePwModalOverlay').classList.remove('open');}
 async function doModalChangePw(){
@@ -767,41 +766,35 @@ async function doModalChangePw(){
   const pw2=document.getElementById('modalNewPw2').value;
   const err=document.getElementById('modalPwErr');
   err.style.display='none';
-  if(pw.length<8){err.textContent='ë¹ë°ë²í¸ë 8ì ì´ìì´ì´ì¼ í©ëë¤.';err.style.display='block';return;}
-  if(pw!==pw2){err.textContent='ë¹ë°ë²í¸ê° ì¼ì¹íì§ ììµëë¤.';err.style.display='block';return;}
-  try{await currentUser.updatePassword(pw);closeChangePwModal();showToast('ë¹ë°ë²í¸ê° ë³ê²½ëìµëë¤.');}
+  if(pw.length<8){err.textContent='Ã«Â¹ÂÃ«Â°ÂÃ«Â²ÂÃ­ÂÂ¸Ã«ÂÂ 8Ã¬ÂÂ Ã¬ÂÂ´Ã¬ÂÂÃ¬ÂÂ´Ã¬ÂÂ´Ã¬ÂÂ¼ Ã­ÂÂ©Ã«ÂÂÃ«ÂÂ¤.';err.style.display='block';return;}
+  if(pw!==pw2){err.textContent='Ã«Â¹ÂÃ«Â°ÂÃ«Â²ÂÃ­ÂÂ¸ÃªÂ°Â Ã¬ÂÂ¼Ã¬Â¹ÂÃ­ÂÂÃ¬Â§Â Ã¬ÂÂÃ¬ÂÂµÃ«ÂÂÃ«ÂÂ¤.';err.style.display='block';return;}
+  try{await currentUser.updatePassword(pw);closeChangePwModal();showToast('Ã«Â¹ÂÃ«Â°ÂÃ«Â²ÂÃ­ÂÂ¸ÃªÂ°Â Ã«Â³ÂÃªÂ²Â½Ã«ÂÂÃ¬ÂÂµÃ«ÂÂÃ«ÂÂ¤.');}
   catch(e){err.textContent=firebaseErrMsg(e.code);err.style.display='block';}}
 
-// âââââââââââââââââââââââââââââââââââ
-//  ì± ì´ê¸°í
-// âââââââââââââââââââââââââââââââââââ
+// Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
+//  Ã¬ÂÂ± Ã¬Â´ÂÃªÂ¸Â°Ã­ÂÂ
+// Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 function searchAddress(){
-  const query=document.getElementById('fLocation').value.trim();
-  if(!query){showToast('주소를 입력해주세요.');return;}
-  const resultEl=document.getElementById('addrSearchResult');
-  resultEl.style.display='block';
-  resultEl.innerHTML='<div style="padding:10px 12px;font-size:12px;color:var(--text3)">🔍 검색 중...</div>';
-  const REST_KEY='e60f1f3639b724374c1c20d1b6b493c2';
-  const headers={'Authorization':'KakaoAK '+REST_KEY};
-  const results=[];
-  let done=0;
-  const finish=()=>{
-    done++;if(done<2)return;
-    if(results.length===0){resultEl.innerHTML='<div style="padding:10px 12px;font-size:12px;color:var(--text3)">검색 결과가 없습니다.</div>';return;}
-    window._addrResults=results;
-    if(results.length===1){applyAddress(results[0]);return;}
-    resultEl.innerHTML=results.map((r,i)=>
-      `<div onclick="applyAddressIdx(${i})" style="padding:8px 12px;font-size:12px;cursor:pointer;border-bottom:1px solid var(--border);color:var(--text2);" onmouseover="this.style.background='var(--bg3)'" onmouseout="this.style.background=''">
-        <span style="color:var(--text);font-weight:600">${r.name}</span>
-        <span style="margin-left:6px;font-size:10px;color:var(--blue);background:var(--bg3);padding:1px 5px;border-radius:4px;">${r.type}</span>
-      </div>`).join('');
-  };
-  fetch('https://dapi.kakao.com/v2/local/search/keyword.json?query='+encodeURIComponent(query)+'&size=5',{headers})
-    .then(r=>r.json()).then(d=>{if(d.documents)d.documents.forEach(r=>results.push({name:r.place_name+(r.road_address_name?' ('+r.road_address_name+')':''),lat:r.y,lng:r.x,type:'장소'}));})
-    .catch(()=>{}).finally(finish);
-  fetch('https://dapi.kakao.com/v2/local/search/address.json?query='+encodeURIComponent(query),{headers})
-    .then(r=>r.json()).then(d=>{if(d.documents)d.documents.forEach(r=>results.push({name:r.address_name,lat:r.y,lng:r.x,type:'주소'}));})
-    .catch(()=>{}).finally(finish);
+  new daum.Postcode({
+    oncomplete: function(data){
+      const addr = data.roadAddress || data.jibunAddress;
+      document.getElementById('fLocation').value = addr;
+      const resultEl = document.getElementById('addrSearchResult');
+      resultEl.style.display='block';
+      resultEl.innerHTML='<div style="padding:10px 12px;font-size:12px;color:var(--text3)">📍 좌표 변환 중...</div>';
+      fetch('https://nominatim.openstreetmap.org/search?q='+encodeURIComponent(addr)+'&format=json&limit=1&accept-language=ko',{headers:{'User-Agent':'ProjectMapPro/1.0'}})
+        .then(r=>r.json()).then(d=>{
+          if(d&&d[0]){
+            document.getElementById('fLat').value=parseFloat(d[0].lat).toFixed(6);
+            document.getElementById('fLng').value=parseFloat(d[0].lon).toFixed(6);
+            resultEl.style.display='none';
+            showToast('📍 주소가 적용됐습니다.');
+          } else {
+            resultEl.innerHTML='<div style="padding:10px 12px;font-size:12px;color:var(--text3)">좌표를 찾지 못했습니다. 위도/경도를 직접 입력해주세요.</div>';
+          }
+        }).catch(()=>{resultEl.innerHTML='<div style="padding:10px 12px;font-size:12px;color:var(--text3)">좌표 변환 실패. 직접 입력해주세요.</div>';});
+    }
+  }).open();
 }
 function applyAddressIdx(i){applyAddress(window._addrResults[i]);}
 function applyAddress(r){
@@ -810,7 +803,7 @@ function applyAddress(r){
   document.getElementById('fLat').value=parseFloat(r.lat||r.y).toFixed(6);
   document.getElementById('fLng').value=parseFloat(r.lon||r.x).toFixed(6);
   document.getElementById('addrSearchResult').style.display='none';
-  showToast('ð ì£¼ìê° ì ì©ëìµëë¤.');
+  showToast('Ã°ÂÂÂ Ã¬Â£Â¼Ã¬ÂÂÃªÂ°Â Ã¬Â ÂÃ¬ÂÂ©Ã«ÂÂÃ¬ÂÂµÃ«ÂÂÃ«ÂÂ¤.');
 }
 function updateAutoStatusPreview(){
   const preview=document.getElementById('autoStatusPreview');
@@ -825,7 +818,7 @@ function updateAutoStatusPreview(){
     start:document.getElementById('fStart')?.value
   };
   const st=calcAutoStatus(fakeP);
-  const labels={plan:'ì¤ê³',dev:'ê°ë° ì¤',test:'íì¤í¸',stable:'ì´ììì í',done:'ì¢ë£'};
+  const labels={plan:'Ã¬ÂÂ¤ÃªÂ³Â',dev:'ÃªÂ°ÂÃ«Â°Â Ã¬Â¤Â',test:'Ã­ÂÂÃ¬ÂÂ¤Ã­ÂÂ¸',stable:'Ã¬ÂÂ´Ã¬ÂÂÃ¬ÂÂÃ¬Â ÂÃ­ÂÂ',done:'Ã¬Â¢ÂÃ«Â£Â'};
   const colors={plan:'var(--orange)',dev:'var(--blue)',test:'var(--green)',stable:'var(--purple)',done:'var(--gray)'};
   preview.textContent=labels[st]||st;
   preview.style.color=colors[st]||'var(--text)';
@@ -836,10 +829,10 @@ function toggleTeam(id){
   if(!el)return;
   const open=el.style.display==='none'||!el.style.display;
   el.style.display=open?'block':'none';
-  if(btn){btn.classList.toggle('active',open);btn.innerHTML=open?'ð¥ ë©¤ë² ì¨ê¸°ê¸°':'ð¥ ë©¤ë² ë³´ê¸°';}
+  if(btn){btn.classList.toggle('active',open);btn.innerHTML=open?'Ã°ÂÂÂ¥ Ã«Â©Â¤Ã«Â²Â Ã¬ÂÂ¨ÃªÂ¸Â°ÃªÂ¸Â°':'Ã°ÂÂÂ¥ Ã«Â©Â¤Ã«Â²Â Ã«Â³Â´ÃªÂ¸Â°';}
 }
 async function syncTeamData(){
-  // ê´ë¦¬ìë§: DEFAULT_PROJECTSì team/openDate ë°ì´í°ë¥¼ Firestoreì ëê¸°í
+  // ÃªÂ´ÂÃ«Â¦Â¬Ã¬ÂÂÃ«Â§Â: DEFAULT_PROJECTSÃ¬ÂÂ team/openDate Ã«ÂÂ°Ã¬ÂÂ´Ã­ÂÂ°Ã«Â¥Â¼ FirestoreÃ¬ÂÂ Ã«ÂÂÃªÂ¸Â°Ã­ÂÂ
   if(!userProfile||userProfile.role!=='admin')return;
   const batch=db.batch();
   for(const def of DEFAULT_PROJECTS){
@@ -850,7 +843,7 @@ async function syncTeamData(){
       const needsUpdate=!data.team||data.team.length!==(def.team||[]).length||data.openDate===undefined||(data.start&&data.start.split('.').length<3&&def.start)||(data.end&&data.end.split('.').length<3&&def.end);
       if(needsUpdate){
         const updateData={team:def.team||[],members:(def.team||[]).length,openDate:def.openDate||'',designEnd:def.designEnd||'',devEnd:def.devEnd||'',testEnd:def.testEnd||''};
-        // ë ì§ê° YYYY.MM íì(ì¼ì ìì)ì´ë©´ def ê°ì¼ë¡ ìë°ì´í¸
+        // Ã«ÂÂ Ã¬Â§ÂÃªÂ°Â YYYY.MM Ã­ÂÂÃ¬ÂÂ(Ã¬ÂÂ¼Ã¬ÂÂ Ã¬ÂÂÃ¬ÂÂ)Ã¬ÂÂ´Ã«Â©Â´ def ÃªÂ°ÂÃ¬ÂÂ¼Ã«Â¡Â Ã¬ÂÂÃ«ÂÂ°Ã¬ÂÂ´Ã­ÂÂ¸
         if(def.start&&data.start&&data.start.split('.').length<3)updateData.start=def.start;
         if(def.end&&data.end&&data.end.split('.').length<3)updateData.end=def.end;
         batch.update(ref,updateData);
@@ -870,16 +863,16 @@ function initAppUI(){
   setTimeout(()=>{initMap();},300);
   goPage('dashboard');}
 
-// âââââââââââââââââââââââââââââââââââ
-//  FIRESTORE ì¤ìê°
-// âââââââââââââââââââââââââââââââââââ
+// Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
+//  FIRESTORE Ã¬ÂÂ¤Ã¬ÂÂÃªÂ°Â
+// Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 async function seedIfEmpty(){const snap=await db.collection('projects').limit(1).get();if(snap.empty){const batch=db.batch();DEFAULT_PROJECTS.forEach(p=>{batch.set(db.collection('projects').doc(p.id),p);});await batch.commit();}}
 function startRealtime(){
   if(unsubscribeProjFn)unsubscribeProjFn();
   seedIfEmpty();
   unsubscribeProjFn=db.collection('projects').onSnapshot(snap=>{
     projects=snap.docs.map(d=>({...d.data(),id:d.id}));
-    // openDate ìë íë¡ì í¸ì DEFAULT_PROJECTS ê° ìë ì ì©
+    // openDate Ã¬ÂÂÃ«ÂÂ Ã­ÂÂÃ«Â¡ÂÃ¬Â ÂÃ­ÂÂ¸Ã¬ÂÂ DEFAULT_PROJECTS ÃªÂ°Â Ã¬ÂÂÃ«ÂÂ Ã¬Â ÂÃ¬ÂÂ©
     projects.forEach(p=>{
       if(p.openDate===undefined){
         const def=DEFAULT_PROJECTS.find(d=>d.id===p.id);
@@ -889,18 +882,18 @@ function startRealtime(){
     });
     projects.sort((a,b)=>a.id>b.id?1:-1);
     document.getElementById('syncIndicator').className='sync-ok';
-    document.getElementById('syncIndicator').textContent='â ì¤ìê° ì°ê²°';
+    document.getElementById('syncIndicator').textContent='Ã¢ÂÂ Ã¬ÂÂ¤Ã¬ÂÂÃªÂ°Â Ã¬ÂÂ°ÃªÂ²Â°';
     if(currentPage==='dashboard')renderDashboard();
     if(currentPage==='map')renderMap();
     if(currentPage==='projects')renderProjects();
     if(currentPage==='resources')renderResources();
-  },()=>{document.getElementById('syncIndicator').className='sync-ing';document.getElementById('syncIndicator').textContent='â  ì°ê²° ëê¹';});}
+  },()=>{document.getElementById('syncIndicator').className='sync-ing';document.getElementById('syncIndicator').textContent='Ã¢ÂÂ  Ã¬ÂÂ°ÃªÂ²Â° Ã«ÂÂÃªÂ¹Â';});}
 
-// âââââââââââââââââââââââââââââââââââ
-//  ë¤ë¹ê²ì´ì
-// âââââââââââââââââââââââââââââââââââ
+// Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
+//  Ã«ÂÂ¤Ã«Â¹ÂÃªÂ²ÂÃ¬ÂÂ´Ã¬ÂÂ
+// Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 function goPage(page){
-  // ë¹ê´ë¦¬ìë ì¬ì©ì ê´ë¦¬ íì´ì§ ì ê·¼ ì°¨ë¨
+  // Ã«Â¹ÂÃªÂ´ÂÃ«Â¦Â¬Ã¬ÂÂÃ«ÂÂ Ã¬ÂÂ¬Ã¬ÂÂ©Ã¬ÂÂ ÃªÂ´ÂÃ«Â¦Â¬ Ã­ÂÂÃ¬ÂÂ´Ã¬Â§Â Ã¬Â ÂÃªÂ·Â¼ Ã¬Â°Â¨Ã«ÂÂ¨
   if(page==='users'&&(!userProfile||userProfile.role!=='admin')){page='dashboard';}
   document.querySelectorAll('.page').forEach(p=>{p.style.display='none';p.classList.remove('active');});
   document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
@@ -915,13 +908,13 @@ function goPage(page){
   if(page==='resources')renderResources();
   if(page==='users')renderUsers();}
 
-// âââââââââââââââââââââââââââââââââââ
-//  ì§íë¥  ìë ê³ì°
-// âââââââââââââââââââââââââââââââââââ
-// ë§ì¼ì¤í¤ ê¸°ë° ìë ìí ê³ì°
+// Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
+//  Ã¬Â§ÂÃ­ÂÂÃ«Â¥Â  Ã¬ÂÂÃ«ÂÂ ÃªÂ³ÂÃ¬ÂÂ°
+// Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
+// Ã«Â§ÂÃ¬ÂÂ¼Ã¬ÂÂ¤Ã­ÂÂ¤ ÃªÂ¸Â°Ã«Â°Â Ã¬ÂÂÃ«ÂÂ Ã¬ÂÂÃ­ÂÂ ÃªÂ³ÂÃ¬ÂÂ°
 function calcAutoStatus(p){
   const hasMilestones=p.designEnd||p.devEnd||p.testEnd;
-  if(!hasMilestones)return p.status; // ë§ì¼ì¤í¤ ìì¼ë©´ ìë ìí ì ì§
+  if(!hasMilestones)return p.status; // Ã«Â§ÂÃ¬ÂÂ¼Ã¬ÂÂ¤Ã­ÂÂ¤ Ã¬ÂÂÃ¬ÂÂ¼Ã«Â©Â´ Ã¬ÂÂÃ«ÂÂ Ã¬ÂÂÃ­ÂÂ Ã¬ÂÂ Ã¬Â§Â
   const pd=s=>{if(!s)return null;const a=s.split('.');return new Date(parseInt(a[0]),parseInt(a[1]||1)-1,parseInt(a[2]||1));};
   const now=new Date();
   const end=pd(p.end),open=pd(p.openDate),testEnd=pd(p.testEnd),devEnd=pd(p.devEnd),designEnd=pd(p.designEnd);
@@ -941,9 +934,9 @@ function calcProgress(p){
   if(now>=end)return 100;
   return Math.min(99,Math.round((now-start)/(end-start)*100));}
 
-// âââââââââââââââââââââââââââââââââââ
-//  ëìë³´ë
-// âââââââââââââââââââââââââââââââââââ
+// Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
+//  Ã«ÂÂÃ¬ÂÂÃ«Â³Â´Ã«ÂÂ
+// Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 function renderDashboard(){
   const isAdmin=userProfile&&userProfile.role==='admin';
   const active=projects.filter(p=>calcAutoStatus(p)!=='done');
@@ -952,20 +945,20 @@ function renderDashboard(){
   const alerts=getAlerts();
   document.getElementById('notifDot').style.display=alerts.length?'block':'none';
   document.getElementById('kpiGrid').style.gridTemplateColumns=isAdmin?'repeat(4,1fr)':'repeat(3,1fr)';
-  const budgetCard=isAdmin?`<div class="kpi-card purple"><div class="kpi-icon">ð°</div><div class="kpi-label">ìì£¼ ê¸ì¡ í©ê³</div><div class="kpi-value" style="color:var(--purple)">${totalBudget}ìµ</div><div class="kpi-sub">ìí ê³ì½ ê¸°ì¤</div></div>`:'';
-  document.getElementById('kpiGrid').innerHTML=`<div class="kpi-card blue"><div class="kpi-icon">ð</div><div class="kpi-label">ì ì²´ íë¡ì í¸</div><div class="kpi-value" style="color:var(--blue)">${projects.length}</div><div class="kpi-sub">íì± ${active.length}ê° Â· ì¢ë£ ${projects.length-active.length}ê°</div></div><div class="kpi-card green"><div class="kpi-icon">ð¥</div><div class="kpi-label">ì´ í¬ì ì¸ì</div><div class="kpi-value" style="color:var(--green)">${totalMembers}ëª</div><div class="kpi-sub">íì± íë¡ì í¸ ê¸°ì¤</div></div>${budgetCard}<div class="kpi-card orange"><div class="kpi-icon">â ï¸</div><div class="kpi-label">ìë¦¼</div><div class="kpi-value" style="color:var(--orange)">${alerts.length}</div><div class="kpi-sub">ë§ê°ìë°Â·ìíÂ·ì¶©ë</div></div>`;
+  const budgetCard=isAdmin?`<div class="kpi-card purple"><div class="kpi-icon">Ã°ÂÂÂ°</div><div class="kpi-label">Ã¬ÂÂÃ¬Â£Â¼ ÃªÂ¸ÂÃ¬ÂÂ¡ Ã­ÂÂ©ÃªÂ³Â</div><div class="kpi-value" style="color:var(--purple)">${totalBudget}Ã¬ÂÂµ</div><div class="kpi-sub">Ã¬ÂÂÃ­ÂÂ ÃªÂ³ÂÃ¬ÂÂ½ ÃªÂ¸Â°Ã¬Â¤Â</div></div>`:'';
+  document.getElementById('kpiGrid').innerHTML=`<div class="kpi-card blue"><div class="kpi-icon">Ã°ÂÂÂ</div><div class="kpi-label">Ã¬Â ÂÃ¬Â²Â´ Ã­ÂÂÃ«Â¡ÂÃ¬Â ÂÃ­ÂÂ¸</div><div class="kpi-value" style="color:var(--blue)">${projects.length}</div><div class="kpi-sub">Ã­ÂÂÃ¬ÂÂ± ${active.length}ÃªÂ°Â ÃÂ· Ã¬Â¢ÂÃ«Â£Â ${projects.length-active.length}ÃªÂ°Â</div></div><div class="kpi-card green"><div class="kpi-icon">Ã°ÂÂÂ¥</div><div class="kpi-label">Ã¬Â´Â Ã­ÂÂ¬Ã¬ÂÂ Ã¬ÂÂ¸Ã¬ÂÂ</div><div class="kpi-value" style="color:var(--green)">${totalMembers}Ã«ÂªÂ</div><div class="kpi-sub">Ã­ÂÂÃ¬ÂÂ± Ã­ÂÂÃ«Â¡ÂÃ¬Â ÂÃ­ÂÂ¸ ÃªÂ¸Â°Ã¬Â¤Â</div></div>${budgetCard}<div class="kpi-card orange"><div class="kpi-icon">Ã¢ÂÂ Ã¯Â¸Â</div><div class="kpi-label">Ã¬ÂÂÃ«Â¦Â¼</div><div class="kpi-value" style="color:var(--orange)">${alerts.length}</div><div class="kpi-sub">Ã«Â§ÂÃªÂ°ÂÃ¬ÂÂÃ«Â°ÂÃÂ·Ã¬ÂÂÃ­ÂÂÃÂ·Ã¬Â¶Â©Ã«ÂÂ</div></div>`;
   const sc={};Object.keys(STATUS_CFG).forEach(k=>sc[k]=0);projects.forEach(p=>{const st=calcAutoStatus(p);if(sc[st]!==undefined)sc[st]++;});
   if(statusChartObj)statusChartObj.destroy();
   const ctx=document.getElementById('statusChart').getContext('2d');
   statusChartObj=new Chart(ctx,{type:'doughnut',data:{labels:Object.values(STATUS_CFG).map(s=>s.label),datasets:[{data:Object.keys(STATUS_CFG).map(k=>sc[k]),backgroundColor:Object.values(STATUS_CFG).map(s=>s.color+'cc'),borderColor:Object.values(STATUS_CFG).map(s=>s.color),borderWidth:2}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right',labels:{color:'#9ca3b0',font:{size:11},padding:12}}},cutout:'65%'}});
-  document.getElementById('alertList').innerHTML=alerts.length?alerts.map(a=>`<div class="alert-item ${a.type}"><span class="alert-icon">${a.icon}</span><div><div class="alert-title">${a.title}</div><div class="alert-desc">${a.desc}</div></div></div>`).join(''):'<div style="color:var(--text3);font-size:12px;text-align:center;padding:20px">â íì¬ ìë¦¼ì´ ììµëë¤</div>';
+  document.getElementById('alertList').innerHTML=alerts.length?alerts.map(a=>`<div class="alert-item ${a.type}"><span class="alert-icon">${a.icon}</span><div><div class="alert-title">${a.title}</div><div class="alert-desc">${a.desc}</div></div></div>`).join(''):'<div style="color:var(--text3);font-size:12px;text-align:center;padding:20px">Ã¢ÂÂ Ã­ÂÂÃ¬ÂÂ¬ Ã¬ÂÂÃ«Â¦Â¼Ã¬ÂÂ´ Ã¬ÂÂÃ¬ÂÂµÃ«ÂÂÃ«ÂÂ¤</div>';
   document.getElementById('progressBars').innerHTML=projects.filter(p=>calcAutoStatus(p)!=='done').sort((a,b)=>calcProgress(b)-calcProgress(a)).map(p=>{const s=STATUS_CFG[p.status],prog=calcProgress(p);return`<div style="display:flex;align-items:center;gap:12px;margin-bottom:10px"><div style="width:160px;font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${p.name}</div><span class="status-pill" style="background:${s.bg};color:${s.color};min-width:80px;justify-content:center">${s.label}</span><div style="flex:1;height:6px;background:var(--bg);border-radius:3px;overflow:hidden"><div style="height:100%;width:${prog}%;background:linear-gradient(90deg,${s.color}88,${s.color});border-radius:3px"></div></div><span style="font-size:12px;font-weight:700;color:${s.color};min-width:32px">${prog}%</span><span style="font-size:11px;color:var(--text3);min-width:60px">~${p.end}</span></div>`;}).join('');
   renderCalendar();
 }
 
-// âââââââââââââââââââââââââââââââââââ
-//  ìºë¦°ë
-// âââââââââââââââââââââââââââââââââââ
+// Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
+//  Ã¬ÂºÂÃ«Â¦Â°Ã«ÂÂ
+// Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 let calYear=new Date().getFullYear(),calMonth=new Date().getMonth();
 function calPrev(){calMonth--;if(calMonth<0){calMonth=11;calYear--;}renderCalendar();}
 function calNext(){calMonth++;if(calMonth>11){calMonth=0;calYear++;}renderCalendar();}
@@ -974,12 +967,12 @@ function hasDay(s){return s&&s.split('.').length>=3;}
 function renderCalendar(){
   if(!document.getElementById('calGrid'))return;
   const now=new Date();
-  document.getElementById('calTitle').textContent=`${calYear}ë ${calMonth+1}ì`;
+  document.getElementById('calTitle').textContent=`${calYear}Ã«ÂÂ ${calMonth+1}Ã¬ÂÂ`;
   const firstDay=new Date(calYear,calMonth,1).getDay();
   const lastDate=new Date(calYear,calMonth+1,0).getDate();
-  const days=['ì¼','ì','í','ì','ëª©','ê¸','í '];
+  const days=['Ã¬ÂÂ¼','Ã¬ÂÂ','Ã­ÂÂ','Ã¬ÂÂ','Ã«ÂªÂ©','ÃªÂ¸Â','Ã­ÂÂ '];
   const ymStr=`${calYear}.${String(calMonth+1).padStart(2,'0')}`;
-  // ì¼ì ìë íë¡ì í¸: ì´ë² ë¬ì ì´ë²¤í¸ ìë ê² ëª©ë¡
+  // Ã¬ÂÂ¼Ã¬ÂÂ Ã¬ÂÂÃ«ÂÂ Ã­ÂÂÃ«Â¡ÂÃ¬Â ÂÃ­ÂÂ¸: Ã¬ÂÂ´Ã«Â²Â Ã«ÂÂ¬Ã¬ÂÂ Ã¬ÂÂ´Ã«Â²Â¤Ã­ÂÂ¸ Ã¬ÂÂÃ«ÂÂ ÃªÂ²Â Ã«ÂªÂ©Ã«Â¡Â
   let monthlyList=[];
   projects.forEach(p=>{
     if(!p.start||!p.end)return;
@@ -1001,22 +994,22 @@ function renderCalendar(){
       const e=hasDay(p.end)?parseDate(p.end):null;
       const o=(p.openDate&&hasDay(p.openDate))?parseDate(p.openDate):null;
       if(s&&s.getFullYear()===calYear&&s.getMonth()===calMonth&&s.getDate()===d)
-        events+=`<div class="cal-event start">â¶ ${p.name}</div>`;
+        events+=`<div class="cal-event start">Ã¢ÂÂ¶ ${p.name}</div>`;
       if(o&&o.getFullYear()===calYear&&o.getMonth()===calMonth&&o.getDate()===d)
-        events+=`<div class="cal-event open">ð ${p.name}</div>`;
+        events+=`<div class="cal-event open">Ã°ÂÂÂ ${p.name}</div>`;
       if(e&&e.getFullYear()===calYear&&e.getMonth()===calMonth&&e.getDate()===d)
-        events+=`<div class="cal-event end">â ${p.name}</div>`;
+        events+=`<div class="cal-event end">Ã¢ÂÂ ${p.name}</div>`;
     });
     html+=`<div class="cal-day${isToday?' today':''}"><div class="cal-day-num">${d}</div>${events}</div>`;
   }
   document.getElementById('calGrid').innerHTML=html;
-  // ì ë¨ì ì´ë²¤í¸ ëª©ë¡ íì
+  // Ã¬ÂÂ Ã«ÂÂ¨Ã¬ÂÂ Ã¬ÂÂ´Ã«Â²Â¤Ã­ÂÂ¸ Ã«ÂªÂ©Ã«Â¡Â Ã­ÂÂÃ¬ÂÂ
   const listEl=document.getElementById('calMonthlyList');
   if(listEl){
     if(monthlyList.length){
-      const typeLabel={start:'â¶ ìì',end:'â ì¢ë£',open:'ð ì¤í'};
+      const typeLabel={start:'Ã¢ÂÂ¶ Ã¬ÂÂÃ¬ÂÂ',end:'Ã¢ÂÂ Ã¬Â¢ÂÃ«Â£Â',open:'Ã°ÂÂÂ Ã¬ÂÂ¤Ã­ÂÂ'};
       const typeColor={start:'var(--blue)',end:'var(--red)',open:'#a855f7'};
-      listEl.innerHTML='<div style="font-size:10px;color:var(--text3);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px;">ì´ë² ë¬ ì´ë²¤í¸</div>'+
+      listEl.innerHTML='<div style="font-size:10px;color:var(--text3);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px;">Ã¬ÂÂ´Ã«Â²Â Ã«ÂÂ¬ Ã¬ÂÂ´Ã«Â²Â¤Ã­ÂÂ¸</div>'+
         monthlyList.map(e=>`<div style="font-size:11px;padding:3px 0;color:${typeColor[e.type]}">${typeLabel[e.type]} ${e.name}</div>`).join('');
       listEl.style.display='block';
     } else {
@@ -1025,50 +1018,50 @@ function renderCalendar(){
   }
 }
 
-function getAlerts(){const alerts=[];const now=new Date();projects.forEach(p=>{if(p.status==='done')return;if(p.end){const parts=p.end.split('.');if(parts.length>=2){// ìë§ ê¸°ì¤ì¼ë¡ ê³ì° (í´ë¹ ìì ë§ì§ë§ ë )
-          const d=parts[2]?new Date(parseInt(parts[0]),parseInt(parts[1])-1,parseInt(parts[2])):new Date(parseInt(parts[0]),parseInt(parts[1]),0);const diff=Math.round((d-now)/(1000*60*60*24));if(diff>=0&&diff<=30)alerts.push({type:'danger',icon:'ð¨',title:`ë§ê° ìë°: ${p.name}`,desc:`${diff}ì¼ í ì¢ë£`});else if(diff>=0&&diff<=90)alerts.push({type:'warn',icon:'â ï¸',title:`ë§ê° ì£¼ì: ${p.name}`,desc:`${diff}ì¼ í ì¢ë£`});}}if(p.risk==='high')alerts.push({type:'danger',icon:'ð´',title:`ê³ ìí: ${p.name}`,desc:'ìíë ëì'});});const pp={};projects.filter(p=>calcAutoStatus(p)!=='done').forEach(p=>{(p.team||[]).forEach(m=>{if(!pp[m.name])pp[m.name]=[];pp[m.name].push(p.name);});});Object.entries(pp).forEach(([n,ps])=>{if(ps.length>1)alerts.push({type:'warn',icon:'ð¤',title:`ì¸ë ¥ ì¤ë³µ: ${n}`,desc:ps.join(', ')});});return alerts;}
+function getAlerts(){const alerts=[];const now=new Date();projects.forEach(p=>{if(p.status==='done')return;if(p.end){const parts=p.end.split('.');if(parts.length>=2){// Ã¬ÂÂÃ«Â§Â ÃªÂ¸Â°Ã¬Â¤ÂÃ¬ÂÂ¼Ã«Â¡Â ÃªÂ³ÂÃ¬ÂÂ° (Ã­ÂÂ´Ã«ÂÂ¹ Ã¬ÂÂÃ¬ÂÂ Ã«Â§ÂÃ¬Â§ÂÃ«Â§Â Ã«ÂÂ )
+          const d=parts[2]?new Date(parseInt(parts[0]),parseInt(parts[1])-1,parseInt(parts[2])):new Date(parseInt(parts[0]),parseInt(parts[1]),0);const diff=Math.round((d-now)/(1000*60*60*24));if(diff>=0&&diff<=30)alerts.push({type:'danger',icon:'Ã°ÂÂÂ¨',title:`Ã«Â§ÂÃªÂ°Â Ã¬ÂÂÃ«Â°Â: ${p.name}`,desc:`${diff}Ã¬ÂÂ¼ Ã­ÂÂ Ã¬Â¢ÂÃ«Â£Â`});else if(diff>=0&&diff<=90)alerts.push({type:'warn',icon:'Ã¢ÂÂ Ã¯Â¸Â',title:`Ã«Â§ÂÃªÂ°Â Ã¬Â£Â¼Ã¬ÂÂ: ${p.name}`,desc:`${diff}Ã¬ÂÂ¼ Ã­ÂÂ Ã¬Â¢ÂÃ«Â£Â`});}}if(p.risk==='high')alerts.push({type:'danger',icon:'Ã°ÂÂÂ´',title:`ÃªÂ³Â Ã¬ÂÂÃ­ÂÂ: ${p.name}`,desc:'Ã¬ÂÂÃ­ÂÂÃ«ÂÂ Ã«ÂÂÃ¬ÂÂ'});});const pp={};projects.filter(p=>calcAutoStatus(p)!=='done').forEach(p=>{(p.team||[]).forEach(m=>{if(!pp[m.name])pp[m.name]=[];pp[m.name].push(p.name);});});Object.entries(pp).forEach(([n,ps])=>{if(ps.length>1)alerts.push({type:'warn',icon:'Ã°ÂÂÂ¤',title:`Ã¬ÂÂ¸Ã«Â Â¥ Ã¬Â¤ÂÃ«Â³Âµ: ${n}`,desc:ps.join(', ')});});return alerts;}
 
-// âââââââââââââââââââââââââââââââââââ
-//  ì§ë
-// âââââââââââââââââââââââââââââââââââ
-function initMap(){if(leafletMap)return;leafletMap=L.map('theMap',{zoomControl:false,preferCanvas:true}).setView([37.55,127.05],11);L.control.zoom({position:'bottomright'}).addTo(leafletMap);L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{attribution:'Â© OpenStreetMap Â© CARTO',maxZoom:19,subdomains:'abcd'}).addTo(leafletMap);markerLayerGroup=L.layerGroup().addTo(leafletMap);addHQMarker();}
-function addHQMarker(){const html=`<div class="marker-card marker-hq"><div class="mc-top"><span style="font-size:14px">ð¢</span><span class="mc-status" style="color:var(--gold)">ë³¸ì¬</span></div><div class="mc-name" style="color:var(--gold)">ë±í¬ì¨ì´ê¸ë¡ë²</div><div class="mc-client" style="color:#a08040">ìì¸ ì¤êµ¬ ìì²­ ì¸ê·¼</div></div>`;const icon=L.divIcon({className:'',html,iconAnchor:[92,72]});const m=L.marker([HQ.lat,HQ.lng],{icon,zIndexOffset:1000}).addTo(leafletMap);m.bindPopup(`<div><div class="pu-head" style="border-bottom:1px solid #f0b42933"><div class="pu-badge" style="background:#2a2000;color:var(--gold)">ð¢ ë³¸ì¬</div><div class="pu-title" style="color:var(--gold)">ë±í¬ì¨ì´ê¸ë¡ë²</div><div class="pu-loc">ð ${HQ.address}</div></div><div class="pu-body"><div class="pi" style="margin-bottom:8px"><div class="pk">ì¤ë¦½</div><div class="pv">2010ë</div></div><div class="pi" style="margin-bottom:8px"><div class="pk">ìì¥</div><div class="pv">KOSDAQ (2024.08)</div></div><div class="pi"><div class="pk">ì£¼ìì¬ì</div><div class="pv">ê¸ìµ SI Â· ííí¬ ìë£¨ì</div></div></div></div>`,{maxWidth:280,minWidth:260});}
+// Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
+//  Ã¬Â§ÂÃ«ÂÂ
+// Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
+function initMap(){if(leafletMap)return;leafletMap=L.map('theMap',{zoomControl:false,preferCanvas:true}).setView([37.55,127.05],11);L.control.zoom({position:'bottomright'}).addTo(leafletMap);L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{attribution:'ÃÂ© OpenStreetMap ÃÂ© CARTO',maxZoom:19,subdomains:'abcd'}).addTo(leafletMap);markerLayerGroup=L.layerGroup().addTo(leafletMap);addHQMarker();}
+function addHQMarker(){const html=`<div class="marker-card marker-hq"><div class="mc-top"><span style="font-size:14px">Ã°ÂÂÂ¢</span><span class="mc-status" style="color:var(--gold)">Ã«Â³Â¸Ã¬ÂÂ¬</span></div><div class="mc-name" style="color:var(--gold)">Ã«Â±ÂÃ­ÂÂ¬Ã¬ÂÂ¨Ã¬ÂÂ´ÃªÂ¸ÂÃ«Â¡ÂÃ«Â²Â</div><div class="mc-client" style="color:#a08040">Ã¬ÂÂÃ¬ÂÂ¸ Ã¬Â¤ÂÃªÂµÂ¬ Ã¬ÂÂÃ¬Â²Â­ Ã¬ÂÂ¸ÃªÂ·Â¼</div></div>`;const icon=L.divIcon({className:'',html,iconAnchor:[92,72]});const m=L.marker([HQ.lat,HQ.lng],{icon,zIndexOffset:1000}).addTo(leafletMap);m.bindPopup(`<div><div class="pu-head" style="border-bottom:1px solid #f0b42933"><div class="pu-badge" style="background:#2a2000;color:var(--gold)">Ã°ÂÂÂ¢ Ã«Â³Â¸Ã¬ÂÂ¬</div><div class="pu-title" style="color:var(--gold)">Ã«Â±ÂÃ­ÂÂ¬Ã¬ÂÂ¨Ã¬ÂÂ´ÃªÂ¸ÂÃ«Â¡ÂÃ«Â²Â</div><div class="pu-loc">Ã°ÂÂÂ ${HQ.address}</div></div><div class="pu-body"><div class="pi" style="margin-bottom:8px"><div class="pk">Ã¬ÂÂ¤Ã«Â¦Â½</div><div class="pv">2010Ã«ÂÂ</div></div><div class="pi" style="margin-bottom:8px"><div class="pk">Ã¬ÂÂÃ¬ÂÂ¥</div><div class="pv">KOSDAQ (2024.08)</div></div><div class="pi"><div class="pk">Ã¬Â£Â¼Ã¬ÂÂÃ¬ÂÂ¬Ã¬ÂÂ</div><div class="pv">ÃªÂ¸ÂÃ¬ÂÂµ SI ÃÂ· Ã­ÂÂÃ­ÂÂÃ­ÂÂ¬ Ã¬ÂÂÃ«Â£Â¨Ã¬ÂÂ</div></div></div></div>`,{maxWidth:280,minWidth:260});}
 let mapCurrentFilter='all';
 function renderMap(filter){if(!leafletMap)return;if(filter)mapCurrentFilter=filter;markerLayerGroup.clearLayers();let data=mapCurrentFilter==='all'?projects:projects.filter(p=>p.status===mapCurrentFilter);const memberMatch=searchQuery?projects.filter(p=>(p.team||[]).some(m=>m.name.includes(searchQuery))):[];if(memberMatch.length>0&&searchQuery){data=memberMatch;const lats=memberMatch.map(p=>p.lat),lngs=memberMatch.map(p=>p.lng);if(lats.length)leafletMap.fitBounds([[Math.min(...lats)-.05,Math.min(...lngs)-.05],[Math.max(...lats)+.05,Math.max(...lngs)+.05]]);}else if(searchQuery){data=data.filter(p=>p.name.toLowerCase().includes(searchQuery)||p.client.toLowerCase().includes(searchQuery)||(p.langs||[]).some(l=>l.toLowerCase().includes(searchQuery)));}data.forEach(p=>addMapMarker(p));}
 function mapFilter(status,btn){document.querySelectorAll('.mfp-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');renderMap(status);}
-function addMapMarker(p){const _st=calcAutoStatus(p);const s=STATUS_CFG[_st]||STATUS_CFG.plan,r=RISK_CFG[p.risk]||RISK_CFG.mid,prog=calcProgress(p);const isAdmin=userProfile&&userProfile.role==='admin';const html=`<div class="marker-card"><div class="mc-top"><span class="mc-dot" style="background:${s.color}"></span><span class="mc-status" style="color:${s.color}">${s.label}</span></div><div class="mc-name">${p.name}</div><div class="mc-client">${p.client}</div><div class="mc-bottom"><span class="mc-period">~ ${p.end||'-'}</span><span class="mc-members">ð¥ ${(p.team||[]).length}ëª</span></div></div>`;const icon=L.divIcon({className:'',html,iconAnchor:[92,82]});const marker=L.marker([p.lat,p.lng],{icon}).addTo(markerLayerGroup);const budgetRow=isAdmin?`<div class="pi"><div class="pk">ê³ì½ê·ëª¨</div><div class="pv">${p.budget}</div></div>`:'';const riskRow=isAdmin?`<span class="risk-pill" style="background:${r.bg};color:${r.color}">ìí ${r.label}</span>`:'';const editRow=isAdmin&&(p.updatedBy||p.createdBy)?`<div style="font-size:10px;color:var(--text3);margin-top:6px">âï¸ ${p.updatedBy||p.createdBy} Â· ${fmtDate(p.updatedAt||p.createdAt)}</div>`:'';marker.bindPopup(`<div><div class="pu-head"><div class="pu-badge" style="background:${s.bg};color:${s.color}">${s.label}</div><div class="pu-title">${p.name}</div><div class="pu-loc">ð ${p.location} Â· ð¢ ${p.client}</div></div><div class="pu-body"><div class="pu-prog-wrap"><div class="pu-prog-top"><span>ì§íë¥  (ìë)</span><strong style="color:${s.color}">${prog}%</strong></div><div class="pu-prog-track"><div class="pu-prog-fill" style="width:${prog}%;background:${s.color}"></div></div></div><div class="pu-g2"><div class="pi"><div class="pk">ê¸°ê°</div><div class="pv" style="font-size:10px">${p.start} ~ ${p.end}</div></div><div class="pi">${p.openDate?`<div class="pk">ì¤íì¼</div><div class="pv" style="color:#a855f7">ð ${p.openDate}</div>`:''}</div><div class="pi"><div class="pk">ì¸ì</div><div class="pv">${(p.team||[]).length}ëª</div></div><div class="pi"><div class="pk">ì í</div><div class="pv">${p.type}</div></div>${budgetRow}</div><div class="pu-tags">${(p.langs||[]).map(l=>`<span class="pu-tag">${l}</span>`).join('')}</div></div><div class="pu-foot"><div class="pu-pm"><div class="pu-pm-av">${(p.pm||'?')[0]}</div><div><div class="pu-pm-name">PM Â· ${p.pm}</div><div class="pu-pm-role">Project Manager</div></div></div>${riskRow}<button id="teambtn-${p.id}" class="team-toggle-btn" onclick="toggleTeam('${p.id}')">ð¥ ë©¤ë² ë³´ê¸°</button></div>${editRow}<div id="team-${p.id}" class="pu-team" style="display:none"><div class="pu-team-title">í êµ¬ì±ì</div>${(p.team&&p.team.length)?p.team.map(t=>`<div class="pu-team-row"><div class="pu-team-av">${(t.name||'?')[0]}</div><div class="pu-team-name">${t.name}</div><div class="pu-team-role">${t.role}</div></div>`).join(''):'<div style="font-size:11px;color:var(--text3)">íì ì ë³´ ìì</div>'}</div></div>`,{maxWidth:320,minWidth:320});}
+function addMapMarker(p){const _st=calcAutoStatus(p);const s=STATUS_CFG[_st]||STATUS_CFG.plan,r=RISK_CFG[p.risk]||RISK_CFG.mid,prog=calcProgress(p);const isAdmin=userProfile&&userProfile.role==='admin';const html=`<div class="marker-card"><div class="mc-top"><span class="mc-dot" style="background:${s.color}"></span><span class="mc-status" style="color:${s.color}">${s.label}</span></div><div class="mc-name">${p.name}</div><div class="mc-client">${p.client}</div><div class="mc-bottom"><span class="mc-period">~ ${p.end||'-'}</span><span class="mc-members">Ã°ÂÂÂ¥ ${(p.team||[]).length}Ã«ÂªÂ</span></div></div>`;const icon=L.divIcon({className:'',html,iconAnchor:[92,82]});const marker=L.marker([p.lat,p.lng],{icon}).addTo(markerLayerGroup);const budgetRow=isAdmin?`<div class="pi"><div class="pk">ÃªÂ³ÂÃ¬ÂÂ½ÃªÂ·ÂÃ«ÂªÂ¨</div><div class="pv">${p.budget}</div></div>`:'';const riskRow=isAdmin?`<span class="risk-pill" style="background:${r.bg};color:${r.color}">Ã¬ÂÂÃ­ÂÂ ${r.label}</span>`:'';const editRow=isAdmin&&(p.updatedBy||p.createdBy)?`<div style="font-size:10px;color:var(--text3);margin-top:6px">Ã¢ÂÂÃ¯Â¸Â ${p.updatedBy||p.createdBy} ÃÂ· ${fmtDate(p.updatedAt||p.createdAt)}</div>`:'';marker.bindPopup(`<div><div class="pu-head"><div class="pu-badge" style="background:${s.bg};color:${s.color}">${s.label}</div><div class="pu-title">${p.name}</div><div class="pu-loc">Ã°ÂÂÂ ${p.location} ÃÂ· Ã°ÂÂÂ¢ ${p.client}</div></div><div class="pu-body"><div class="pu-prog-wrap"><div class="pu-prog-top"><span>Ã¬Â§ÂÃ­ÂÂÃ«Â¥Â  (Ã¬ÂÂÃ«ÂÂ)</span><strong style="color:${s.color}">${prog}%</strong></div><div class="pu-prog-track"><div class="pu-prog-fill" style="width:${prog}%;background:${s.color}"></div></div></div><div class="pu-g2"><div class="pi"><div class="pk">ÃªÂ¸Â°ÃªÂ°Â</div><div class="pv" style="font-size:10px">${p.start} ~ ${p.end}</div></div><div class="pi">${p.openDate?`<div class="pk">Ã¬ÂÂ¤Ã­ÂÂÃ¬ÂÂ¼</div><div class="pv" style="color:#a855f7">Ã°ÂÂÂ ${p.openDate}</div>`:''}</div><div class="pi"><div class="pk">Ã¬ÂÂ¸Ã¬ÂÂ</div><div class="pv">${(p.team||[]).length}Ã«ÂªÂ</div></div><div class="pi"><div class="pk">Ã¬ÂÂ Ã­ÂÂ</div><div class="pv">${p.type}</div></div>${budgetRow}</div><div class="pu-tags">${(p.langs||[]).map(l=>`<span class="pu-tag">${l}</span>`).join('')}</div></div><div class="pu-foot"><div class="pu-pm"><div class="pu-pm-av">${(p.pm||'?')[0]}</div><div><div class="pu-pm-name">PM ÃÂ· ${p.pm}</div><div class="pu-pm-role">Project Manager</div></div></div>${riskRow}<button id="teambtn-${p.id}" class="team-toggle-btn" onclick="toggleTeam('${p.id}')">Ã°ÂÂÂ¥ Ã«Â©Â¤Ã«Â²Â Ã«Â³Â´ÃªÂ¸Â°</button></div>${editRow}<div id="team-${p.id}" class="pu-team" style="display:none"><div class="pu-team-title">Ã­ÂÂ ÃªÂµÂ¬Ã¬ÂÂ±Ã¬ÂÂ</div>${(p.team&&p.team.length)?p.team.map(t=>`<div class="pu-team-row"><div class="pu-team-av">${(t.name||'?')[0]}</div><div class="pu-team-name">${t.name}</div><div class="pu-team-role">${t.role}</div></div>`).join(''):'<div style="font-size:11px;color:var(--text3)">Ã­ÂÂÃ¬ÂÂ Ã¬Â ÂÃ«Â³Â´ Ã¬ÂÂÃ¬ÂÂ</div>'}</div></div>`,{maxWidth:320,minWidth:320});}
 
-// âââââââââââââââââââââââââââââââââââ
-//  íë¡ì í¸ ëª©ë¡
-// âââââââââââââââââââââââââââââââââââ
-function fmtDate(ts){if(!ts)return'-';const d=ts.toDate?ts.toDate():new Date(ts);const diff=Math.floor((Date.now()-d)/1000);if(diff<60)return 'ë°©ê¸ ì ';if(diff<3600)return Math.floor(diff/60)+'ë¶ ì ';if(diff<86400)return Math.floor(diff/3600)+'ìê° ì ';if(diff<86400*7)return Math.floor(diff/86400)+'ì¼ ì ';return d.toLocaleDateString('ko-KR');}
-function renderProjects(){const isAdmin=userProfile&&userProfile.role==='admin';document.getElementById('projCount').textContent=`(${projects.length}ê±´)`;document.getElementById('projTable').innerHTML=projects.map(p=>{const s=STATUS_CFG[p.status]||STATUS_CFG.plan,r=RISK_CFG[p.risk]||RISK_CFG.mid,prog=calcProgress(p);const actions=isAdmin?`<div class="action-btns"><button class="btn-sm btn-edit" onclick="openProjModal('${p.id}')">ìì </button><button class="btn-sm btn-del" onclick="deleteProject('${p.id}')">ì­ì </button></div>`:'-';const riskCell=isAdmin?`<td style="color:${r.color}">${r.label}</td>`:'';const budgetCell=isAdmin?`<td style="font-size:11px">${p.budget}</td>`:'';const editCell=isAdmin?`<td style="font-size:11px"><div style="font-weight:600;color:var(--text)">${p.updatedBy||p.createdBy||'-'}</div><div style="color:var(--text3);margin-top:2px">${fmtDate(p.updatedAt||p.createdAt)}</div></td>`:'';const actionCell=isAdmin?`<td>${actions}</td>`:'';return`<tr><td style="font-weight:600">${p.name}</td><td style="color:var(--text2)">${p.client}</td><td>${p.pm}</td><td><span class="status-pill" style="background:${s.bg};color:${s.color}">${s.label}</span></td><td style="font-size:11px;color:var(--text2)">${p.start} ~ ${p.end}</td><td>${(p.team||[]).length}ëª</td><td><div class="progress-cell"><div class="prog-bar"><div class="prog-fill" style="width:${prog}%;background:${s.color}"></div></div><span class="prog-pct">${prog}%</span></div></td>${riskCell}${budgetCell}${editCell}${actionCell}</tr>`;}).join('');}
+// Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
+//  Ã­ÂÂÃ«Â¡ÂÃ¬Â ÂÃ­ÂÂ¸ Ã«ÂªÂ©Ã«Â¡Â
+// Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
+function fmtDate(ts){if(!ts)return'-';const d=ts.toDate?ts.toDate():new Date(ts);const diff=Math.floor((Date.now()-d)/1000);if(diff<60)return 'Ã«Â°Â©ÃªÂ¸Â Ã¬Â Â';if(diff<3600)return Math.floor(diff/60)+'Ã«Â¶Â Ã¬Â Â';if(diff<86400)return Math.floor(diff/3600)+'Ã¬ÂÂÃªÂ°Â Ã¬Â Â';if(diff<86400*7)return Math.floor(diff/86400)+'Ã¬ÂÂ¼ Ã¬Â Â';return d.toLocaleDateString('ko-KR');}
+function renderProjects(){const isAdmin=userProfile&&userProfile.role==='admin';document.getElementById('projCount').textContent=`(${projects.length}ÃªÂ±Â´)`;document.getElementById('projTable').innerHTML=projects.map(p=>{const s=STATUS_CFG[p.status]||STATUS_CFG.plan,r=RISK_CFG[p.risk]||RISK_CFG.mid,prog=calcProgress(p);const actions=isAdmin?`<div class="action-btns"><button class="btn-sm btn-edit" onclick="openProjModal('${p.id}')">Ã¬ÂÂÃ¬Â Â</button><button class="btn-sm btn-del" onclick="deleteProject('${p.id}')">Ã¬ÂÂ­Ã¬Â Â</button></div>`:'-';const riskCell=isAdmin?`<td style="color:${r.color}">${r.label}</td>`:'';const budgetCell=isAdmin?`<td style="font-size:11px">${p.budget}</td>`:'';const editCell=isAdmin?`<td style="font-size:11px"><div style="font-weight:600;color:var(--text)">${p.updatedBy||p.createdBy||'-'}</div><div style="color:var(--text3);margin-top:2px">${fmtDate(p.updatedAt||p.createdAt)}</div></td>`:'';const actionCell=isAdmin?`<td>${actions}</td>`:'';return`<tr><td style="font-weight:600">${p.name}</td><td style="color:var(--text2)">${p.client}</td><td>${p.pm}</td><td><span class="status-pill" style="background:${s.bg};color:${s.color}">${s.label}</span></td><td style="font-size:11px;color:var(--text2)">${p.start} ~ ${p.end}</td><td>${(p.team||[]).length}Ã«ÂªÂ</td><td><div class="progress-cell"><div class="prog-bar"><div class="prog-fill" style="width:${prog}%;background:${s.color}"></div></div><span class="prog-pct">${prog}%</span></div></td>${riskCell}${budgetCell}${editCell}${actionCell}</tr>`;}).join('');}
 
-// âââââââââââââââââââââââââââââââââââ
-//  ì¸ë ¥ íí©
-// âââââââââââââââââââââââââââââââââââ
-function renderResources(){const pm={};projects.filter(p=>calcAutoStatus(p)!=='done').forEach(p=>{(p.team||[]).forEach(m=>{if(!pm[m.name])pm[m.name]={name:m.name,roles:[],projects:[]};pm[m.name].projects.push({name:p.name,status:p.status,role:m.role});if(!pm[m.name].roles.includes(m.role))pm[m.name].roles.push(m.role);});});const people=Object.values(pm).sort((a,b)=>b.projects.length-a.projects.length);const conflicts=people.filter(p=>p.projects.length>1).length;document.getElementById('conflictBadge').style.display=conflicts?'inline':'none';document.getElementById('conflictBadge').textContent=conflicts;document.getElementById('resCount').textContent=`(${people.length}ëª)`;const colors=['#4f9eff','#4fcc7a','#a855f7','#f59e0b','#ef4444','#06b6d4','#ec4899'];document.getElementById('resourceGrid').innerHTML=people.map((person,idx)=>{const bg=colors[idx%colors.length],isConflict=person.projects.length>1;const projHtml=person.projects.map(proj=>{const s=STATUS_CFG[proj.status]||STATUS_CFG.plan;return`<div class="rc-proj-item"><span class="rc-proj-dot" style="background:${s.color}"></span><span class="rc-proj-name">${proj.name}</span><span class="rc-util" style="background:${s.bg};color:${s.color}">${proj.role}</span></div>`;}).join('');const conflictHtml=isConflict?`<div class="conflict-badge">â ï¸ ì¤ë³µ í¬ì (${person.projects.length}ê°) <button onclick="searchMember('${person.name}')" style="background:none;border:none;color:var(--blue);cursor:pointer;font-size:10px;margin-left:4px">ì§ëë³´ê¸° â</button></div>`:'';return`<div class="resource-card" style="${isConflict?'border-color:#ef444433':''}"><div class="rc-top"><div class="rc-avatar" style="background:${bg}33;color:${bg};border:1px solid ${bg}44">${person.name[0]}</div><div><div class="rc-name">${person.name}</div><div class="rc-title">${[...new Set(person.roles)].join(' / ')}</div></div></div><div>${projHtml}</div>${conflictHtml}</div>`;}).join('');}
+// Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
+//  Ã¬ÂÂ¸Ã«Â Â¥ Ã­ÂÂÃ­ÂÂ©
+// Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
+function renderResources(){const pm={};projects.filter(p=>calcAutoStatus(p)!=='done').forEach(p=>{(p.team||[]).forEach(m=>{if(!pm[m.name])pm[m.name]={name:m.name,roles:[],projects:[]};pm[m.name].projects.push({name:p.name,status:p.status,role:m.role});if(!pm[m.name].roles.includes(m.role))pm[m.name].roles.push(m.role);});});const people=Object.values(pm).sort((a,b)=>b.projects.length-a.projects.length);const conflicts=people.filter(p=>p.projects.length>1).length;document.getElementById('conflictBadge').style.display=conflicts?'inline':'none';document.getElementById('conflictBadge').textContent=conflicts;document.getElementById('resCount').textContent=`(${people.length}Ã«ÂªÂ)`;const colors=['#4f9eff','#4fcc7a','#a855f7','#f59e0b','#ef4444','#06b6d4','#ec4899'];document.getElementById('resourceGrid').innerHTML=people.map((person,idx)=>{const bg=colors[idx%colors.length],isConflict=person.projects.length>1;const projHtml=person.projects.map(proj=>{const s=STATUS_CFG[proj.status]||STATUS_CFG.plan;return`<div class="rc-proj-item"><span class="rc-proj-dot" style="background:${s.color}"></span><span class="rc-proj-name">${proj.name}</span><span class="rc-util" style="background:${s.bg};color:${s.color}">${proj.role}</span></div>`;}).join('');const conflictHtml=isConflict?`<div class="conflict-badge">Ã¢ÂÂ Ã¯Â¸Â Ã¬Â¤ÂÃ«Â³Âµ Ã­ÂÂ¬Ã¬ÂÂ (${person.projects.length}ÃªÂ°Â) <button onclick="searchMember('${person.name}')" style="background:none;border:none;color:var(--blue);cursor:pointer;font-size:10px;margin-left:4px">Ã¬Â§ÂÃ«ÂÂÃ«Â³Â´ÃªÂ¸Â° Ã¢ÂÂ</button></div>`:'';return`<div class="resource-card" style="${isConflict?'border-color:#ef444433':''}"><div class="rc-top"><div class="rc-avatar" style="background:${bg}33;color:${bg};border:1px solid ${bg}44">${person.name[0]}</div><div><div class="rc-name">${person.name}</div><div class="rc-title">${[...new Set(person.roles)].join(' / ')}</div></div></div><div>${projHtml}</div>${conflictHtml}</div>`;}).join('');}
 function searchMember(name){document.getElementById('globalSearch').value=name;searchQuery=name.toLowerCase();goPage('map');}
 
-// âââââââââââââââââââââââââââââââââââ
-//  ì¬ì©ì ê´ë¦¬
-// âââââââââââââââââââââââââââââââââââ
+// Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
+//  Ã¬ÂÂ¬Ã¬ÂÂ©Ã¬ÂÂ ÃªÂ´ÂÃ«Â¦Â¬
+// Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 async function renderUsers(){
   const snap=await db.collection('users').get();
   appUsers=snap.docs.map(d=>d.data());
-  document.getElementById('userCount').textContent=`(${appUsers.length}ëª)`;
+  document.getElementById('userCount').textContent=`(${appUsers.length}Ã«ÂªÂ)`;
   document.getElementById('usersTable').innerHTML=appUsers.map(u=>{
-    const statusBadge=u.isActive===false?`<span class="user-status-badge badge-inactive">ë¹íì±</span>`:u.mustChangePassword?`<span class="user-status-badge badge-pending">ì´ëë¨</span>`:`<span class="user-status-badge badge-active">íì±</span>`;
-    const roleBadge=u.role==='admin'?`<span class="role-badge role-admin">ê´ë¦¬ì</span>`:`<span class="role-badge role-viewer">ì¼ë°ì§ì</span>`;
+    const statusBadge=u.isActive===false?`<span class="user-status-badge badge-inactive">Ã«Â¹ÂÃ­ÂÂÃ¬ÂÂ±</span>`:u.mustChangePassword?`<span class="user-status-badge badge-pending">Ã¬Â´ÂÃ«ÂÂÃ«ÂÂ¨</span>`:`<span class="user-status-badge badge-active">Ã­ÂÂÃ¬ÂÂ±</span>`;
+    const roleBadge=u.role==='admin'?`<span class="role-badge role-admin">ÃªÂ´ÂÃ«Â¦Â¬Ã¬ÂÂ</span>`:`<span class="role-badge role-viewer">Ã¬ÂÂ¼Ã«Â°ÂÃ¬Â§ÂÃ¬ÂÂ</span>`;
     const isSelf=currentUser&&u.uid===currentUser.uid;
     const isOwner=!!u.isOwner;
     const createdAt=u.createdAt?new Date(u.createdAt.seconds*1000).toLocaleDateString('ko-KR'):'-';
-    const actions=isSelf?'<span style="font-size:11px;color:var(--text3)">(ë³¸ì¸)</span>':isOwner?'<span style="font-size:11px;color:var(--gold)">ð ì¤ë</span>':`
+    const actions=isSelf?'<span style="font-size:11px;color:var(--text3)">(Ã«Â³Â¸Ã¬ÂÂ¸)</span>':isOwner?'<span style="font-size:11px;color:var(--gold)">Ã°ÂÂÂ Ã¬ÂÂ¤Ã«ÂÂ</span>':`
       <div class="action-btns">
-        <button class="btn-sm btn-edit" onclick="toggleRole('${u.uid}','${u.role}')">${u.role==='admin'?'ì¼ë°ì¼ë¡':'ê´ë¦¬ìë¡'}</button>
-        <button class="btn-sm btn-warn" onclick="resendInvite('${u.email}')">ì¬ì´ë</button>
-        ${u.isActive!==false?`<button class="btn-sm btn-del" onclick="deactivateUser('${u.uid}')">ë¹íì±í</button>`:`<button class="btn-sm btn-edit" onclick="activateUser('${u.uid}')">íì±í</button>`}
-        <button class="btn-sm btn-del" onclick="deleteUser('${u.uid}','${u.name||u.email}')">ì­ì </button>
+        <button class="btn-sm btn-edit" onclick="toggleRole('${u.uid}','${u.role}')">${u.role==='admin'?'Ã¬ÂÂ¼Ã«Â°ÂÃ¬ÂÂ¼Ã«Â¡Â':'ÃªÂ´ÂÃ«Â¦Â¬Ã¬ÂÂÃ«Â¡Â'}</button>
+        <button class="btn-sm btn-warn" onclick="resendInvite('${u.email}')">Ã¬ÂÂ¬Ã¬Â´ÂÃ«ÂÂ</button>
+        ${u.isActive!==false?`<button class="btn-sm btn-del" onclick="deactivateUser('${u.uid}')">Ã«Â¹ÂÃ­ÂÂÃ¬ÂÂ±Ã­ÂÂ</button>`:`<button class="btn-sm btn-edit" onclick="activateUser('${u.uid}')">Ã­ÂÂÃ¬ÂÂ±Ã­ÂÂ</button>`}
+        <button class="btn-sm btn-del" onclick="deleteUser('${u.uid}','${u.name||u.email}')">Ã¬ÂÂ­Ã¬Â Â</button>
       </div>`;
     return`<tr><td style="font-weight:600">${u.name||'-'}</td><td style="color:var(--text2)">${u.email}</td><td>${roleBadge}</td><td>${statusBadge}</td><td style="font-size:11px;color:var(--text3)">${createdAt}</td><td>${actions}</td></tr>`;
   }).join('');}
@@ -1089,137 +1082,137 @@ async function inviteUser(){
   const err=document.getElementById('inviteErr'),ok=document.getElementById('inviteOk');
   const btn=document.getElementById('inviteBtn');
   err.style.display='none';ok.style.display='none';
-  if(!name||!email){err.textContent='ì´ë¦ê³¼ ì´ë©ì¼ì ìë ¥í´ì£¼ì¸ì.';err.style.display='block';return;}
-  btn.disabled=true;btn.textContent='ì²ë¦¬ ì¤...';
+  if(!name||!email){err.textContent='Ã¬ÂÂ´Ã«Â¦ÂÃªÂ³Â¼ Ã¬ÂÂ´Ã«Â©ÂÃ¬ÂÂ¼Ã¬ÂÂ Ã¬ÂÂÃ«Â Â¥Ã­ÂÂ´Ã¬Â£Â¼Ã¬ÂÂ¸Ã¬ÂÂ.';err.style.display='block';return;}
+  btn.disabled=true;btn.textContent='Ã¬Â²ÂÃ«Â¦Â¬ Ã¬Â¤Â...';
   try{
-    // Firebase REST APIë¡ ì¬ì©ì ìì± (íì¬ ê´ë¦¬ì ì¸ì ì ì§)
+    // Firebase REST APIÃ«Â¡Â Ã¬ÂÂ¬Ã¬ÂÂ©Ã¬ÂÂ Ã¬ÂÂÃ¬ÂÂ± (Ã­ÂÂÃ¬ÂÂ¬ ÃªÂ´ÂÃ«Â¦Â¬Ã¬ÂÂ Ã¬ÂÂ¸Ã¬ÂÂ Ã¬ÂÂ Ã¬Â§Â)
     const tempPw=generateTempPw();
     const res=await fetch(`https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=${firebaseConfig.apiKey}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email,password:tempPw,returnSecureToken:false})});
     const data=await res.json();
-    if(data.error)throw new Error(data.error.message==='EMAIL_EXISTS'?'ì´ë¯¸ ì¡´ì¬íë ì´ë©ì¼ìëë¤.':data.error.message);
+    if(data.error)throw new Error(data.error.message==='EMAIL_EXISTS'?'Ã¬ÂÂ´Ã«Â¯Â¸ Ã¬Â¡Â´Ã¬ÂÂ¬Ã­ÂÂÃ«ÂÂ Ã¬ÂÂ´Ã«Â©ÂÃ¬ÂÂ¼Ã¬ÂÂÃ«ÂÂÃ«ÂÂ¤.':data.error.message);
     const uid=data.localId;
-    // Firestoreì ì¬ì©ì íë¡í ì ì¥
+    // FirestoreÃ¬ÂÂ Ã¬ÂÂ¬Ã¬ÂÂ©Ã¬ÂÂ Ã­ÂÂÃ«Â¡ÂÃ­ÂÂ Ã¬Â ÂÃ¬ÂÂ¥
     await db.collection('users').doc(uid).set({uid,name,email,role,mustChangePassword:true,isActive:true,createdAt:firebase.firestore.FieldValue.serverTimestamp()});
-    // ë¹ë°ë²í¸ ì¤ì  ì´ë©ì¼ ë°ì¡ (ì´ë ì´ë©ì¼ ì­í )
+    // Ã«Â¹ÂÃ«Â°ÂÃ«Â²ÂÃ­ÂÂ¸ Ã¬ÂÂ¤Ã¬Â Â Ã¬ÂÂ´Ã«Â©ÂÃ¬ÂÂ¼ Ã«Â°ÂÃ¬ÂÂ¡ (Ã¬Â´ÂÃ«ÂÂ Ã¬ÂÂ´Ã«Â©ÂÃ¬ÂÂ¼ Ã¬ÂÂ­Ã­ÂÂ )
     await auth.sendPasswordResetEmail(email);
-    ok.textContent=`â ${name}ëê» ì´ë ì´ë©ì¼ì ë°ì¡íìµëë¤. ì´ë©ì¼ì íì¸í´ ë¹ë°ë²í¸ë¥¼ ì¤ì íë©´ ë¡ê·¸ì¸í  ì ììµëë¤.`;
+    ok.textContent=`Ã¢ÂÂ ${name}Ã«ÂÂÃªÂ»Â Ã¬Â´ÂÃ«ÂÂ Ã¬ÂÂ´Ã«Â©ÂÃ¬ÂÂ¼Ã¬ÂÂ Ã«Â°ÂÃ¬ÂÂ¡Ã­ÂÂÃ¬ÂÂµÃ«ÂÂÃ«ÂÂ¤. Ã¬ÂÂ´Ã«Â©ÂÃ¬ÂÂ¼Ã¬ÂÂ Ã­ÂÂÃ¬ÂÂ¸Ã­ÂÂ´ Ã«Â¹ÂÃ«Â°ÂÃ«Â²ÂÃ­ÂÂ¸Ã«Â¥Â¼ Ã¬ÂÂ¤Ã¬Â ÂÃ­ÂÂÃ«Â©Â´ Ã«Â¡ÂÃªÂ·Â¸Ã¬ÂÂ¸Ã­ÂÂ  Ã¬ÂÂ Ã¬ÂÂÃ¬ÂÂµÃ«ÂÂÃ«ÂÂ¤.`;
     ok.style.display='block';
     renderUsers();
   }catch(e){err.textContent=e.message||firebaseErrMsg(e.code);err.style.display='block';}
-  btn.disabled=false;btn.textContent='âï¸ ì´ë ì´ë©ì¼ ë°ì¡';}
+  btn.disabled=false;btn.textContent='Ã¢ÂÂÃ¯Â¸Â Ã¬Â´ÂÃ«ÂÂ Ã¬ÂÂ´Ã«Â©ÂÃ¬ÂÂ¼ Ã«Â°ÂÃ¬ÂÂ¡';}
 
 async function toggleRole(uid,currentRole){
   const target=appUsers.find(u=>u.uid===uid);
-  if(target&&target.isOwner){showToast('ìµì´ ê´ë¦¬ì(ì¤ë)ì ì­í ì ë³ê²½í  ì ììµëë¤.');return;}
+  if(target&&target.isOwner){showToast('Ã¬ÂµÂÃ¬Â´Â ÃªÂ´ÂÃ«Â¦Â¬Ã¬ÂÂ(Ã¬ÂÂ¤Ã«ÂÂ)Ã¬ÂÂ Ã¬ÂÂ­Ã­ÂÂ Ã¬ÂÂ Ã«Â³ÂÃªÂ²Â½Ã­ÂÂ  Ã¬ÂÂ Ã¬ÂÂÃ¬ÂÂµÃ«ÂÂÃ«ÂÂ¤.');return;}
   const newRole=currentRole==='admin'?'viewer':'admin';
-  if(!confirm(`ì­í ì ${newRole==='admin'?'ê´ë¦¬ì':'ì¼ë°ì§ì'}ë¡ ë³ê²½íìê² ìµëê¹?`))return;
+  if(!confirm(`Ã¬ÂÂ­Ã­ÂÂ Ã¬ÂÂ ${newRole==='admin'?'ÃªÂ´ÂÃ«Â¦Â¬Ã¬ÂÂ':'Ã¬ÂÂ¼Ã«Â°ÂÃ¬Â§ÂÃ¬ÂÂ'}Ã«Â¡Â Ã«Â³ÂÃªÂ²Â½Ã­ÂÂÃ¬ÂÂÃªÂ²Â Ã¬ÂÂµÃ«ÂÂÃªÂ¹Â?`))return;
   await db.collection('users').doc(uid).update({role:newRole});
-  showToast('ì­í ì´ ë³ê²½ëìµëë¤.');renderUsers();}
+  showToast('Ã¬ÂÂ­Ã­ÂÂ Ã¬ÂÂ´ Ã«Â³ÂÃªÂ²Â½Ã«ÂÂÃ¬ÂÂµÃ«ÂÂÃ«ÂÂ¤.');renderUsers();}
 
 async function deactivateUser(uid){
-  if(!confirm('ì´ ì¬ì©ìë¥¼ ë¹íì±ííë©´ ë¡ê·¸ì¸í  ì ììµëë¤. ê³ìíìê² ìµëê¹?'))return;
+  if(!confirm('Ã¬ÂÂ´ Ã¬ÂÂ¬Ã¬ÂÂ©Ã¬ÂÂÃ«Â¥Â¼ Ã«Â¹ÂÃ­ÂÂÃ¬ÂÂ±Ã­ÂÂÃ­ÂÂÃ«Â©Â´ Ã«Â¡ÂÃªÂ·Â¸Ã¬ÂÂ¸Ã­ÂÂ  Ã¬ÂÂ Ã¬ÂÂÃ¬ÂÂµÃ«ÂÂÃ«ÂÂ¤. ÃªÂ³ÂÃ¬ÂÂÃ­ÂÂÃ¬ÂÂÃªÂ²Â Ã¬ÂÂµÃ«ÂÂÃªÂ¹Â?'))return;
   await db.collection('users').doc(uid).update({isActive:false});
-  showToast('ë¹íì±íëìµëë¤.');renderUsers();}
+  showToast('Ã«Â¹ÂÃ­ÂÂÃ¬ÂÂ±Ã­ÂÂÃ«ÂÂÃ¬ÂÂµÃ«ÂÂÃ«ÂÂ¤.');renderUsers();}
 
 async function activateUser(uid){
   await db.collection('users').doc(uid).update({isActive:true});
-  showToast('íì±íëìµëë¤.');renderUsers();}
+  showToast('Ã­ÂÂÃ¬ÂÂ±Ã­ÂÂÃ«ÂÂÃ¬ÂÂµÃ«ÂÂÃ«ÂÂ¤.');renderUsers();}
 
 async function resendInvite(email){
   await auth.sendPasswordResetEmail(email);
-  showToast(`${email}ë¡ ì´ë ì´ë©ì¼ì ì¬ë°ì¡íìµëë¤.`);}
+  showToast(`${email}Ã«Â¡Â Ã¬Â´ÂÃ«ÂÂ Ã¬ÂÂ´Ã«Â©ÂÃ¬ÂÂ¼Ã¬ÂÂ Ã¬ÂÂ¬Ã«Â°ÂÃ¬ÂÂ¡Ã­ÂÂÃ¬ÂÂµÃ«ÂÂÃ«ÂÂ¤.`);}
 
 async function deleteUser(uid, name){
-  if(!confirm(`"${name}" ì¬ì©ìë¥¼ ì­ì íìê² ìµëê¹?\nì­ì íë©´ ì¦ì ë¡ê·¸ì¸ì´ ì°¨ë¨ë©ëë¤.`))return;
+  if(!confirm(`"${name}" Ã¬ÂÂ¬Ã¬ÂÂ©Ã¬ÂÂÃ«Â¥Â¼ Ã¬ÂÂ­Ã¬Â ÂÃ­ÂÂÃ¬ÂÂÃªÂ²Â Ã¬ÂÂµÃ«ÂÂÃªÂ¹Â?\nÃ¬ÂÂ­Ã¬Â ÂÃ­ÂÂÃ«Â©Â´ Ã¬Â¦ÂÃ¬ÂÂ Ã«Â¡ÂÃªÂ·Â¸Ã¬ÂÂ¸Ã¬ÂÂ´ Ã¬Â°Â¨Ã«ÂÂ¨Ã«ÂÂ©Ã«ÂÂÃ«ÂÂ¤.`))return;
   await db.collection('users').doc(uid).delete();
-  showToast(`${name} ì¬ì©ìê° ì­ì ëìµëë¤.`);
+  showToast(`${name} Ã¬ÂÂ¬Ã¬ÂÂ©Ã¬ÂÂÃªÂ°Â Ã¬ÂÂ­Ã¬Â ÂÃ«ÂÂÃ¬ÂÂµÃ«ÂÂÃ«ÂÂ¤.`);
   renderUsers();}
 
 function generateTempPw(){return Math.random().toString(36).slice(-6)+Math.random().toString(36).toUpperCase().slice(-4)+'!9';}
 
-// âââââââââââââââââââââââââââââââââââ
-//  íë¡ì í¸ CRUD
-// âââââââââââââââââââââââââââââââââââ
+// Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
+//  Ã­ÂÂÃ«Â¡ÂÃ¬Â ÂÃ­ÂÂ¸ CRUD
+// Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 function openProjModal(id){
   document.getElementById('projModalOverlay').classList.add('open');
-  if(id){const p=projects.find(x=>x.id===id);if(!p)return;document.getElementById('projModalTitle').textContent='íë¡ì í¸ ìì ';document.getElementById('fId').value=p.id;document.getElementById('fName').value=p.name||'';document.getElementById('fClient').value=p.client||'';document.getElementById('fPm').value=p.pm||'';document.getElementById('fLocation').value=p.location||'';document.getElementById('fLat').value=p.lat||'';document.getElementById('fLng').value=p.lng||'';document.getElementById('fStatus').value=p.status||'plan';document.getElementById('fRisk').value=p.risk||'mid';document.getElementById('fStart').value=p.start||'';document.getElementById('fEnd').value=p.end||'';document.getElementById('fMembers').value=p.members||'';document.getElementById('fBudget').value=p.budget||'';document.getElementById('fType').value=p.type||'ì ê·ê°ë°';document.getElementById('fLangs').value=(p.langs||[]).join(', ');document.getElementById('fTeam').value=(p.team||[]).map(t=>`${t.name}:${t.role}`).join(', ');document.getElementById('fDesc').value=p.desc||'';document.getElementById('fOpenDate').value=p.openDate||'';
+  if(id){const p=projects.find(x=>x.id===id);if(!p)return;document.getElementById('projModalTitle').textContent='Ã­ÂÂÃ«Â¡ÂÃ¬Â ÂÃ­ÂÂ¸ Ã¬ÂÂÃ¬Â Â';document.getElementById('fId').value=p.id;document.getElementById('fName').value=p.name||'';document.getElementById('fClient').value=p.client||'';document.getElementById('fPm').value=p.pm||'';document.getElementById('fLocation').value=p.location||'';document.getElementById('fLat').value=p.lat||'';document.getElementById('fLng').value=p.lng||'';document.getElementById('fStatus').value=p.status||'plan';document.getElementById('fRisk').value=p.risk||'mid';document.getElementById('fStart').value=p.start||'';document.getElementById('fEnd').value=p.end||'';document.getElementById('fMembers').value=p.members||'';document.getElementById('fBudget').value=p.budget||'';document.getElementById('fType').value=p.type||'Ã¬ÂÂ ÃªÂ·ÂÃªÂ°ÂÃ«Â°Â';document.getElementById('fLangs').value=(p.langs||[]).join(', ');document.getElementById('fTeam').value=(p.team||[]).map(t=>`${t.name}:${t.role}`).join(', ');document.getElementById('fDesc').value=p.desc||'';document.getElementById('fOpenDate').value=p.openDate||'';
 document.getElementById('fDesignEnd').value=p.designEnd||'';
 document.getElementById('fDevEnd').value=p.devEnd||'';
 document.getElementById('fTestEnd').value=p.testEnd||'';
 updateAutoStatusPreview();}
-  else{document.getElementById('projModalTitle').textContent='íë¡ì í¸ ì¶ê°';document.getElementById('fId').value='';['fName','fClient','fPm','fLocation','fLat','fLng','fStart','fEnd','fOpenDate','fDesignEnd','fDevEnd','fTestEnd','fMembers','fBudget','fLangs','fTeam','fDesc'].forEach(i=>document.getElementById(i).value='');document.getElementById('fStatus').value='plan';document.getElementById('fType').value='ì ê·ê°ë°';document.getElementById('fRisk').value='mid';}}
+  else{document.getElementById('projModalTitle').textContent='Ã­ÂÂÃ«Â¡ÂÃ¬Â ÂÃ­ÂÂ¸ Ã¬Â¶ÂÃªÂ°Â';document.getElementById('fId').value='';['fName','fClient','fPm','fLocation','fLat','fLng','fStart','fEnd','fOpenDate','fDesignEnd','fDevEnd','fTestEnd','fMembers','fBudget','fLangs','fTeam','fDesc'].forEach(i=>document.getElementById(i).value='');document.getElementById('fStatus').value='plan';document.getElementById('fType').value='Ã¬ÂÂ ÃªÂ·ÂÃªÂ°ÂÃ«Â°Â';document.getElementById('fRisk').value='mid';}}
 function closeProjModal(){document.getElementById('projModalOverlay').classList.remove('open');}
-async function saveProject(){const name=document.getElementById('fName').value.trim();if(!name){showToast('íë¡ì í¸ëªì ìë ¥í´ì£¼ì¸ì.');return;}const id=document.getElementById('fId').value,docId=id||('p'+Date.now());const now=firebase.firestore.FieldValue.serverTimestamp();const editor=userProfile?userProfile.name||userProfile.email:'unknown';const p={id:docId,name,client:document.getElementById('fClient').value,pm:document.getElementById('fPm').value,location:document.getElementById('fLocation').value,lat:parseFloat(document.getElementById('fLat').value)||37.5665,lng:parseFloat(document.getElementById('fLng').value)||126.9780,status:document.getElementById('fStatus').value,start:document.getElementById('fStart').value,end:document.getElementById('fEnd').value,members:(document.getElementById('fTeam').value?document.getElementById('fTeam').value.split(',').map(s=>s.trim()).filter(Boolean).length:0),budget:document.getElementById('fBudget').value,type:document.getElementById('fType').value,risk:document.getElementById('fRisk').value,langs:document.getElementById('fLangs').value?document.getElementById('fLangs').value.split(',').map(s=>s.trim()).filter(Boolean):[],team:document.getElementById('fTeam').value?document.getElementById('fTeam').value.split(',').map(s=>{const[n,r]=s.trim().split(':');return{name:(n||'').trim(),role:(r||'').trim()};}).filter(t=>t.name):[],desc:document.getElementById('fDesc').value,openDate:document.getElementById('fOpenDate').value.trim()||'',
+async function saveProject(){const name=document.getElementById('fName').value.trim();if(!name){showToast('Ã­ÂÂÃ«Â¡ÂÃ¬Â ÂÃ­ÂÂ¸Ã«ÂªÂÃ¬ÂÂ Ã¬ÂÂÃ«Â Â¥Ã­ÂÂ´Ã¬Â£Â¼Ã¬ÂÂ¸Ã¬ÂÂ.');return;}const id=document.getElementById('fId').value,docId=id||('p'+Date.now());const now=firebase.firestore.FieldValue.serverTimestamp();const editor=userProfile?userProfile.name||userProfile.email:'unknown';const p={id:docId,name,client:document.getElementById('fClient').value,pm:document.getElementById('fPm').value,location:document.getElementById('fLocation').value,lat:parseFloat(document.getElementById('fLat').value)||37.5665,lng:parseFloat(document.getElementById('fLng').value)||126.9780,status:document.getElementById('fStatus').value,start:document.getElementById('fStart').value,end:document.getElementById('fEnd').value,members:(document.getElementById('fTeam').value?document.getElementById('fTeam').value.split(',').map(s=>s.trim()).filter(Boolean).length:0),budget:document.getElementById('fBudget').value,type:document.getElementById('fType').value,risk:document.getElementById('fRisk').value,langs:document.getElementById('fLangs').value?document.getElementById('fLangs').value.split(',').map(s=>s.trim()).filter(Boolean):[],team:document.getElementById('fTeam').value?document.getElementById('fTeam').value.split(',').map(s=>{const[n,r]=s.trim().split(':');return{name:(n||'').trim(),role:(r||'').trim()};}).filter(t=>t.name):[],desc:document.getElementById('fDesc').value,openDate:document.getElementById('fOpenDate').value.trim()||'',
     designEnd:document.getElementById('fDesignEnd').value.trim()||'',
     devEnd:document.getElementById('fDevEnd').value.trim()||'',
     testEnd:document.getElementById('fTestEnd').value.trim()||'',updatedBy:editor,updatedAt:now};if(!id){p.createdBy=editor;p.createdAt=now;await db.collection('projects').doc(docId).set(p);}
-  else{// ìì  ì createdBy/createdAt ê±´ëë¦¬ì§ ìì
+  else{// Ã¬ÂÂÃ¬Â Â Ã¬ÂÂ createdBy/createdAt ÃªÂ±Â´Ã«ÂÂÃ«Â¦Â¬Ã¬Â§Â Ã¬ÂÂÃ¬ÂÂ
     const {createdBy,createdAt,...updateData}=p;
-    await db.collection('projects').doc(docId).update(updateData);}closeProjModal();showToast(id?'ìì ëìµëë¤.':'ì¶ê°ëìµëë¤.');}
-async function deleteProject(id){if(!confirm('ì ë§ ì­ì íìê² ìµëê¹?'))return;await db.collection('projects').doc(id).delete();showToast('ì­ì ëìµëë¤.');}
+    await db.collection('projects').doc(docId).update(updateData);}closeProjModal();showToast(id?'Ã¬ÂÂÃ¬Â ÂÃ«ÂÂÃ¬ÂÂµÃ«ÂÂÃ«ÂÂ¤.':'Ã¬Â¶ÂÃªÂ°ÂÃ«ÂÂÃ¬ÂÂµÃ«ÂÂÃ«ÂÂ¤.');}
+async function deleteProject(id){if(!confirm('Ã¬Â ÂÃ«Â§Â Ã¬ÂÂ­Ã¬Â ÂÃ­ÂÂÃ¬ÂÂÃªÂ²Â Ã¬ÂÂµÃ«ÂÂÃªÂ¹Â?'))return;await db.collection('projects').doc(id).delete();showToast('Ã¬ÂÂ­Ã¬Â ÂÃ«ÂÂÃ¬ÂÂµÃ«ÂÂÃ«ÂÂ¤.');}
 
-// âââââââââââââââââââââââââââââââââââ
-//  ìì
-// âââââââââââââââââââââââââââââââââââ
-// ë¹ ìì ë¤ì´ë¡ë
+// Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
+//  Ã¬ÂÂÃ¬ÂÂ
+// Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
+// Ã«Â¹Â Ã¬ÂÂÃ¬ÂÂ Ã«ÂÂ¤Ã¬ÂÂ´Ã«Â¡ÂÃ«ÂÂ
 function downloadTemplate(){
-  // ìë/ê²½ë ì»¬ë¼ ì¶ê°, íì íìì ìë¡ëì ì¼ì¹(ì´ë¦:ì­í )
-  const headers=[{'íë¡ì í¸ëª':'(ìì) ì°ë¦¬ì¹´ë íµí©ë¨ë§ ì¬êµ¬ì¶','ê³ ê°ì¬':'ì°ë¦¬ì¹´ë','PM':'ê¹ì í ìë¬´','ìì¹':'ìì¸ ìì','ìë':37.5793,'ê²½ë':126.8897,'ìí':'ê°ë° ì¤','ììì¼':'2025.01','ì¢ë£ì¼':'2026.12','í¬ìì¸ì':10,'ê³ì½ê·ëª¨':'15ìµ','ì í':'ì¬êµ¬ì¶','ìíë':'ë³´íµ','ê¸°ì ì¤í':'Java, Spring, Oracle','íì':'ê¹ì² ì:ê°ë°, ì´ìí¬:ê¸°í','ê°ì':'íë¡ì í¸ ì¤ëª'}];
+  // Ã¬ÂÂÃ«ÂÂ/ÃªÂ²Â½Ã«ÂÂ Ã¬Â»Â¬Ã«ÂÂ¼ Ã¬Â¶ÂÃªÂ°Â, Ã­ÂÂÃ¬ÂÂ Ã­ÂÂÃ¬ÂÂÃ¬ÂÂ Ã¬ÂÂÃ«Â¡ÂÃ«ÂÂÃ¬ÂÂ Ã¬ÂÂ¼Ã¬Â¹Â(Ã¬ÂÂ´Ã«Â¦Â:Ã¬ÂÂ­Ã­ÂÂ )
+  const headers=[{'Ã­ÂÂÃ«Â¡ÂÃ¬Â ÂÃ­ÂÂ¸Ã«ÂªÂ':'(Ã¬ÂÂÃ¬ÂÂ) Ã¬ÂÂ°Ã«Â¦Â¬Ã¬Â¹Â´Ã«ÂÂ Ã­ÂÂµÃ­ÂÂ©Ã«ÂÂ¨Ã«Â§Â Ã¬ÂÂ¬ÃªÂµÂ¬Ã¬Â¶Â','ÃªÂ³Â ÃªÂ°ÂÃ¬ÂÂ¬':'Ã¬ÂÂ°Ã«Â¦Â¬Ã¬Â¹Â´Ã«ÂÂ','PM':'ÃªÂ¹ÂÃ¬Â ÂÃ­ÂÂ Ã¬ÂÂÃ«Â¬Â´','Ã¬ÂÂÃ¬Â¹Â':'Ã¬ÂÂÃ¬ÂÂ¸ Ã¬ÂÂÃ¬ÂÂ','Ã¬ÂÂÃ«ÂÂ':37.5793,'ÃªÂ²Â½Ã«ÂÂ':126.8897,'Ã¬ÂÂÃ­ÂÂ':'ÃªÂ°ÂÃ«Â°Â Ã¬Â¤Â','Ã¬ÂÂÃ¬ÂÂÃ¬ÂÂ¼':'2025.01','Ã¬Â¢ÂÃ«Â£ÂÃ¬ÂÂ¼':'2026.12','Ã­ÂÂ¬Ã¬ÂÂÃ¬ÂÂ¸Ã¬ÂÂ':10,'ÃªÂ³ÂÃ¬ÂÂ½ÃªÂ·ÂÃ«ÂªÂ¨':'15Ã¬ÂÂµ','Ã¬ÂÂ Ã­ÂÂ':'Ã¬ÂÂ¬ÃªÂµÂ¬Ã¬Â¶Â','Ã¬ÂÂÃ­ÂÂÃ«ÂÂ':'Ã«Â³Â´Ã­ÂÂµ','ÃªÂ¸Â°Ã¬ÂÂ Ã¬ÂÂ¤Ã­ÂÂ':'Java, Spring, Oracle','Ã­ÂÂÃ¬ÂÂ':'ÃªÂ¹ÂÃ¬Â²Â Ã¬ÂÂ:ÃªÂ°ÂÃ«Â°Â, Ã¬ÂÂ´Ã¬ÂÂÃ­ÂÂ¬:ÃªÂ¸Â°Ã­ÂÂ','ÃªÂ°ÂÃ¬ÂÂ':'Ã­ÂÂÃ«Â¡ÂÃ¬Â ÂÃ­ÂÂ¸ Ã¬ÂÂ¤Ã«ÂªÂ'}];
   const ws=XLSX.utils.json_to_sheet(headers),wb=XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb,ws,'íë¡ì í¸');
-  XLSX.writeFile(wb,'íë¡ì í¸ë§µ_ìë¡ëìì.xlsx');
-  showToast('ìì íì¼ì ë¤ì´ë¡ëíìµëë¤. 2íë¶í° ì¤ì  ë°ì´í°ë¥¼ ìë ¥íì¸ì.');}
+  XLSX.utils.book_append_sheet(wb,ws,'Ã­ÂÂÃ«Â¡ÂÃ¬Â ÂÃ­ÂÂ¸');
+  XLSX.writeFile(wb,'Ã­ÂÂÃ«Â¡ÂÃ¬Â ÂÃ­ÂÂ¸Ã«Â§Âµ_Ã¬ÂÂÃ«Â¡ÂÃ«ÂÂÃ¬ÂÂÃ¬ÂÂ.xlsx');
+  showToast('Ã¬ÂÂÃ¬ÂÂ Ã­ÂÂÃ¬ÂÂ¼Ã¬ÂÂ Ã«ÂÂ¤Ã¬ÂÂ´Ã«Â¡ÂÃ«ÂÂÃ­ÂÂÃ¬ÂÂµÃ«ÂÂÃ«ÂÂ¤. 2Ã­ÂÂÃ«Â¶ÂÃ­ÂÂ° Ã¬ÂÂ¤Ã¬Â Â Ã«ÂÂ°Ã¬ÂÂ´Ã­ÂÂ°Ã«Â¥Â¼ Ã¬ÂÂÃ«Â Â¥Ã­ÂÂÃ¬ÂÂ¸Ã¬ÂÂ.');}
 
-// íì¬ ë°ì´í° ë¤ì´ë¡ë
+// Ã­ÂÂÃ¬ÂÂ¬ Ã«ÂÂ°Ã¬ÂÂ´Ã­ÂÂ° Ã«ÂÂ¤Ã¬ÂÂ´Ã«Â¡ÂÃ«ÂÂ
 function downloadExcel(){
-  const data=projects.map(p=>({'íë¡ì í¸ëª':p.name,'ê³ ê°ì¬':p.client,'PM':p.pm,'ìì¹':p.location,'ìë':p.lat||'','ê²½ë':p.lng||'','ìí':STATUS_CFG[p.status]?.label,'ììì¼':p.start,'ì¢ë£ì¼':p.end,'ì¤íì¼':p.openDate||'','í¬ìì¸ì':(p.team||[]).length,'ê³ì½ê·ëª¨':p.budget,'ì í':p.type,'ìíë':RISK_CFG[p.risk]?.label,'ê¸°ì ì¤í':(p.langs||[]).join(', '),'íì':(p.team||[]).map(t=>`${t.name}:${t.role}`).join(', '),'ê°ì':p.desc||''}));
+  const data=projects.map(p=>({'Ã­ÂÂÃ«Â¡ÂÃ¬Â ÂÃ­ÂÂ¸Ã«ÂªÂ':p.name,'ÃªÂ³Â ÃªÂ°ÂÃ¬ÂÂ¬':p.client,'PM':p.pm,'Ã¬ÂÂÃ¬Â¹Â':p.location,'Ã¬ÂÂÃ«ÂÂ':p.lat||'','ÃªÂ²Â½Ã«ÂÂ':p.lng||'','Ã¬ÂÂÃ­ÂÂ':STATUS_CFG[p.status]?.label,'Ã¬ÂÂÃ¬ÂÂÃ¬ÂÂ¼':p.start,'Ã¬Â¢ÂÃ«Â£ÂÃ¬ÂÂ¼':p.end,'Ã¬ÂÂ¤Ã­ÂÂÃ¬ÂÂ¼':p.openDate||'','Ã­ÂÂ¬Ã¬ÂÂÃ¬ÂÂ¸Ã¬ÂÂ':(p.team||[]).length,'ÃªÂ³ÂÃ¬ÂÂ½ÃªÂ·ÂÃ«ÂªÂ¨':p.budget,'Ã¬ÂÂ Ã­ÂÂ':p.type,'Ã¬ÂÂÃ­ÂÂÃ«ÂÂ':RISK_CFG[p.risk]?.label,'ÃªÂ¸Â°Ã¬ÂÂ Ã¬ÂÂ¤Ã­ÂÂ':(p.langs||[]).join(', '),'Ã­ÂÂÃ¬ÂÂ':(p.team||[]).map(t=>`${t.name}:${t.role}`).join(', '),'ÃªÂ°ÂÃ¬ÂÂ':p.desc||''}));
   const ws=XLSX.utils.json_to_sheet(data),wb=XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb,ws,'íë¡ì í¸');
-  const _d=new Date();const _ds=`${_d.getFullYear()}${String(_d.getMonth()+1).padStart(2,'0')}${String(_d.getDate()).padStart(2,'0')}`;XLSX.writeFile(wb,`íë¡ì í¸ë§µ_íí©_${_ds}.xlsx`);
-  showToast('ìì ë¤ì´ë¡ë ìë£');}
+  XLSX.utils.book_append_sheet(wb,ws,'Ã­ÂÂÃ«Â¡ÂÃ¬Â ÂÃ­ÂÂ¸');
+  const _d=new Date();const _ds=`${_d.getFullYear()}${String(_d.getMonth()+1).padStart(2,'0')}${String(_d.getDate()).padStart(2,'0')}`;XLSX.writeFile(wb,`Ã­ÂÂÃ«Â¡ÂÃ¬Â ÂÃ­ÂÂ¸Ã«Â§Âµ_Ã­ÂÂÃ­ÂÂ©_${_ds}.xlsx`);
+  showToast('Ã¬ÂÂÃ¬ÂÂ Ã«ÂÂ¤Ã¬ÂÂ´Ã«Â¡ÂÃ«ÂÂ Ã¬ÂÂÃ«Â£Â');}
 
-// ìì ë ì§ ìë¦¬ì¼ â "YYYY.MM" ë¬¸ìì´ ë³í
+// Ã¬ÂÂÃ¬ÂÂ Ã«ÂÂ Ã¬Â§Â Ã¬ÂÂÃ«Â¦Â¬Ã¬ÂÂ¼ Ã¢ÂÂ "YYYY.MM" Ã«Â¬Â¸Ã¬ÂÂÃ¬ÂÂ´ Ã«Â³ÂÃ­ÂÂ
 function excelDateToStr(val){
   if(!val)return'';
-  // ì´ë¯¸ ë¬¸ìì´ì´ë©´ ê·¸ëë¡
+  // Ã¬ÂÂ´Ã«Â¯Â¸ Ã«Â¬Â¸Ã¬ÂÂÃ¬ÂÂ´Ã¬ÂÂ´Ã«Â©Â´ ÃªÂ·Â¸Ã«ÂÂÃ«Â¡Â
   if(typeof val==='string')return val.trim();
-  // ì«ì(Excel ìë¦¬ì¼)ì´ë©´ ë³í
+  // Ã¬ÂÂ«Ã¬ÂÂ(Excel Ã¬ÂÂÃ«Â¦Â¬Ã¬ÂÂ¼)Ã¬ÂÂ´Ã«Â©Â´ Ã«Â³ÂÃ­ÂÂ
   if(typeof val==='number'){
     const d=new Date(Math.round((val-25569)*86400*1000));
     return`${d.getUTCFullYear()}.${String(d.getUTCMonth()+1).padStart(2,'0')}`;
   }
   return String(val);}
 
-// ìì ìë¡ë (íë¡ì í¸ëª ê¸°ì¤ ì¤ë³µ ë°©ì§)
+// Ã¬ÂÂÃ¬ÂÂ Ã¬ÂÂÃ«Â¡ÂÃ«ÂÂ (Ã­ÂÂÃ«Â¡ÂÃ¬Â ÂÃ­ÂÂ¸Ã«ÂªÂ ÃªÂ¸Â°Ã¬Â¤Â Ã¬Â¤ÂÃ«Â³Âµ Ã«Â°Â©Ã¬Â§Â)
 function uploadExcel(e){
   const file=e.target.files[0];if(!file)return;
   const reader=new FileReader();
   reader.onload=async evt=>{
     const wb=XLSX.read(evt.target.result,{type:'binary',cellDates:false}),ws=wb.Sheets[wb.SheetNames[0]],rows=XLSX.utils.sheet_to_json(ws,{raw:true});
-    const sm={'ê°ë° ì¤':'dev','íì¤í¸':'test','ì´ììì í':'stable','ì¤ê³':'plan','ì¢ë£':'done'};
-    const rm={'ë®ì':'low','ë³´íµ':'mid','ëì':'high'};
-    // ê¸°ì¡´ íë¡ì í¸ë¥¼ nameâid ë§µì¼ë¡ ê´ë¦¬ (ìë°ì´í¸ì©)
+    const sm={'ÃªÂ°ÂÃ«Â°Â Ã¬Â¤Â':'dev','Ã­ÂÂÃ¬ÂÂ¤Ã­ÂÂ¸':'test','Ã¬ÂÂ´Ã¬ÂÂÃ¬ÂÂÃ¬Â ÂÃ­ÂÂ':'stable','Ã¬ÂÂ¤ÃªÂ³Â':'plan','Ã¬Â¢ÂÃ«Â£Â':'done'};
+    const rm={'Ã«ÂÂ®Ã¬ÂÂ':'low','Ã«Â³Â´Ã­ÂÂµ':'mid','Ã«ÂÂÃ¬ÂÂ':'high'};
+    // ÃªÂ¸Â°Ã¬Â¡Â´ Ã­ÂÂÃ«Â¡ÂÃ¬Â ÂÃ­ÂÂ¸Ã«Â¥Â¼ nameÃ¢ÂÂid Ã«Â§ÂµÃ¬ÂÂ¼Ã«Â¡Â ÃªÂ´ÂÃ«Â¦Â¬ (Ã¬ÂÂÃ«ÂÂ°Ã¬ÂÂ´Ã­ÂÂ¸Ã¬ÂÂ©)
     const existingMap=new Map(projects.map(p=>[p.name.trim(),p.id]));
     let added=0,updated=0,errors=[];
     for(const row of rows){
-      const name=(row['íë¡ì í¸ëª']||'').trim();
-      if(!name||name.startsWith('(ìì)'))continue;
-      const lat=parseFloat(row['ìë'])||37.5665;
-      const lng=parseFloat(row['ê²½ë'])||126.9780;
-      const start=excelDateToStr(row['ììì¼']);
-      const end=excelDateToStr(row['ì¢ë£ì¼']);
-      const team=row['íì']?row['íì'].toString().split(',').map(s=>{const[n,r]=s.trim().split(':');return{name:(n||'').trim(),role:(r||'').trim()};}).filter(t=>t.name):[];
+      const name=(row['Ã­ÂÂÃ«Â¡ÂÃ¬Â ÂÃ­ÂÂ¸Ã«ÂªÂ']||'').trim();
+      if(!name||name.startsWith('(Ã¬ÂÂÃ¬ÂÂ)'))continue;
+      const lat=parseFloat(row['Ã¬ÂÂÃ«ÂÂ'])||37.5665;
+      const lng=parseFloat(row['ÃªÂ²Â½Ã«ÂÂ'])||126.9780;
+      const start=excelDateToStr(row['Ã¬ÂÂÃ¬ÂÂÃ¬ÂÂ¼']);
+      const end=excelDateToStr(row['Ã¬Â¢ÂÃ«Â£ÂÃ¬ÂÂ¼']);
+      const team=row['Ã­ÂÂÃ¬ÂÂ']?row['Ã­ÂÂÃ¬ÂÂ'].toString().split(',').map(s=>{const[n,r]=s.trim().split(':');return{name:(n||'').trim(),role:(r||'').trim()};}).filter(t=>t.name):[];
       const isExisting=existingMap.has(name);
       const docId=isExisting?existingMap.get(name):'p'+Date.now()+added;
       const data={id:docId,name,
-        client:row['ê³ ê°ì¬']||'',pm:row['PM']||'',location:row['ìì¹']||'',
+        client:row['ÃªÂ³Â ÃªÂ°ÂÃ¬ÂÂ¬']||'',pm:row['PM']||'',location:row['Ã¬ÂÂÃ¬Â¹Â']||'',
         lat,lng,
-        status:sm[row['ìí']]||'plan',
+        status:sm[row['Ã¬ÂÂÃ­ÂÂ']]||'plan',
         start,end,
-        members:parseInt(row['í¬ìì¸ì'])||0,budget:String(row['ê³ì½ê·ëª¨']||''),
-        type:row['ì í']||'ì ê·ê°ë°',risk:rm[row['ìíë']]||'mid',
-        langs:row['ê¸°ì ì¤í']?row['ê¸°ì ì¤í'].toString().split(',').map(s=>s.trim()).filter(Boolean):[],
-        team,desc:row['ê°ì']||''};
+        members:parseInt(row['Ã­ÂÂ¬Ã¬ÂÂÃ¬ÂÂ¸Ã¬ÂÂ'])||0,budget:String(row['ÃªÂ³ÂÃ¬ÂÂ½ÃªÂ·ÂÃ«ÂªÂ¨']||''),
+        type:row['Ã¬ÂÂ Ã­ÂÂ']||'Ã¬ÂÂ ÃªÂ·ÂÃªÂ°ÂÃ«Â°Â',risk:rm[row['Ã¬ÂÂÃ­ÂÂÃ«ÂÂ']]||'mid',
+        langs:row['ÃªÂ¸Â°Ã¬ÂÂ Ã¬ÂÂ¤Ã­ÂÂ']?row['ÃªÂ¸Â°Ã¬ÂÂ Ã¬ÂÂ¤Ã­ÂÂ'].toString().split(',').map(s=>s.trim()).filter(Boolean):[],
+        team,desc:row['ÃªÂ°ÂÃ¬ÂÂ']||''};
       try{
         if(isExisting){
           await db.collection('projects').doc(docId).update(data);
@@ -1230,23 +1223,23 @@ function uploadExcel(e){
         }
       }catch(err){errors.push(name);}
     }
-    let msg=`${added}ê° ì¶ê°`;
-    if(updated>0)msg+=`, ${updated}ê° ìë°ì´í¸`;
-    if(errors.length)msg+=`, ì¤ë¥ ${errors.length}ê±´`;
+    let msg=`${added}ÃªÂ°Â Ã¬Â¶ÂÃªÂ°Â`;
+    if(updated>0)msg+=`, ${updated}ÃªÂ°Â Ã¬ÂÂÃ«ÂÂ°Ã¬ÂÂ´Ã­ÂÂ¸`;
+    if(errors.length)msg+=`, Ã¬ÂÂ¤Ã«Â¥Â ${errors.length}ÃªÂ±Â´`;
     showToast(msg);
     e.target.value='';
   };
   reader.readAsBinaryString(file);}
 
-// âââââââââââââââââââââââââââââââââââ
-//  ê²ì
-// âââââââââââââââââââââââââââââââââââ
+// Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
+//  ÃªÂ²ÂÃ¬ÂÂ
+// Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 function onGlobalSearch(val){searchQuery=val.toLowerCase();if(currentPage==='map')renderMap();if(currentPage==='projects'){document.querySelectorAll('#projTable tr').forEach(tr=>{tr.style.display=tr.textContent.toLowerCase().includes(searchQuery)?'':'none';});}}
 
-// âââââââââââââââââââââââââââââââââââ
-//  ì í¸
-// âââââââââââââââââââââââââââââââââââ
-function firebaseErrMsg(code){const msgs={'auth/email-already-in-use':'ì´ë¯¸ ì¬ì© ì¤ì¸ ì´ë©ì¼ìëë¤.','auth/invalid-email':'ì¬ë°ë¥¸ ì´ë©ì¼ íìì´ ìëëë¤.','auth/weak-password':'ë¹ë°ë²í¸ê° ëë¬´ ì§§ìµëë¤. (6ì ì´ì)','auth/user-not-found':'ë±ë¡ë ì´ë©ì¼ì´ ìëëë¤.','auth/wrong-password':'ë¹ë°ë²í¸ê° ì¬ë°ë¥´ì§ ììµëë¤.','auth/too-many-requests':'ëë¬´ ë§ì ìëìëë¤. ì ì í ë¤ì ìëí´ì£¼ì¸ì.','auth/requires-recent-login':'ë³´ìì ìí´ ë¤ì ë¡ê·¸ì¸ í ìëí´ì£¼ì¸ì.'};return msgs[code]||'ì¤ë¥ê° ë°ìíìµëë¤. ë¤ì ìëí´ì£¼ì¸ì.';}
+// Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
+//  Ã¬ÂÂ Ã­ÂÂ¸
+// Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
+function firebaseErrMsg(code){const msgs={'auth/email-already-in-use':'Ã¬ÂÂ´Ã«Â¯Â¸ Ã¬ÂÂ¬Ã¬ÂÂ© Ã¬Â¤ÂÃ¬ÂÂ¸ Ã¬ÂÂ´Ã«Â©ÂÃ¬ÂÂ¼Ã¬ÂÂÃ«ÂÂÃ«ÂÂ¤.','auth/invalid-email':'Ã¬ÂÂ¬Ã«Â°ÂÃ«Â¥Â¸ Ã¬ÂÂ´Ã«Â©ÂÃ¬ÂÂ¼ Ã­ÂÂÃ¬ÂÂÃ¬ÂÂ´ Ã¬ÂÂÃ«ÂÂÃ«ÂÂÃ«ÂÂ¤.','auth/weak-password':'Ã«Â¹ÂÃ«Â°ÂÃ«Â²ÂÃ­ÂÂ¸ÃªÂ°Â Ã«ÂÂÃ«Â¬Â´ Ã¬Â§Â§Ã¬ÂÂµÃ«ÂÂÃ«ÂÂ¤. (6Ã¬ÂÂ Ã¬ÂÂ´Ã¬ÂÂ)','auth/user-not-found':'Ã«ÂÂ±Ã«Â¡ÂÃ«ÂÂ Ã¬ÂÂ´Ã«Â©ÂÃ¬ÂÂ¼Ã¬ÂÂ´ Ã¬ÂÂÃ«ÂÂÃ«ÂÂÃ«ÂÂ¤.','auth/wrong-password':'Ã«Â¹ÂÃ«Â°ÂÃ«Â²ÂÃ­ÂÂ¸ÃªÂ°Â Ã¬ÂÂ¬Ã«Â°ÂÃ«Â¥Â´Ã¬Â§Â Ã¬ÂÂÃ¬ÂÂµÃ«ÂÂÃ«ÂÂ¤.','auth/too-many-requests':'Ã«ÂÂÃ«Â¬Â´ Ã«Â§ÂÃ¬ÂÂ Ã¬ÂÂÃ«ÂÂÃ¬ÂÂÃ«ÂÂÃ«ÂÂ¤. Ã¬ÂÂ Ã¬ÂÂ Ã­ÂÂ Ã«ÂÂ¤Ã¬ÂÂ Ã¬ÂÂÃ«ÂÂÃ­ÂÂ´Ã¬Â£Â¼Ã¬ÂÂ¸Ã¬ÂÂ.','auth/requires-recent-login':'Ã«Â³Â´Ã¬ÂÂÃ¬ÂÂ Ã¬ÂÂÃ­ÂÂ´ Ã«ÂÂ¤Ã¬ÂÂ Ã«Â¡ÂÃªÂ·Â¸Ã¬ÂÂ¸ Ã­ÂÂ Ã¬ÂÂÃ«ÂÂÃ­ÂÂ´Ã¬Â£Â¼Ã¬ÂÂ¸Ã¬ÂÂ.'};return msgs[code]||'Ã¬ÂÂ¤Ã«Â¥ÂÃªÂ°Â Ã«Â°ÂÃ¬ÂÂÃ­ÂÂÃ¬ÂÂµÃ«ÂÂÃ«ÂÂ¤. Ã«ÂÂ¤Ã¬ÂÂ Ã¬ÂÂÃ«ÂÂÃ­ÂÂ´Ã¬Â£Â¼Ã¬ÂÂ¸Ã¬ÂÂ.';}
 function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2800);}
 document.getElementById('projModalOverlay').addEventListener('click',function(e){if(e.target===this)closeProjModal();});
 document.getElementById('addUserModalOverlay').addEventListener('click',function(e){if(e.target===this)closeAddUserModal();});
