@@ -781,33 +781,33 @@ async function searchAddress(){
   resultEl.style.display='block';
   resultEl.innerHTML='<div style="padding:10px 12px;font-size:12px;color:var(--text3)">🔍 검색 중...</div>';
   try{
-    const res=await fetch(`https://dapi.kakao.com/v2/local/search/address.json?query=${encodeURIComponent(query)}&size=5`,{
-      headers:{'Authorization':'KakaoAK e60f1f3639b724374c1c20d1b6b493c2'}
+    const res=await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&limit=5&countrycodes=kr&addressdetails=1`,{
+      headers:{'Accept-Language':'ko','User-Agent':'ProjectMapPro/1.0'}
     });
     const data=await res.json();
-    if(data.documents&&data.documents.length>0){
-      if(data.documents.length===1){
-        applyAddress(data.documents[0]);
+    if(data&&data.length>0){
+      if(data.length===1){
+        applyAddress(data[0]);
       } else {
-        window._kakaoResults=data.documents;
-        resultEl.innerHTML=data.documents.map((r,i)=>
+        window._addrResults=data;
+        resultEl.innerHTML=data.map((r,i)=>
           `<div onclick="applyAddressIdx(${i})" style="padding:8px 12px;font-size:12px;cursor:pointer;border-bottom:1px solid var(--border);color:var(--text2);" onmouseover="this.style.background='var(--bg3)'" onmouseout="this.style.background=''">
-            <span style="color:var(--text);font-weight:600">${r.address_name}</span>
-            <span style="margin-left:8px;font-size:10px;color:var(--text3)">${r.address_type==='REGION'?'지역':'도로명'}</span>
+            <span style="color:var(--text);font-weight:600">${r.display_name.split(',').slice(0,3).join(', ')}</span>
           </div>`).join('');
       }
     } else {
-      resultEl.innerHTML='<div style="padding:10px 12px;font-size:12px;color:var(--text3)">검색 결과가 없습니다. 더 구체적인 주소를 입력해보세요.</div>';
+      resultEl.innerHTML='<div style="padding:10px 12px;font-size:12px;color:var(--text3)">검색 결과가 없습니다. 도로명 주소로 다시 시도해보세요.</div>';
     }
   }catch(e){
-    resultEl.innerHTML='<div style="padding:10px 12px;font-size:12px;color:var(--red)">검색 오류가 발생했습니다.</div>';
+    resultEl.innerHTML='<div style="padding:10px 12px;font-size:12px;color:var(--red)">검색 오류: '+e.message+'</div>';
   }
 }
-function applyAddressIdx(i){applyAddress(window._kakaoResults[i]);}
+function applyAddressIdx(i){applyAddress(window._addrResults[i]);}
 function applyAddress(r){
-  document.getElementById('fLocation').value=r.address_name;
-  document.getElementById('fLat').value=parseFloat(r.y).toFixed(6);
-  document.getElementById('fLng').value=parseFloat(r.x).toFixed(6);
+  const name=r.display_name?r.display_name.split(',').slice(0,3).join(', '):r.address_name;
+  document.getElementById('fLocation').value=name;
+  document.getElementById('fLat').value=parseFloat(r.lat||r.y).toFixed(6);
+  document.getElementById('fLng').value=parseFloat(r.lon||r.x).toFixed(6);
   document.getElementById('addrSearchResult').style.display='none';
   showToast('📍 주소가 적용됐습니다.');
 }
