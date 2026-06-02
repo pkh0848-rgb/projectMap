@@ -795,12 +795,12 @@ function searchAddress(){
   };
   var places=new kakao.maps.services.Places();
   places.keywordSearch(query,function(res,status){
-    if(status===kakao.maps.services.Status.OK)res.forEach(function(r){results.push({name:r.place_name+(r.road_address_name?' ('+r.road_address_name+')':''),lat:parseFloat(r.y),lng:parseFloat(r.x),type:'장소'});});
+    if(status===kakao.maps.services.Status.OK)res.forEach(function(r){results.push({name:r.place_name+(r.road_address_name?' ('+r.road_address_name+')':''),lat:parseFloat(r.y),lon:parseFloat(r.x),type:'장소'});});
     finish();
   },{size:5});
   var geocoder=new kakao.maps.services.Geocoder();
   geocoder.addressSearch(query,function(res,status){
-    if(status===kakao.maps.services.Status.OK)res.forEach(function(r){results.push({name:r.address_name,lat:parseFloat(r.y),lng:parseFloat(r.x),type:'주소'});});
+    if(status===kakao.maps.services.Status.OK)res.forEach(function(r){results.push({name:r.address_name,lat:parseFloat(r.y),lon:parseFloat(r.x),type:'주소'});});
     finish();
   });
 }
