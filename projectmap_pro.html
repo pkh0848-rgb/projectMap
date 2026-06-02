@@ -844,7 +844,7 @@ function goPage(page){
 //  진행률 자동 계산
 // ═══════════════════════════════════
 function calcProgress(p){
-  if(p.status==='done'||p.status==='stable')return 100;
+  if(p.status==='done')return 100;
   if(!p.start||!p.end)return 0;
   const pd=s=>{const a=s.split('.');return new Date(parseInt(a[0]),parseInt(a[1]||1)-1,parseInt(a[2]||1));};
   const start=pd(p.start),end=pd(p.end),now=new Date();
