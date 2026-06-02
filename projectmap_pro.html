@@ -103,7 +103,7 @@ body{font-family:'Segoe UI',sans-serif;background:var(--bg);color:var(--text);he
 .kpi-value{font-size:28px;font-weight:800;margin-bottom:4px;}
 .kpi-sub{font-size:11px;color:var(--text3);}
 .kpi-icon{position:absolute;top:16px;right:16px;font-size:22px;opacity:0.5;}
-.dash-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px;align-items:stretch;}
+.dash-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px;align-items:start;}
 .dash-card{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:20px;}
 .dash-card h3{font-size:13px;font-weight:700;margin-bottom:16px;}
 
@@ -114,7 +114,7 @@ body{font-family:'Segoe UI',sans-serif;background:var(--bg);color:var(--text);he
 .cal-title{font-size:14px;font-weight:700;color:var(--text);}
 .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;}
 .cal-dow{text-align:center;font-size:10px;color:var(--text3);padding:4px 0;font-weight:600;}
-.cal-day{min-height:56px;background:var(--bg);border-radius:6px;padding:4px;transition:background 0.15s;position:relative;}
+.cal-day{min-height:44px;background:var(--bg);border-radius:6px;padding:4px;transition:background 0.15s;position:relative;}
 .cal-day:hover{background:var(--bg3);}
 .cal-day.today{background:var(--bg4);border:1px solid #4f9eff44;}
 .cal-day.other-month{opacity:0.3;}
@@ -247,7 +247,7 @@ tr:hover td{background:var(--bg3);}
 /* ── 모달 ── */
 .modal-overlay{position:fixed;inset:0;background:#000000aa;z-index:2000;display:none;align-items:center;justify-content:center;}
 .modal-overlay.open{display:flex;}
-.modal{background:var(--bg2);border:1px solid var(--border2);border-radius:18px;padding:28px;width:620px;max-height:85vh;overflow-y:auto;box-shadow:0 24px 60px rgba(0,0,0,0.7);}
+.modal{background:var(--bg2);border:1px solid var(--border2);border-radius:18px;padding:28px;width:620px;max-width:calc(100vw - 32px);max-height:85vh;overflow-y:auto;box-shadow:0 24px 60px rgba(0,0,0,0.7);}
 .modal-sm{width:440px;}
 .modal h2{font-size:17px;font-weight:800;margin-bottom:20px;}
 .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
@@ -383,9 +383,9 @@ tr:hover td{background:var(--bg3);}
       <div class="page active" id="page-dashboard"><div class="page-inner">
         <div class="kpi-grid" id="kpiGrid"></div>
         <div class="dash-grid">
-          <div style="display:flex;flex-direction:column;gap:16px;height:100%;">
+          <div style="display:flex;flex-direction:column;gap:16px;">
             <div class="dash-card"><h3>📊 상태별 현황</h3><div class="chart-wrap"><canvas id="statusChart"></canvas></div></div>
-            <div class="dash-card" style="flex:1;display:flex;flex-direction:column;"><h3>📅 프로젝트 캘린더</h3>
+            <div class="dash-card" style="display:flex;flex-direction:column;"><h3>📅 프로젝트 캘린더</h3>
               <div class="cal-header">
                 <button class="cal-nav" onclick="calPrev()">‹</button>
                 <span class="cal-title" id="calTitle"></span>
@@ -400,7 +400,7 @@ tr:hover td{background:var(--bg3);}
               </div>
             </div>
           </div>
-          <div class="dash-card" style="display:flex;flex-direction:column;"><h3>⚡ 알림 센터</h3><div class="alert-list" id="alertList" style="flex:1;overflow-y:auto;max-height:none;"></div></div>
+          <div class="dash-card" style="display:flex;flex-direction:column;height:100%;"><h3>⚡ 알림 센터</h3><div class="alert-list" id="alertList" style="flex:1;overflow-y:auto;min-height:0;"></div></div>
         </div>
         <div class="dash-card"><h3>🚀 진행률 현황</h3><div id="progressBars" style="margin-top:8px"></div></div>
       </div></div>
