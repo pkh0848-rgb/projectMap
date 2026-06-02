@@ -390,6 +390,7 @@ tr:hover td{background:var(--bg3);}
                 <button class="cal-nav" onclick="calNext()">›</button>
               </div>
               <div class="cal-grid" id="calGrid"></div>
+              <div id="calMonthlyList" style="display:none;margin-top:10px;padding:10px 12px;background:var(--bg);border-radius:8px;border:1px solid var(--border);"></div>
               <div class="cal-legend">
                 <span><div class="cal-legend-dot" style="background:#4f9eff"></div>시작</span>
                 <span><div class="cal-legend-dot" style="background:#a855f7"></div>오픈</span>
@@ -773,11 +774,11 @@ async function syncTeamData(){
       const data=snap.data();
       const needsUpdate=!data.team||data.team.length<(def.team||[]).length||data.openDate===undefined;
       if(needsUpdate){
-        batch.update(ref,{
-          team:def.team||[],
-          members:(def.team||[]).length,
-          openDate:def.openDate||''
-        });
+        const updateData={team:def.team||[],members:(def.team||[]).length,openDate:def.openDate||''};
+        // 날짜가 YYYY.MM 형식(일자 없음)이면 def 값으로 업데이트
+        if(def.start&&data.start&&data.start.split('.').length<3)updateData.start=def.start;
+        if(def.end&&data.end&&data.end.split('.').length<3)updateData.end=def.end;
+        batch.update(ref,updateData);
       }
     }
   }
@@ -843,12 +844,12 @@ function goPage(page){
 //  진행률 자동 계산
 // ═══════════════════════════════════
 function calcProgress(p){
-  if(p.status==='done')return 100;
+  if(p.status==='done'||p.status==='stable')return 100;
   if(!p.start||!p.end)return 0;
   const pd=s=>{const a=s.split('.');return new Date(parseInt(a[0]),parseInt(a[1]||1)-1,parseInt(a[2]||1));};
   const start=pd(p.start),end=pd(p.end),now=new Date();
   if(now<=start)return 0;
-  if(now>=end)return 99;
+  if(now>=end)return 100;
   return Math.min(99,Math.round((now-start)/(end-start)*100));}
 
 // ═══════════════════════════════════
@@ -880,6 +881,7 @@ let calYear=new Date().getFullYear(),calMonth=new Date().getMonth();
 function calPrev(){calMonth--;if(calMonth<0){calMonth=11;calYear--;}renderCalendar();}
 function calNext(){calMonth++;if(calMonth>11){calMonth=0;calYear++;}renderCalendar();}
 function parseDate(s){if(!s)return null;const a=s.split('.');return new Date(parseInt(a[0]),parseInt(a[1]||1)-1,parseInt(a[2]||1));}
+function hasDay(s){return s&&s.split('.').length>=3;}
 function renderCalendar(){
   if(!document.getElementById('calGrid'))return;
   const now=new Date();
@@ -887,28 +889,51 @@ function renderCalendar(){
   const firstDay=new Date(calYear,calMonth,1).getDay();
   const lastDate=new Date(calYear,calMonth+1,0).getDate();
   const days=['일','월','화','수','목','금','토'];
+  const ymStr=`${calYear}.${String(calMonth+1).padStart(2,'0')}`;
+  // 일자 없는 프로젝트: 이번 달에 이벤트 있는 것 목록
+  let monthlyList=[];
+  projects.forEach(p=>{
+    if(!p.start||!p.end)return;
+    const startYm=p.start.slice(0,7).replace(/-/g,'.');
+    const endYm=p.end.slice(0,7).replace(/-/g,'.');
+    const openYm=p.openDate?p.openDate.slice(0,7).replace(/-/g,'.'):null;
+    if(!hasDay(p.start)&&startYm===ymStr) monthlyList.push({type:'start',name:p.name});
+    if(!hasDay(p.end)&&endYm===ymStr) monthlyList.push({type:'end',name:p.name});
+    if(p.openDate&&!hasDay(p.openDate)&&openYm===ymStr) monthlyList.push({type:'open',name:p.name});
+  });
   let html=days.map(d=>`<div class="cal-dow">${d}</div>`).join('');
   for(let i=0;i<firstDay;i++)html+=`<div class="cal-day other-month"></div>`;
   for(let d=1;d<=lastDate;d++){
     const isToday=now.getFullYear()===calYear&&now.getMonth()===calMonth&&now.getDate()===d;
-    const thisDate=new Date(calYear,calMonth,d);
     let events='';
     projects.forEach(p=>{
-      const s=parseDate(p.start),e=parseDate(p.end),o=p.openDate?parseDate(p.openDate):null;
-      if(!s||!e)return;
-      // 시작일
-      if(s.getFullYear()===calYear&&s.getMonth()===calMonth&&s.getDate()===d)
-        events+=`<div class="cal-event start" title="시작: ${p.name}">▶ ${p.name}</div>`;
-      // 오픈일
+      if(!p.start||!p.end)return;
+      const s=hasDay(p.start)?parseDate(p.start):null;
+      const e=hasDay(p.end)?parseDate(p.end):null;
+      const o=(p.openDate&&hasDay(p.openDate))?parseDate(p.openDate):null;
+      if(s&&s.getFullYear()===calYear&&s.getMonth()===calMonth&&s.getDate()===d)
+        events+=`<div class="cal-event start">▶ ${p.name}</div>`;
       if(o&&o.getFullYear()===calYear&&o.getMonth()===calMonth&&o.getDate()===d)
-        events+=`<div class="cal-event open" title="오픈: ${p.name}">🚀 ${p.name}</div>`;
-      // 종료일
-      if(e.getFullYear()===calYear&&e.getMonth()===calMonth&&e.getDate()===d)
-        events+=`<div class="cal-event end" title="종료: ${p.name}">◀ ${p.name}</div>`;
+        events+=`<div class="cal-event open">🚀 ${p.name}</div>`;
+      if(e&&e.getFullYear()===calYear&&e.getMonth()===calMonth&&e.getDate()===d)
+        events+=`<div class="cal-event end">◀ ${p.name}</div>`;
     });
     html+=`<div class="cal-day${isToday?' today':''}"><div class="cal-day-num">${d}</div>${events}</div>`;
   }
   document.getElementById('calGrid').innerHTML=html;
+  // 월 단위 이벤트 목록 표시
+  const listEl=document.getElementById('calMonthlyList');
+  if(listEl){
+    if(monthlyList.length){
+      const typeLabel={start:'▶ 시작',end:'◀ 종료',open:'🚀 오픈'};
+      const typeColor={start:'var(--blue)',end:'var(--red)',open:'#a855f7'};
+      listEl.innerHTML='<div style="font-size:10px;color:var(--text3);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px;">이번 달 이벤트</div>'+
+        monthlyList.map(e=>`<div style="font-size:11px;padding:3px 0;color:${typeColor[e.type]}">${typeLabel[e.type]} ${e.name}</div>`).join('');
+      listEl.style.display='block';
+    } else {
+      listEl.style.display='none';
+    }
+  }
 }
 
 function getAlerts(){const alerts=[];const now=new Date();projects.forEach(p=>{if(p.status==='done')return;if(p.end){const parts=p.end.split('.');if(parts.length>=2){// 월말 기준으로 계산 (해당 월의 마지막 날)
