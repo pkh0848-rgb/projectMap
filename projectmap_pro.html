@@ -371,21 +371,23 @@ tr:hover td{background:var(--bg3);}
       <div class="page active" id="page-dashboard"><div class="page-inner">
         <div class="kpi-grid" id="kpiGrid"></div>
         <div class="dash-grid">
-          <div class="dash-card"><h3>📊 상태별 현황</h3><div class="chart-wrap"><canvas id="statusChart"></canvas></div></div>
+          <div style="display:flex;flex-direction:column;gap:16px;">
+            <div class="dash-card"><h3>📊 상태별 현황</h3><div class="chart-wrap"><canvas id="statusChart"></canvas></div></div>
+            <div class="dash-card"><h3>📅 프로젝트 캘린더</h3>
+              <div class="cal-header">
+                <button class="cal-nav" onclick="calPrev()">‹</button>
+                <span class="cal-title" id="calTitle"></span>
+                <button class="cal-nav" onclick="calNext()">›</button>
+              </div>
+              <div class="cal-grid" id="calGrid"></div>
+              <div class="cal-legend">
+                <span><div class="cal-legend-dot" style="background:#4f9eff"></div>시작</span>
+                <span><div class="cal-legend-dot" style="background:#4fcc7a"></div>진행중</span>
+                <span><div class="cal-legend-dot" style="background:#ef4444"></div>종료</span>
+              </div>
+            </div>
+          </div>
           <div class="dash-card"><h3>⚡ 알림 센터</h3><div class="alert-list" id="alertList"></div></div>
-        </div>
-        <div class="dash-card"><h3>📅 프로젝트 캘린더</h3>
-          <div class="cal-header">
-            <button class="cal-nav" onclick="calPrev()">‹</button>
-            <span class="cal-title" id="calTitle"></span>
-            <button class="cal-nav" onclick="calNext()">›</button>
-          </div>
-          <div class="cal-grid" id="calGrid"></div>
-          <div class="cal-legend">
-            <span><div class="cal-legend-dot" style="background:#4f9eff"></div>시작</span>
-            <span><div class="cal-legend-dot" style="background:#4fcc7a"></div>진행중</span>
-            <span><div class="cal-legend-dot" style="background:#ef4444"></div>종료</span>
-          </div>
         </div>
         <div class="dash-card"><h3>🚀 진행률 현황</h3><div id="progressBars" style="margin-top:8px"></div></div>
       </div></div>
