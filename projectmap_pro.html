@@ -899,7 +899,7 @@ function calcProgress(p){
 function renderDashboard(){
   const isAdmin=userProfile&&userProfile.role==='admin';
   const active=projects.filter(p=>calcAutoStatus(p)!=='done');
-  const totalMembers=active.reduce((s,p)=>s+(p.team||[]).length,0);
+  const allNames=new Set();active.forEach(p=>(p.team||[]).forEach(m=>{if(m.name)allNames.add(m.name);}));const totalMembers=allNames.size;
   const totalBudget=projects.filter(p=>p.budget&&p.budget!=='TBD'&&!p.budget.includes('USD')).reduce((s,p)=>{const n=parseFloat(p.budget);return isNaN(n)?s:s+n;},0);
   const alerts=getAlerts();
   document.getElementById('notifDot').style.display=alerts.length?'block':'none';
