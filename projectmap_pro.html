@@ -774,32 +774,34 @@ async function doModalChangePw(){
 // ═══════════════════════════════════
 //  앱 초기화
 // ═══════════════════════════════════
-function searchAddress(){
+async function searchAddress(){
   const query=document.getElementById('fLocation').value.trim();
   if(!query){showToast('주소를 입력해주세요.');return;}
-  if(typeof kakao==='undefined'||!kakao.maps){showToast('카카오 지도 로딩 중입니다. 잠시 후 다시 시도해주세요.');return;}
-  const geocoder=new kakao.maps.services.Geocoder();
-  geocoder.addressSearch(query,function(results,status){
-    const resultEl=document.getElementById('addrSearchResult');
-    if(status===kakao.maps.services.Status.OK&&results.length>0){
-      if(results.length===1){
-        // 결과 1개면 바로 적용
-        applyAddress(results[0]);
+  const resultEl=document.getElementById('addrSearchResult');
+  resultEl.style.display='block';
+  resultEl.innerHTML='<div style="padding:10px 12px;font-size:12px;color:var(--text3)">🔍 검색 중...</div>';
+  try{
+    const res=await fetch(`https://dapi.kakao.com/v2/local/search/address.json?query=${encodeURIComponent(query)}&size=5`,{
+      headers:{'Authorization':'KakaoAK bcb23f61df537a7ef92c57a48d63806e'}
+    });
+    const data=await res.json();
+    if(data.documents&&data.documents.length>0){
+      if(data.documents.length===1){
+        applyAddress(data.documents[0]);
       } else {
-        // 여러 결과 목록 표시
-        resultEl.style.display='block';
-        resultEl.innerHTML=results.slice(0,5).map((r,i)=>
-          `<div onclick="applyAddressIdx(${i})" style="padding:8px 12px;font-size:12px;cursor:pointer;border-bottom:1px solid var(--border);color:var(--text2);" onmouseover="this.style.background='var(--bg3)'" onmouseout="this.style.background=''">`+
-          `<span style="color:var(--text);font-weight:600">${r.address_name}</span>`+
-          `<span style="margin-left:8px;font-size:10px;color:var(--text3)">${r.address_type}</span></div>`
-        ).join('');
-        window._kakaoResults=results;
+        window._kakaoResults=data.documents;
+        resultEl.innerHTML=data.documents.map((r,i)=>
+          `<div onclick="applyAddressIdx(${i})" style="padding:8px 12px;font-size:12px;cursor:pointer;border-bottom:1px solid var(--border);color:var(--text2);" onmouseover="this.style.background='var(--bg3)'" onmouseout="this.style.background=''">
+            <span style="color:var(--text);font-weight:600">${r.address_name}</span>
+            <span style="margin-left:8px;font-size:10px;color:var(--text3)">${r.address_type==='REGION'?'지역':'도로명'}</span>
+          </div>`).join('');
       }
     } else {
-      resultEl.style.display='block';
       resultEl.innerHTML='<div style="padding:10px 12px;font-size:12px;color:var(--text3)">검색 결과가 없습니다. 더 구체적인 주소를 입력해보세요.</div>';
     }
-  });
+  }catch(e){
+    resultEl.innerHTML='<div style="padding:10px 12px;font-size:12px;color:var(--red)">검색 오류가 발생했습니다.</div>';
+  }
 }
 function applyAddressIdx(i){applyAddress(window._kakaoResults[i]);}
 function applyAddress(r){
