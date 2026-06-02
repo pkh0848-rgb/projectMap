@@ -809,7 +809,7 @@ function applyAddress(r){
   const name=r.name||r.address_name;
   document.getElementById('fLocation').value=name;
   document.getElementById('fLat').value=parseFloat(r.lat||r.y).toFixed(6);
-  document.getElementById('fLng').value=parseFloat(r.lon||r.x).toFixed(6);
+  document.getElementById('fLng').value=parseFloat(r.lon||r.lng||r.x).toFixed(6);
   document.getElementById('addrSearchResult').style.display='none';
   showToast('📍 주소가 적용됐습니다.');
 }
