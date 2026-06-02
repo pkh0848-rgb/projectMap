@@ -775,11 +775,19 @@ async function doModalChangePw(){
 //  앱 초기화
 // ═══════════════════════════════════
 function searchAddress(){
+  const wrap=document.createElement('div');
+  wrap.style.cssText='position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;';
+  wrap.innerHTML='<div style="background:#fff;border-radius:12px;overflow:hidden;width:410px;box-shadow:0 20px 60px rgba(0,0,0,0.5)"><div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:#1a1d33;"><span style="color:#fff;font-size:13px;font-weight:700">📍 주소 검색</span><button onclick="this.closest('[data-postcode]').remove()" style="background:none;border:none;color:#aaa;font-size:18px;cursor:pointer;line-height:1">✕</button></div><div id="postcodeEmbed"></div></div>';
+  wrap.setAttribute('data-postcode','1');
+  wrap.addEventListener('click',function(e){if(e.target===wrap)wrap.remove();});
+  document.body.appendChild(wrap);
   new daum.Postcode({
-    oncomplete: function(data){
-      const addr = data.roadAddress || data.jibunAddress;
-      document.getElementById('fLocation').value = addr;
-      const resultEl = document.getElementById('addrSearchResult');
+    width:'410px',height:'450px',
+    oncomplete:function(data){
+      wrap.remove();
+      const addr=data.roadAddress||data.jibunAddress;
+      document.getElementById('fLocation').value=addr;
+      const resultEl=document.getElementById('addrSearchResult');
       resultEl.style.display='block';
       resultEl.innerHTML='<div style="padding:10px 12px;font-size:12px;color:var(--text3)">📍 좌표 변환 중...</div>';
       fetch('https://nominatim.openstreetmap.org/search?q='+encodeURIComponent(addr)+'&format=json&limit=1&accept-language=ko',{headers:{'User-Agent':'ProjectMapPro/1.0'}})
@@ -789,12 +797,12 @@ function searchAddress(){
             document.getElementById('fLng').value=parseFloat(d[0].lon).toFixed(6);
             resultEl.style.display='none';
             showToast('📍 주소가 적용됐습니다.');
-          } else {
+          }else{
             resultEl.innerHTML='<div style="padding:10px 12px;font-size:12px;color:var(--text3)">좌표를 찾지 못했습니다. 위도/경도를 직접 입력해주세요.</div>';
           }
         }).catch(()=>{resultEl.innerHTML='<div style="padding:10px 12px;font-size:12px;color:var(--text3)">좌표 변환 실패. 직접 입력해주세요.</div>';});
     }
-  }).open();
+  }).embed(document.getElementById('postcodeEmbed'));
 }
 function applyAddressIdx(i){applyAddress(window._addrResults[i]);}
 function applyAddress(r){
