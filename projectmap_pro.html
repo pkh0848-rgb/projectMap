@@ -475,10 +475,7 @@ tr:hover td{background:var(--bg3);}
           <button type="button" onclick="searchAddress()" style="background:var(--blue);border:none;color:#fff;padding:0 16px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;">🔍 검색</button>
         </div>
         <div id="addrSearchResult" style="display:none;margin-top:6px;background:var(--bg);border:1px solid var(--border2);border-radius:8px;overflow:hidden;max-height:160px;overflow-y:auto;"></div>
-        <div style="display:flex;gap:8px;margin-top:6px;">
-          <input id="fLat" placeholder="위도 (자동입력)" style="flex:1;font-size:12px;"/>
-          <input id="fLng" placeholder="경도 (자동입력)" style="flex:1;font-size:12px;"/>
-        </div>
+        <input type="hidden" id="fLat"/><input type="hidden" id="fLng"/>
       </div>
       <div class="form-group"><label>상태 <span style="font-size:10px;color:var(--text3)">(마일스톤 없을 때만 적용)</span></label><select id="fStatus"><option value="plan">설계</option><option value="dev">개발 중</option><option value="test">테스트</option><option value="stable">운영안정화</option><option value="done">종료</option></select></div>
       <div class="form-group"><label>위험도</label><select id="fRisk"><option value="low">낮음</option><option value="mid">보통</option><option value="high">높음</option></select></div>
