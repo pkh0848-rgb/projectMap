@@ -104,6 +104,27 @@ body{font-family:'Segoe UI',sans-serif;background:var(--bg);color:var(--text);he
 .dash-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px;}
 .dash-card{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:20px;}
 .dash-card h3{font-size:13px;font-weight:700;margin-bottom:16px;}
+
+/* ── 캘린더 ── */
+.cal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+.cal-nav{background:none;border:none;color:var(--text2);cursor:pointer;font-size:18px;padding:2px 8px;border-radius:6px;}
+.cal-nav:hover{background:var(--bg3);}
+.cal-title{font-size:14px;font-weight:700;color:var(--text);}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;}
+.cal-dow{text-align:center;font-size:10px;color:var(--text3);padding:4px 0;font-weight:600;}
+.cal-day{min-height:56px;background:var(--bg);border-radius:6px;padding:4px;transition:background 0.15s;position:relative;}
+.cal-day:hover{background:var(--bg3);}
+.cal-day.today{background:var(--bg4);border:1px solid #4f9eff44;}
+.cal-day.other-month{opacity:0.3;}
+.cal-day-num{font-size:11px;color:var(--text3);margin-bottom:2px;}
+.cal-day.today .cal-day-num{color:var(--blue);font-weight:700;}
+.cal-event{font-size:9px;padding:1px 4px;border-radius:3px;margin-bottom:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.5;}
+.cal-event.start{background:#4f9eff22;color:#4f9eff;border-left:2px solid #4f9eff;}
+.cal-event.end{background:#ef444422;color:#ef4444;border-left:2px solid #ef4444;}
+.cal-event.active{background:#4fcc7a18;color:#4fcc7a;border-left:2px solid #4fcc7a;}
+.cal-legend{display:flex;gap:16px;margin-top:10px;font-size:11px;color:var(--text3);}
+.cal-legend span{display:flex;align-items:center;gap:4px;}
+.cal-legend-dot{width:8px;height:8px;border-radius:2px;}
 .alert-list .alert-item{display:flex;align-items:flex-start;gap:10px;padding:10px 12px;border-radius:8px;margin-bottom:8px;}
 .alert-item.warn{background:#f59e0b0d;border:1px solid #f59e0b22;}
 .alert-item.danger{background:#ef44440d;border:1px solid #ef444422;}
@@ -352,6 +373,19 @@ tr:hover td{background:var(--bg3);}
         <div class="dash-grid">
           <div class="dash-card"><h3>📊 상태별 현황</h3><div class="chart-wrap"><canvas id="statusChart"></canvas></div></div>
           <div class="dash-card"><h3>⚡ 알림 센터</h3><div class="alert-list" id="alertList"></div></div>
+        </div>
+        <div class="dash-card"><h3>📅 프로젝트 캘린더</h3>
+          <div class="cal-header">
+            <button class="cal-nav" onclick="calPrev()">‹</button>
+            <span class="cal-title" id="calTitle"></span>
+            <button class="cal-nav" onclick="calNext()">›</button>
+          </div>
+          <div class="cal-grid" id="calGrid"></div>
+          <div class="cal-legend">
+            <span><div class="cal-legend-dot" style="background:#4f9eff"></div>시작</span>
+            <span><div class="cal-legend-dot" style="background:#4fcc7a"></div>진행중</span>
+            <span><div class="cal-legend-dot" style="background:#ef4444"></div>종료</span>
+          </div>
         </div>
         <div class="dash-card"><h3>🚀 진행률 현황</h3><div id="progressBars" style="margin-top:8px"></div></div>
       </div></div>
@@ -786,6 +820,44 @@ function renderDashboard(){
   statusChartObj=new Chart(ctx,{type:'doughnut',data:{labels:Object.values(STATUS_CFG).map(s=>s.label),datasets:[{data:Object.keys(STATUS_CFG).map(k=>sc[k]),backgroundColor:Object.values(STATUS_CFG).map(s=>s.color+'cc'),borderColor:Object.values(STATUS_CFG).map(s=>s.color),borderWidth:2}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right',labels:{color:'#9ca3b0',font:{size:11},padding:12}}},cutout:'65%'}});
   document.getElementById('alertList').innerHTML=alerts.length?alerts.map(a=>`<div class="alert-item ${a.type}"><span class="alert-icon">${a.icon}</span><div><div class="alert-title">${a.title}</div><div class="alert-desc">${a.desc}</div></div></div>`).join(''):'<div style="color:var(--text3);font-size:12px;text-align:center;padding:20px">✅ 현재 알림이 없습니다</div>';
   document.getElementById('progressBars').innerHTML=projects.filter(p=>p.status!=='done').sort((a,b)=>calcProgress(b)-calcProgress(a)).map(p=>{const s=STATUS_CFG[p.status],prog=calcProgress(p);return`<div style="display:flex;align-items:center;gap:12px;margin-bottom:10px"><div style="width:160px;font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${p.name}</div><span class="status-pill" style="background:${s.bg};color:${s.color};min-width:80px;justify-content:center">${s.label}</span><div style="flex:1;height:6px;background:var(--bg);border-radius:3px;overflow:hidden"><div style="height:100%;width:${prog}%;background:linear-gradient(90deg,${s.color}88,${s.color});border-radius:3px"></div></div><span style="font-size:12px;font-weight:700;color:${s.color};min-width:32px">${prog}%</span><span style="font-size:11px;color:var(--text3);min-width:60px">~${p.end}</span></div>`;}).join('');}
+  renderCalendar();
+
+// ═══════════════════════════════════
+//  캘린더
+// ═══════════════════════════════════
+let calYear=new Date().getFullYear(),calMonth=new Date().getMonth();
+function calPrev(){calMonth--;if(calMonth<0){calMonth=11;calYear--;}renderCalendar();}
+function calNext(){calMonth++;if(calMonth>11){calMonth=0;calYear++;}renderCalendar();}
+function renderCalendar(){
+  if(!document.getElementById('calGrid'))return;
+  const now=new Date();
+  document.getElementById('calTitle').textContent=`${calYear}년 ${calMonth+1}월`;
+  const firstDay=new Date(calYear,calMonth,1).getDay();
+  const lastDate=new Date(calYear,calMonth+1,0).getDate();
+  const days=['일','월','화','수','목','금','토'];
+  let html=days.map(d=>`<div class="cal-dow">${d}</div>`).join('');
+  for(let i=0;i<firstDay;i++)html+=`<div class="cal-day other-month"></div>`;
+  const ym=`${calYear}.${String(calMonth+1).padStart(2,'0')}`;
+  for(let d=1;d<=lastDate;d++){
+    const isToday=now.getFullYear()===calYear&&now.getMonth()===calMonth&&now.getDate()===d;
+    let events='';
+    projects.forEach(p=>{
+      if(!p.start||!p.end)return;
+      const sy=p.start.split('.'),ey=p.end.split('.');
+      const startYm=`${sy[0]}.${(sy[1]||'01').padStart(2,'0')}`;
+      const endYm=`${ey[0]}.${(ey[1]||'01').padStart(2,'0')}`;
+      if(startYm===ym&&d===1){
+        events+=`<div class="cal-event start" title="${p.name}">▶ ${p.name}</div>`;
+      } else if(endYm===ym&&d===lastDate){
+        events+=`<div class="cal-event end" title="${p.name}">◀ ${p.name}</div>`;
+      } else if(startYm<ym&&endYm>ym&&d===Math.ceil(lastDate/2)){
+        events+=`<div class="cal-event active" title="${p.name}">● ${p.name}</div>`;
+      }
+    });
+    html+=`<div class="cal-day${isToday?' today':''}"><div class="cal-day-num">${d}</div>${events}</div>`;
+  }
+  document.getElementById('calGrid').innerHTML=html;
+}
 
 function getAlerts(){const alerts=[];const now=new Date();projects.forEach(p=>{if(p.status==='done')return;if(p.end){const parts=p.end.split('.');if(parts.length>=2){// 월말 기준으로 계산 (해당 월의 마지막 날)
           const d=new Date(parseInt(parts[0]),parseInt(parts[1]),0);const diff=Math.round((d-now)/(1000*60*60*24));if(diff>=0&&diff<=30)alerts.push({type:'danger',icon:'🚨',title:`마감 임박: ${p.name}`,desc:`${diff}일 후 종료`});else if(diff>=0&&diff<=90)alerts.push({type:'warn',icon:'⚠️',title:`마감 주의: ${p.name}`,desc:`${diff}일 후 종료`});}}if(p.risk==='high')alerts.push({type:'danger',icon:'🔴',title:`고위험: ${p.name}`,desc:'위험도 높음'});});const pp={};projects.filter(p=>p.status!=='done').forEach(p=>{(p.team||[]).forEach(m=>{if(!pp[m.name])pp[m.name]=[];pp[m.name].push(p.name);});});Object.entries(pp).forEach(([n,ps])=>{if(ps.length>1)alerts.push({type:'warn',icon:'👤',title:`인력 중복: ${n}`,desc:ps.join(', ')});});return alerts;}
