@@ -510,6 +510,7 @@ let currentUser=null,userProfile=null,projects=[],appUsers=[],leafletMap=null,ma
 //  AUTH STATE
 // ═══════════════════════════════════
 auth.onAuthStateChanged(async fbUser=>{
+  if(window._signingUp)return;
   if(fbUser){
     try{
       const doc=await db.collection('users').doc(fbUser.uid).get();
@@ -602,21 +603,23 @@ async function doSignup(){
   if(pw.length<8){err.textContent='비밀번호는 8자 이상이어야 합니다.';err.style.display='block';return;}
   if(pw!==pw2){err.textContent='비밀번호가 일치하지 않습니다.';err.style.display='block';return;}
   try{
+    window._signingUp=true;
     const cred=await auth.createUserWithEmailAndPassword(email,pw);
-    // Firestore 프로필 먼저 저장
+    // Firestore 프로필 저장
     await db.collection('users').doc(cred.user.uid).set({
       uid:cred.user.uid,name,email,role:'viewer',
       mustChangePassword:false,isActive:true,
       createdAt:firebase.firestore.FieldValue.serverTimestamp()
     });
-    // 인증 이메일 발송 (저장 후 발송)
+    // 인증 이메일 발송
     await cred.user.sendEmailVerification();
-    // 이메일 발송 완료 후 로그아웃
-    await new Promise(r=>setTimeout(r,1500));
+    await new Promise(r=>setTimeout(r,500));
     await auth.signOut();
+    window._signingUp=false;
     ok.textContent='✅ 가입 완료! '+email+'로 인증 이메일을 발송했습니다. 받은 편지함을 확인하고 링크를 클릭한 뒤 로그인해주세요.';
     ok.style.display='block';
   }catch(e){
+    window._signingUp=false;
     if(e.code==='auth/email-already-in-use'){
       err.textContent='이미 가입된 이메일입니다. 관리자로부터 초대를 받으셨다면 초대 이메일의 링크로 비밀번호를 설정한 뒤 로그인해주세요.';
     }else{
