@@ -247,7 +247,7 @@ tr:hover td{background:var(--bg3);}
 /* ── 모달 ── */
 .modal-overlay{position:fixed;inset:0;background:#000000aa;z-index:2000;display:none;align-items:center;justify-content:center;}
 .modal-overlay.open{display:flex;}
-.modal{background:var(--bg2);border:1px solid var(--border2);border-radius:18px;padding:28px;width:620px;max-width:calc(100vw - 32px);max-height:85vh;overflow-y:auto;box-shadow:0 24px 60px rgba(0,0,0,0.7);}
+.modal{background:var(--bg2);border:1px solid var(--border2);border-radius:18px;padding:24px;width:min(620px,calc(100vw - 48px));max-height:85vh;overflow-y:auto;box-shadow:0 24px 60px rgba(0,0,0,0.7);}
 .modal-sm{width:440px;}
 .modal h2{font-size:17px;font-weight:800;margin-bottom:20px;}
 .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
@@ -400,7 +400,7 @@ tr:hover td{background:var(--bg3);}
               </div>
             </div>
           </div>
-          <div class="dash-card" style="display:flex;flex-direction:column;height:100%;"><h3>⚡ 알림 센터</h3><div class="alert-list" id="alertList" style="flex:1;overflow-y:auto;min-height:0;"></div></div>
+          <div class="dash-card" id="alertCard" style="display:flex;flex-direction:column;overflow:hidden;"><h3 style="flex-shrink:0">⚡ 알림 센터</h3><div class="alert-list" id="alertList" style="flex:1;overflow-y:auto;min-height:0;"></div></div>
         </div>
         <div class="dash-card"><h3>🚀 진행률 현황</h3><div id="progressBars" style="margin-top:8px"></div></div>
       </div></div>
@@ -959,6 +959,7 @@ function renderDashboard(){
   document.getElementById('alertList').innerHTML=alerts.length?alerts.map(a=>`<div class="alert-item ${a.type}"><span class="alert-icon">${a.icon}</span><div><div class="alert-title">${a.title}</div><div class="alert-desc">${a.desc}</div></div></div>`).join(''):'<div style="color:var(--text3);font-size:12px;text-align:center;padding:20px">✅ 현재 알림이 없습니다</div>';
   document.getElementById('progressBars').innerHTML=projects.filter(p=>calcAutoStatus(p)!=='done').sort((a,b)=>calcProgress(b)-calcProgress(a)).map(p=>{const s=STATUS_CFG[p.status],prog=calcProgress(p);return`<div style="display:flex;align-items:center;gap:12px;margin-bottom:10px"><div style="width:160px;font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${p.name}</div><span class="status-pill" style="background:${s.bg};color:${s.color};min-width:80px;justify-content:center">${s.label}</span><div style="flex:1;height:6px;background:var(--bg);border-radius:3px;overflow:hidden"><div style="height:100%;width:${prog}%;background:linear-gradient(90deg,${s.color}88,${s.color});border-radius:3px"></div></div><span style="font-size:12px;font-weight:700;color:${s.color};min-width:32px">${prog}%</span><span style="font-size:11px;color:var(--text3);min-width:60px">~${p.end}</span></div>`;}).join('');
   renderCalendar();
+  setTimeout(syncAlertHeight,50);
 }
 
 // ═══════════════════════════════════
@@ -1252,6 +1253,14 @@ document.getElementById('changePwModalOverlay').addEventListener('click',functio
 document.getElementById('setupPw').addEventListener('input',e=>checkPwStrength(e.target.value,'setupPwBar','setupPwHint'));
 function toggleUserMenu(){const m=document.getElementById('userMenu');m.classList.toggle('open');}
 document.addEventListener('click',e=>{const chip=document.getElementById('userChip');if(chip&&!chip.contains(e.target)){document.getElementById('userMenu')?.classList.remove('open');}});
+
+function syncAlertHeight(){
+  var leftCol=document.querySelector('.dash-grid>div:first-child');
+  var alertCard=document.getElementById('alertCard');
+  if(leftCol&&alertCard){
+    alertCard.style.maxHeight=leftCol.offsetHeight+'px';
+  }
+}
 </script>
 </body>
 </html>
