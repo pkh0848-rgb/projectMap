@@ -795,24 +795,29 @@ function searchAddress(){
   wrap.appendChild(box);
   wrap.addEventListener('click',function(e){if(e.target===wrap)wrap.remove();});
   document.body.appendChild(wrap);
-  new daum.Postcode({width:'410px',height:'450px',oncomplete:function(data){
+  new daum.Postcode({width:'410px',height:'450px',oncomplete:function(d){
     wrap.remove();
-    var addr=data.roadAddress||data.jibunAddress;
+    var addr=d.roadAddress||d.jibunAddress;
     document.getElementById('fLocation').value=addr;
-    var r2=document.getElementById('addrSearchResult');
-    r2.style.display='block';
-    r2.innerHTML='<div style="padding:10px 12px;font-size:12px;color:var(--text3)">📍 좌표 변환 중...</div>';
-    fetch('https://nominatim.openstreetmap.org/search?q='+encodeURIComponent(addr)+'&format=json&limit=1&accept-language=ko',{headers:{'User-Agent':'ProjectMapPro/1.0'}})
-      .then(function(r){return r.json();}).then(function(d){
-        if(d&&d[0]){
-          document.getElementById('fLat').value=parseFloat(d[0].lat).toFixed(6);
-          document.getElementById('fLng').value=parseFloat(d[0].lon).toFixed(6);
-          r2.style.display='none';
-          showToast('📍 주소가 적용됐습니다.');
-        }else{
-          r2.innerHTML='<div style="padding:10px 12px;font-size:12px;color:var(--text3)">좌표를 찾지 못했습니다. 직접 입력해주세요.</div>';
-        }
-      }).catch(function(){r2.innerHTML='<div style="padding:10px 12px;font-size:12px;color:var(--text3)">변환 실패. 직접 입력해주세요.</div>';});
+    if(d.x&&d.y){
+      document.getElementById('fLat').value=parseFloat(d.y).toFixed(6);
+      document.getElementById('fLng').value=parseFloat(d.x).toFixed(6);
+      showToast('📍 주소가 적용됐습니다.');
+    }else{
+      var r2=document.getElementById('addrSearchResult');
+      r2.style.display='block';
+      r2.innerHTML='<div style="padding:10px 12px;font-size:12px;color:var(--text3)">📍 좌표 변환 중...</div>';
+      fetch('https://nominatim.openstreetmap.org/search?q='+encodeURIComponent(addr)+'&format=json&limit=1&accept-language=ko',{headers:{'User-Agent':'ProjectMapPro/1.0'}})
+        .then(function(r){return r.json();}).then(function(nd){
+          if(nd&&nd[0]){
+            document.getElementById('fLat').value=parseFloat(nd[0].lat).toFixed(6);
+            document.getElementById('fLng').value=parseFloat(nd[0].lon).toFixed(6);
+            r2.style.display='none';showToast('📍 주소가 적용됐습니다.');
+          }else{
+            r2.innerHTML='<div style="padding:10px 12px;font-size:12px;color:var(--text3)">좌표를 찾지 못했습니다. 직접 입력해주세요.</div>';
+          }
+        }).catch(function(){r2.innerHTML='<div style="padding:10px 12px;font-size:12px;color:var(--text3)">변환 실패. 직접 입력해주세요.</div>';});
+    }
   }}).embed(emb);
 }
 function applyAddressIdx(i){applyAddress(window._addrResults[i]);}
