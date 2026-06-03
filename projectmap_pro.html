@@ -5,6 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ProjectMap Pro</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/dark.css"/>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/ko.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
@@ -477,7 +480,7 @@ tr:hover td{background:var(--bg3);}
         <div id="addrSearchResult" style="display:none;margin-top:6px;background:var(--bg);border:1px solid var(--border2);border-radius:8px;overflow:hidden;max-height:160px;overflow-y:auto;"></div>
         <input type="hidden" id="fLat"/><input type="hidden" id="fLng"/>
       </div>
-      <div class="form-group"><label>상태 <span style="font-size:10px;color:var(--text3)">(마일스톤 없을 때만 적용)</span></label><select id="fStatus"><option value="plan">설계</option><option value="dev">개발 중</option><option value="test">테스트</option><option value="stable">운영안정화</option><option value="done">종료</option></select></div>
+
       <div class="form-group"><label>위험도</label><select id="fRisk"><option value="low">낮음</option><option value="mid">보통</option><option value="high">높음</option></select></div>
       <div class="form-group"><label>시작일</label><input id="fStart" placeholder="2025.03.15"/></div>
       <div class="form-group"><label>종료일 (계약)</label><input id="fEnd" placeholder="2026.12.31"/></div>
@@ -549,7 +552,7 @@ const db=firebase.firestore();
 //  CONSTANTS
 // ═══════════════════════════════════
 const HQ={name:'뱅크웨어글로벌 본사',address:'서울 중구 서소문로 11길 19',lat:37.5643,lng:126.9752};
-const STATUS_CFG={dev:{label:'개발 중',color:'#4f9eff',bg:'#1e3a5f'},test:{label:'테스트',color:'#4fcc7a',bg:'#1e4d2e'},stable:{label:'운영안정화',color:'#a855f7',bg:'#2d1e5f'},plan:{label:'설계',color:'#f59e0b',bg:'#3a2e1e'},done:{label:'종료',color:'#666',bg:'#222'}};
+const STATUS_CFG={dev:{label:'개발 중',color:'#4f9eff',bg:'#1e3a5f'},test:{label:'테스트',color:'#4fcc7a',bg:'#1e4d2e'},stable:{label:'운영안정화',color:'#a855f7',bg:'#2d1e5f'},plan:{label:'설계',color:'#f59e0b',bg:'#3a2e1e'},done:{label:'종료',color:'#666',bg:'#222'},none:{label:'미정',color:'#888',bg:'#2a2a2a'}};
 const RISK_CFG={low:{label:'낮음',color:'#4fcc7a',bg:'#1e4d2e'},mid:{label:'보통',color:'#f59e0b',bg:'#3a2e1e'},high:{label:'높음',color:'#ef4444',bg:'#4d1e1e'}};
 const DEFAULT_PROJECTS=[
 {id:'p1',name:'SBI 프로젝트',client:'SBI저축은행',location:'서울 광화문',lat:37.5759,lng:126.9768,status:'done',start:'2024.03.04',end:'2025.12.31',designEnd:'2024.05.31',devEnd:'2025.06.30',testEnd:'2025.10.31',openDate:'2025.12.01',members:9,budget:'12억',type:'신규개발',risk:'low',pm:'금승철 상무',langs:['Java','Spring','Oracle','React'],team:[{name:'금승철',role:'PM'},{name:'홍길동',role:'개발리드'},{name:'이수빈',role:'개발자'},{name:'박준혁',role:'개발자'},{name:'김민지',role:'개발자'},{name:'최재원',role:'DBA'},{name:'장하은',role:'개발자'},{name:'윤도현',role:'QA'},{name:'정수아',role:'분석가'}],desc:'저축은행 차세대 뱅킹 시스템 구축'},
@@ -923,7 +926,7 @@ function goPage(page){
 // 마일스톤 기반 자동 상태 계산
 function calcAutoStatus(p){
   const hasMilestones=p.designEnd||p.devEnd||p.testEnd;
-  if(!hasMilestones)return p.status; // 마일스톤 없으면 수동 상태 유지
+  if(!hasMilestones)return 'none'; // 마일스톤 없으면 미정
   const pd=s=>{if(!s)return null;const a=s.split('.');return new Date(parseInt(a[0]),parseInt(a[1]||1)-1,parseInt(a[2]||1));};
   const now=new Date();
   const end=pd(p.end),open=pd(p.openDate),testEnd=pd(p.testEnd),devEnd=pd(p.devEnd),designEnd=pd(p.designEnd);
@@ -1045,7 +1048,7 @@ function addMapMarker(p){const _st=calcAutoStatus(p);const s=STATUS_CFG[_st]||ST
 //  프로젝트 목록
 // ═══════════════════════════════════
 function fmtDate(ts){if(!ts)return'-';const d=ts.toDate?ts.toDate():new Date(ts);const diff=Math.floor((Date.now()-d)/1000);if(diff<60)return '방금 전';if(diff<3600)return Math.floor(diff/60)+'분 전';if(diff<86400)return Math.floor(diff/3600)+'시간 전';if(diff<86400*7)return Math.floor(diff/86400)+'일 전';return d.toLocaleDateString('ko-KR');}
-function renderProjects(){const isAdmin=userProfile&&userProfile.role==='admin';document.getElementById('projCount').textContent=`(${projects.length}건)`;document.getElementById('projTable').innerHTML=projects.map(p=>{const s=STATUS_CFG[p.status]||STATUS_CFG.plan,r=RISK_CFG[p.risk]||RISK_CFG.mid,prog=calcProgress(p);const actions=isAdmin?`<div class="action-btns"><button class="btn-sm btn-edit" onclick="openProjModal('${p.id}')">수정</button><button class="btn-sm btn-del" onclick="deleteProject('${p.id}')">삭제</button></div>`:'-';const riskCell=isAdmin?`<td style="color:${r.color}">${r.label}</td>`:'';const budgetCell=isAdmin?`<td style="font-size:11px">${p.budget}</td>`:'';const editCell=isAdmin?`<td style="font-size:11px"><div style="font-weight:600;color:var(--text)">${p.updatedBy||p.createdBy||'-'}</div><div style="color:var(--text3);margin-top:2px">${fmtDate(p.updatedAt||p.createdAt)}</div></td>`:'';const actionCell=isAdmin?`<td>${actions}</td>`:'';return`<tr><td style="font-weight:600">${p.name}</td><td style="color:var(--text2)">${p.client}</td><td>${p.pm}</td><td><span class="status-pill" style="background:${s.bg};color:${s.color}">${s.label}</span></td><td style="font-size:11px;color:var(--text2)">${p.start} ~ ${p.end}</td><td>${(p.team||[]).length}명</td><td><div class="progress-cell"><div class="prog-bar"><div class="prog-fill" style="width:${prog}%;background:${s.color}"></div></div><span class="prog-pct">${prog}%</span></div></td>${riskCell}${budgetCell}${editCell}${actionCell}</tr>`;}).join('');}
+function renderProjects(){const isAdmin=userProfile&&userProfile.role==='admin';document.getElementById('projCount').textContent=`(${projects.length}건)`;document.getElementById('projTable').innerHTML=projects.map(p=>{const s=STATUS_CFG[calcAutoStatus(p)]||STATUS_CFG.none,r=RISK_CFG[p.risk]||RISK_CFG.mid,prog=calcProgress(p);const actions=isAdmin?`<div class="action-btns"><button class="btn-sm btn-edit" onclick="openProjModal('${p.id}')">수정</button><button class="btn-sm btn-del" onclick="deleteProject('${p.id}')">삭제</button></div>`:'-';const riskCell=isAdmin?`<td style="color:${r.color}">${r.label}</td>`:'';const budgetCell=isAdmin?`<td style="font-size:11px">${p.budget}</td>`:'';const editCell=isAdmin?`<td style="font-size:11px"><div style="font-weight:600;color:var(--text)">${p.updatedBy||p.createdBy||'-'}</div><div style="color:var(--text3);margin-top:2px">${fmtDate(p.updatedAt||p.createdAt)}</div></td>`:'';const actionCell=isAdmin?`<td>${actions}</td>`:'';return`<tr><td style="font-weight:600">${p.name}</td><td style="color:var(--text2)">${p.client}</td><td>${p.pm}</td><td><span class="status-pill" style="background:${s.bg};color:${s.color}">${s.label}</span></td><td style="font-size:11px;color:var(--text2)">${p.start} ~ ${p.end}</td><td>${(p.team||[]).length}명</td><td><div class="progress-cell"><div class="prog-bar"><div class="prog-fill" style="width:${prog}%;background:${s.color}"></div></div><span class="prog-pct">${prog}%</span></div></td>${riskCell}${budgetCell}${editCell}${actionCell}</tr>`;}).join('');}
 
 // ═══════════════════════════════════
 //  인력 현황
@@ -1143,16 +1146,23 @@ function generateTempPw(){return Math.random().toString(36).slice(-6)+Math.rando
 // ═══════════════════════════════════
 //  프로젝트 CRUD
 // ═══════════════════════════════════
+function initDatePickers(){
+  const fmt={dateFormat:'Y.m.d',locale:'ko',allowInput:true};
+  ['fStart','fEnd','fDesignEnd','fDevEnd','fTestEnd','fOpenDate'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el&&!el._flatpickr)flatpickr(el,{...fmt,onReady:function(_,__,fp){fp.calendarContainer&&fp.calendarContainer.classList.add('flatpickr-dark');}});
+  });
+}
 function openProjModal(id){
-  document.getElementById('projModalOverlay').classList.add('open');
-  if(id){const p=projects.find(x=>x.id===id);if(!p)return;document.getElementById('projModalTitle').textContent='프로젝트 수정';document.getElementById('fId').value=p.id;document.getElementById('fName').value=p.name||'';document.getElementById('fClient').value=p.client||'';document.getElementById('fPm').value=p.pm||'';document.getElementById('fLocation').value=p.location||'';document.getElementById('fLat').value=p.lat||'';document.getElementById('fLng').value=p.lng||'';document.getElementById('fStatus').value=p.status||'plan';document.getElementById('fRisk').value=p.risk||'mid';document.getElementById('fStart').value=p.start||'';document.getElementById('fEnd').value=p.end||'';document.getElementById('fMembers').value=p.members||'';document.getElementById('fBudget').value=p.budget||'';document.getElementById('fType').value=p.type||'신규개발';document.getElementById('fLangs').value=(p.langs||[]).join(', ');document.getElementById('fTeam').value=(p.team||[]).map(t=>`${t.name}:${t.role}`).join(', ');document.getElementById('fDesc').value=p.desc||'';document.getElementById('fOpenDate').value=p.openDate||'';
+  document.getElementById('projModalOverlay').classList.add('open');setTimeout(initDatePickers,50);
+  if(id){const p=projects.find(x=>x.id===id);if(!p)return;document.getElementById('projModalTitle').textContent='프로젝트 수정';document.getElementById('fId').value=p.id;document.getElementById('fName').value=p.name||'';document.getElementById('fClient').value=p.client||'';document.getElementById('fPm').value=p.pm||'';document.getElementById('fLocation').value=p.location||'';document.getElementById('fLat').value=p.lat||'';document.getElementById('fLng').value=p.lng||'';document.getElementById('fRisk').value=p.risk||'mid';document.getElementById('fStart').value=p.start||'';document.getElementById('fEnd').value=p.end||'';document.getElementById('fMembers').value=p.members||'';document.getElementById('fBudget').value=p.budget||'';document.getElementById('fType').value=p.type||'신규개발';document.getElementById('fLangs').value=(p.langs||[]).join(', ');document.getElementById('fTeam').value=(p.team||[]).map(t=>`${t.name}:${t.role}`).join(', ');document.getElementById('fDesc').value=p.desc||'';document.getElementById('fOpenDate').value=p.openDate||'';
 document.getElementById('fDesignEnd').value=p.designEnd||'';
 document.getElementById('fDevEnd').value=p.devEnd||'';
 document.getElementById('fTestEnd').value=p.testEnd||'';
 updateAutoStatusPreview();}
-  else{document.getElementById('projModalTitle').textContent='프로젝트 추가';document.getElementById('fId').value='';['fName','fClient','fPm','fLocation','fLat','fLng','fStart','fEnd','fOpenDate','fDesignEnd','fDevEnd','fTestEnd','fMembers','fBudget','fLangs','fTeam','fDesc'].forEach(i=>document.getElementById(i).value='');document.getElementById('fStatus').value='plan';document.getElementById('fType').value='신규개발';document.getElementById('fRisk').value='mid';}}
+  else{document.getElementById('projModalTitle').textContent='프로젝트 추가';document.getElementById('fId').value='';['fName','fClient','fPm','fLocation','fLat','fLng','fStart','fEnd','fOpenDate','fDesignEnd','fDevEnd','fTestEnd','fMembers','fBudget','fLangs','fTeam','fDesc'].forEach(i=>document.getElementById(i).value='');document.getElementById('fType').value='신규개발';document.getElementById('fRisk').value='mid';}}
 function closeProjModal(){document.getElementById('projModalOverlay').classList.remove('open');}
-async function saveProject(){const name=document.getElementById('fName').value.trim();if(!name){showToast('프로젝트명을 입력해주세요.');return;}const id=document.getElementById('fId').value,docId=id||('p'+Date.now());const now=firebase.firestore.FieldValue.serverTimestamp();const editor=userProfile?userProfile.name||userProfile.email:'unknown';const p={id:docId,name,client:document.getElementById('fClient').value,pm:document.getElementById('fPm').value,location:document.getElementById('fLocation').value,lat:parseFloat(document.getElementById('fLat').value)||37.5665,lng:parseFloat(document.getElementById('fLng').value)||126.9780,status:document.getElementById('fStatus').value,start:document.getElementById('fStart').value,end:document.getElementById('fEnd').value,members:(document.getElementById('fTeam').value?document.getElementById('fTeam').value.split(',').map(s=>s.trim()).filter(Boolean).length:0),budget:document.getElementById('fBudget').value,type:document.getElementById('fType').value,risk:document.getElementById('fRisk').value,langs:document.getElementById('fLangs').value?document.getElementById('fLangs').value.split(',').map(s=>s.trim()).filter(Boolean):[],team:document.getElementById('fTeam').value?document.getElementById('fTeam').value.split(',').map(s=>{const[n,r]=s.trim().split(':');return{name:(n||'').trim(),role:(r||'').trim()};}).filter(t=>t.name):[],desc:document.getElementById('fDesc').value,openDate:document.getElementById('fOpenDate').value.trim()||'',
+async function saveProject(){const name=document.getElementById('fName').value.trim();if(!name){showToast('프로젝트명을 입력해주세요.');return;}const id=document.getElementById('fId').value,docId=id||('p'+Date.now());const now=firebase.firestore.FieldValue.serverTimestamp();const editor=userProfile?userProfile.name||userProfile.email:'unknown';const p={id:docId,name,client:document.getElementById('fClient').value,pm:document.getElementById('fPm').value,location:document.getElementById('fLocation').value,lat:parseFloat(document.getElementById('fLat').value)||37.5665,lng:parseFloat(document.getElementById('fLng').value)||126.9780,status:calcAutoStatus({designEnd:document.getElementById('fDesignEnd').value,devEnd:document.getElementById('fDevEnd').value,testEnd:document.getElementById('fTestEnd').value,openDate:document.getElementById('fOpenDate').value,end:document.getElementById('fEnd').value,start:document.getElementById('fStart').value}),start:document.getElementById('fStart').value,end:document.getElementById('fEnd').value,members:(document.getElementById('fTeam').value?document.getElementById('fTeam').value.split(',').map(s=>s.trim()).filter(Boolean).length:0),budget:document.getElementById('fBudget').value,type:document.getElementById('fType').value,risk:document.getElementById('fRisk').value,langs:document.getElementById('fLangs').value?document.getElementById('fLangs').value.split(',').map(s=>s.trim()).filter(Boolean):[],team:document.getElementById('fTeam').value?document.getElementById('fTeam').value.split(',').map(s=>{const[n,r]=s.trim().split(':');return{name:(n||'').trim(),role:(r||'').trim()};}).filter(t=>t.name):[],desc:document.getElementById('fDesc').value,openDate:document.getElementById('fOpenDate').value.trim()||'',
     designEnd:document.getElementById('fDesignEnd').value.trim()||'',
     devEnd:document.getElementById('fDevEnd').value.trim()||'',
     testEnd:document.getElementById('fTestEnd').value.trim()||'',updatedBy:editor,updatedAt:now};if(!id){p.createdBy=editor;p.createdAt=now;await db.collection('projects').doc(docId).set(p);}
@@ -1167,7 +1177,7 @@ async function deleteProject(id){if(!confirm('정말 삭제하시겠습니까?')
 // 빈 양식 다운로드
 function downloadTemplate(){
   // 위도/경도 컬럼 추가, 팀원 형식을 업로드와 일치(이름:역할)
-  const headers=[{'프로젝트명':'(예시) 우리카드 통합단말 재구축','고객사':'우리카드','PM':'김정후 상무','위치':'서울 상암','위도':37.5793,'경도':126.8897,'상태':'개발 중','시작일':'2025.01','종료일':'2026.12','투입인원':10,'계약규모':'15억','유형':'재구축','위험도':'보통','기술스택':'Java, Spring, Oracle','팀원':'김철수:개발, 이영희:기획','개요':'프로젝트 설명'}];
+  const headers=[{'프로젝트명':'(예시) 우리카드 통합단말 재구축','고객사':'우리카드','PM':'김정후 상무','위치주소':'서울 상암 디지털단지','시작일':'2025.01.01','종료일':'2026.12.31','설계완료일':'2025.05.30','개발완료일':'2026.03.31','테스트완료일':'2026.05.31','오픈일':'2026.06.01','계약규모':'15억','유형':'재구축','위험도':'보통','기술스택':'Java, Spring, Oracle','팀원':'김철수:개발, 이영희:기획','개요':'프로젝트 설명'}];
   const ws=XLSX.utils.json_to_sheet(headers),wb=XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb,ws,'프로젝트');
   XLSX.writeFile(wb,'프로젝트맵_업로드양식.xlsx');
@@ -1207,22 +1217,54 @@ function uploadExcel(e){
     for(const row of rows){
       const name=(row['프로젝트명']||'').trim();
       if(!name||name.startsWith('(예시)'))continue;
-      const lat=parseFloat(row['위도'])||37.5665;
-      const lng=parseFloat(row['경도'])||126.9780;
+      // 주소 → 위경도 자동 변환 (카카오 Geocoder)
+      const address=(row['위치주소']||row['위치']||'').trim();
+      let lat=37.5665,lng=126.9780;
+      if(address&&window._kakaoReady){
+        try{
+          lat=await new Promise((res,rej)=>{
+            const gc=new kakao.maps.services.Geocoder();
+            gc.addressSearch(address,function(result,status){
+              if(status===kakao.maps.services.Status.OK&&result[0]){res(parseFloat(result[0].y));}
+              else{// 장소 검색으로 fallback
+                const ps=new kakao.maps.services.Places();
+                ps.keywordSearch(address,function(r2,s2){
+                  if(s2===kakao.maps.services.Status.OK&&r2[0]){res(parseFloat(r2[0].y));}
+                  else rej();
+                });
+              }
+            });
+          });
+          lng=await new Promise((res,rej)=>{
+            const gc=new kakao.maps.services.Geocoder();
+            gc.addressSearch(address,function(result,status){
+              if(status===kakao.maps.services.Status.OK&&result[0]){res(parseFloat(result[0].x));}
+              else{
+                const ps=new kakao.maps.services.Places();
+                ps.keywordSearch(address,function(r2,s2){
+                  if(s2===kakao.maps.services.Status.OK&&r2[0]){res(parseFloat(r2[0].x));}
+                  else rej();
+                });
+              }
+            });
+          });
+        }catch(e){/* 변환 실패시 기본값 유지 */}
+        await new Promise(r=>setTimeout(r,150));// API 호출 간격
+      }
       const start=excelDateToStr(row['시작일']);
       const end=excelDateToStr(row['종료일']);
       const team=row['팀원']?row['팀원'].toString().split(',').map(s=>{const[n,r]=s.trim().split(':');return{name:(n||'').trim(),role:(r||'').trim()};}).filter(t=>t.name):[];
       const isExisting=existingMap.has(name);
       const docId=isExisting?existingMap.get(name):'p'+Date.now()+added;
       const data={id:docId,name,
-        client:row['고객사']||'',pm:row['PM']||'',location:row['위치']||'',
+        client:row['고객사']||'',pm:row['PM']||'',location:address||'',
         lat,lng,
         status:sm[row['상태']]||'plan',
         start,end,
         members:parseInt(row['투입인원'])||0,budget:String(row['계약규모']||''),
         type:row['유형']||'신규개발',risk:rm[row['위험도']]||'mid',
         langs:row['기술스택']?row['기술스택'].toString().split(',').map(s=>s.trim()).filter(Boolean):[],
-        team,desc:row['개요']||''};
+        team,desc:row['개요']||'',openDate:excelDateToStr(row['오픈일'])||'',designEnd:excelDateToStr(row['설계완료일'])||'',devEnd:excelDateToStr(row['개발완료일'])||'',testEnd:excelDateToStr(row['테스트완료일'])||''};
       try{
         if(isExisting){
           await db.collection('projects').doc(docId).update(data);
