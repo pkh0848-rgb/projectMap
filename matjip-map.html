@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🍽 브라운스톤 맛집 지도</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+:root {
+  --bg: #0f0f13;
+  --surface: #1a1a24;
+  --card: #22222e;
+  --border: rgba(255,255,255,0.08);
+  --text: #f0f0f5;
+  --muted: #888899;
+  --한식: #ff6b6b;
+  --고기: #ff8c42;
+  --일식: #4ecdc4;
+  --이탈리안: #a8e063;
+  --태국: #f7dc6f;
+  --중식: #e056d6;
+  --스테이크: #c0392b;
+  --카페브런치: #74b9ff;
+}
+body { font-family: 'Noto Sans KR', sans-serif; background: var(--bg); color: var(--text); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+
+.header {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 12px 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-shrink: 0;
+  z-index: 1000;
+}
+.header-title { font-size: 15px; font-weight: 900; letter-spacing: -0.5px; }
+.header-sub { font-size: 11px; color: var(--muted); }
+.count-badge {
+  margin-left: auto;
+  background: rgba(255,255,255,0.1);
+  border-radius: 20px;
+  padding: 4px 12px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+/* 가격대 + 거리 필터 바 */
+.filter-bar2 {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 8px 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.filter-bar2::-webkit-scrollbar { display: none; }
+.filter2-label {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--muted);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.filter2-sep {
+  width: 1px;
+  height: 18px;
+  background: var(--border);
+  flex-shrink: 0;
+  margin: 0 4px;
+}
+.f2btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 11px;
+  border-radius: 14px;
+  border: 1.5px solid var(--border);
+  background: transparent;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s;
+  font-family: 'Noto Sans KR', sans-serif;
+  flex-shrink: 0;
+}
+.f2btn:hover { background: rgba(255,255,255,0.06); color: var(--text); }
+.f2btn.active { background: rgba(255,255,255,0.12); border-color: rgba(255,255,255,0.4); color: #fff; }
+.f2btn.price1.active { background: rgba(100,220,120,0.15); border-color: #64dc78; color: #64dc78; }
+.f2btn.price2.active { background: rgba(255,200,80,0.15); border-color: #ffc850; color: #ffc850; }
+.f2btn.price3.active { background: rgba(255,100,100,0.15); border-color: #ff6464; color: #ff6464; }
+
+/* 카테고리 필터 바 */
+.filter-bar {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 10px 16px;
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  flex-shrink: 0;
+  scrollbar-width: none;
+}
+.filter-bar::-webkit-scrollbar { display: none; }
+.filter-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border-radius: 20px;
+  border: 1.5px solid var(--border);
+  background: transparent;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s;
+  font-family: 'Noto Sans KR', sans-serif;
+}
+.filter-btn .dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.filter-btn:hover { background: rgba(255,255,255,0.06); color: var(--text); }
+.filter-btn.active { color: #fff; border-color: currentColor; }
+.filter-btn[data-cat="전체"].active { background: rgba(255,255,255,0.15); border-color: rgba(255,255,255,0.4); color: #fff; }
+.filter-btn[data-cat="한식"].active { background: rgba(255,107,107,0.15); border-color: var(--한식); color: var(--한식); }
+.filter-btn[data-cat="고기"].active { background: rgba(255,140,66,0.15); border-color: var(--고기); color: var(--고기); }
+.filter-btn[data-cat="일식"].active { background: rgba(78,205,196,0.15); border-color: var(--일식); color: var(--일식); }
+.filter-btn[data-cat="이탈리안"].active { background: rgba(168,224,99,0.15); border-color: var(--이탈리안); color: var(--이탈리안); }
+.filter-btn[data-cat="태국"].active { background: rgba(247,220,111,0.15); border-color: var(--태국); color: var(--태국); }
+.filter-btn[data-cat="중식"].active { background: rgba(224,86,214,0.15); border-color: var(--중식); color: var(--중식); }
+.filter-btn[data-cat="스테이크"].active { background: rgba(192,57,43,0.15); border-color: var(--스테이크); color: var(--스테이크); }
+.filter-btn[data-cat="카페·브런치"].active { background: rgba(116,185,255,0.15); border-color: var(--카페브런치); color: var(--카페브런치); }
+
+.body { flex: 1; display: flex; overflow: hidden; }
+#map { flex: 1; }
+
+.side-panel {
+  width: 320px;
+  background: var(--surface);
+  border-left: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.panel-header {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border);
+  font-size: 12px;
+  color: var(--muted);
+  font-weight: 600;
+}
+.restaurant-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255,255,255,0.1) transparent;
+}
+.restaurant-list::-webkit-scrollbar { width: 4px; }
+.restaurant-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
+
+.rest-card {
+  padding: 12px 14px;
+  border-radius: 10px;
+  margin-bottom: 6px;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: all 0.15s;
+  background: var(--card);
+}
+.rest-card:hover { border-color: rgba(255,255,255,0.12); background: rgba(255,255,255,0.04); }
+.rest-card.selected { border-color: rgba(255,255,255,0.25); background: rgba(255,255,255,0.06); }
+
+.rest-card-top { display: flex; align-items: center; gap: 8px; margin-bottom: 5px; }
+.rest-cat-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.rest-cat-label { font-size: 10px; font-weight: 700; }
+.rest-rating { margin-left: auto; font-size: 11px; font-weight: 700; color: #ffd700; }
+.rest-name { font-size: 13px; font-weight: 700; margin-bottom: 3px; line-height: 1.3; }
+.rest-desc { font-size: 11px; color: var(--muted); line-height: 1.4; }
+
+.leaflet-popup-content-wrapper {
+  background: var(--card) !important;
+  border: 1px solid rgba(255,255,255,0.15) !important;
+  border-radius: 14px !important;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.6) !important;
+  color: var(--text) !important;
+  padding: 0 !important;
+}
+.leaflet-popup-tip-container { display: none !important; }
+.leaflet-popup-content { margin: 0 !important; width: 260px !important; }
+.leaflet-popup-close-button { color: rgba(255,255,255,0.4) !important; top:10px !important; right:12px !important; font-size:18px !important; }
+
+.popup-inner { padding: 16px; }
+.popup-cat { font-size: 10px; font-weight: 700; margin-bottom: 6px; }
+.popup-name { font-size: 15px; font-weight: 900; margin-bottom: 4px; line-height: 1.3; }
+.popup-desc { font-size: 11px; color: var(--muted); margin-bottom: 10px; line-height: 1.5; }
+.popup-meta { display: flex; gap: 8px; flex-wrap: wrap; }
+.popup-tag { background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; padding: 3px 8px; font-size: 10px; color: var(--muted); }
+
+.custom-marker {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px;
+  border: 2px solid rgba(255,255,255,0.3);
+  box-shadow: 0 3px 10px rgba(0,0,0,0.4);
+  cursor: pointer;
+}
+.home-marker {
+  width: 36px; height: 36px;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px;
+  border: 3px solid rgba(255,255,255,0.5);
+  box-shadow: 0 4px 15px rgba(102,126,234,0.5);
+}
+.empty-state { text-align: center; padding: 40px 20px; color: var(--muted); font-size: 13px; }
+
+.tab-btns { display: none; background: var(--surface); border-bottom: 1px solid var(--border); flex-shrink: 0; }
+.tab-btn { flex: 1; padding: 10px; border: none; background: transparent; color: var(--muted); font-size: 13px; font-weight: 700; cursor: pointer; font-family: 'Noto Sans KR', sans-serif; border-bottom: 2px solid transparent; transition: all 0.2s; }
+.tab-btn.active { color: var(--text); border-bottom-color: #fff; }
+
+@media (max-width: 768px) {
+  .tab-btns { display: flex; }
+  .body { position: relative; }
+  .side-panel { position: absolute; top: 0; left: 0; right: 0; bottom: 0; width: 100%; z-index: 500; display: none; }
+  .side-panel.visible { display: flex; }
+  #map { width: 100%; }
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <div class="header-title">🍽 맛집 지도</div>
+    <div class="header-sub">영신로 브라운스톤 기준</div>
+  </div>
+  <div class="count-badge" id="countBadge">총 0곳</div>
+</div>
+
+<div class="tab-btns">
+  <button class="tab-btn active" onclick="showTab('map', this)">🗺 지도</button>
+  <button class="tab-btn" onclick="showTab('list', this)">📋 목록</button>
+</div>
+
+<!-- 가격대 + 거리 필터 -->
+<div class="filter-bar2">
+  <span class="filter2-label">💰 가격대</span>
+  <button class="f2btn price1" id="pbtn1" onclick="togglePrice(1, this)">~1만원</button>
+  <button class="f2btn price2" id="pbtn2" onclick="togglePrice(2, this)">1~3만원</button>
+  <button class="f2btn price3" id="pbtn3" onclick="togglePrice(3, this)">4만원↑</button>
+  <div class="filter2-sep"></div>
+  <span class="filter2-label">🚶 거리</span>
+  <button class="f2btn active" id="dbtn-all"  onclick="selectDist('all',  this)">전체</button>
+  <button class="f2btn"        id="dbtn-walk" onclick="selectDist('walk', this)">걸어서가도됨</button>
+  <button class="f2btn"        id="dbtn-20"   onclick="selectDist('20',   this)">20분이내</button>
+  <button class="f2btn"        id="dbtn-40"   onclick="selectDist('40',   this)">40분이내</button>
+  <button class="f2btn"        id="dbtn-60"   onclick="selectDist('60',   this)">60분이내</button>
+</div>
+
+<!-- 카테고리 필터 -->
+<div class="filter-bar" id="filterBar">
+  <button class="filter-btn active" data-cat="전체"    onclick="filterCat('전체', this)"><span class="dot" style="background:#fff"></span> 전체</button>
+  <button class="filter-btn" data-cat="한식"           onclick="filterCat('한식', this)"><span class="dot" style="background:var(--한식)"></span> 한식</button>
+  <button class="filter-btn" data-cat="고기"           onclick="filterCat('고기', this)"><span class="dot" style="background:var(--고기)"></span> 고기·구이</button>
+  <button class="filter-btn" data-cat="일식"           onclick="filterCat('일식', this)"><span class="dot" style="background:var(--일식)"></span> 일식·라멘</button>
+  <button class="filter-btn" data-cat="이탈리안"       onclick="filterCat('이탈리안', this)"><span class="dot" style="background:var(--이탈리안)"></span> 이탈리안</button>
+  <button class="filter-btn" data-cat="태국"           onclick="filterCat('태국', this)"><span class="dot" style="background:var(--태국)"></span> 태국·아시안</button>
+  <button class="filter-btn" data-cat="중식"           onclick="filterCat('중식', this)"><span class="dot" style="background:var(--중식)"></span> 중식</button>
+  <button class="filter-btn" data-cat="스테이크"       onclick="filterCat('스테이크', this)"><span class="dot" style="background:var(--스테이크)"></span> 스테이크·양식</button>
+  <button class="filter-btn" data-cat="카페·브런치"    onclick="filterCat('카페·브런치', this)"><span class="dot" style="background:var(--카페브런치)"></span> 카페·브런치</button>
+</div>
+
+<div class="body">
+  <div id="map"></div>
+  <div class="side-panel">
+    <div class="panel-header" id="panelHeader">목록 로딩 중...</div>
+    <div class="restaurant-list" id="restaurantList"></div>
+  </div>
+</div>
+
+<script>
+const PRICE_LABEL = { 1: '💰', 2: '💰💰', 3: '💰💰💰' };
+const DIST_LABEL  = { walk: '🚶걸어서', '20': '🚗20분', '40': '🚗40분', '60': '🚗60분' };
+
+const CATS = {
+  '한식':     { color: '#ff6b6b', emoji: '🍲', bg: 'rgba(255,107,107,0.85)' },
+  '고기':     { color: '#ff8c42', emoji: '🥩', bg: 'rgba(255,140,66,0.85)' },
+  '일식':     { color: '#4ecdc4', emoji: '🍱', bg: 'rgba(78,205,196,0.85)' },
+  '이탈리안': { color: '#a8e063', emoji: '🍝', bg: 'rgba(168,224,99,0.85)' },
+  '태국':     { color: '#f7dc6f', emoji: '🍜', bg: 'rgba(247,220,111,0.85)' },
+  '중식':     { color: '#e056d6', emoji: '🥢', bg: 'rgba(224,86,214,0.85)' },
+  '스테이크': { color: '#c0392b', emoji: '🥩', bg: 'rgba(192,57,43,0.85)' },
+  '카페·브런치': { color: '#74b9ff', emoji: '☕', bg: 'rgba(116,185,255,0.85)' },
+};
+
+// price: 1=~1만원, 2=1~3만원, 3=4만원+
+// dist: 'walk'=걸어서가도됨, '20'=20분이내, '40'=40분이내, '60'=60분이내
+const RESTAURANTS = [
+  // ===== 고기·구이 =====
+  { name: '월화갈비', cat: '고기', lat: 37.5133, lng: 126.8935, rating: 4.9, desc: '문래 숯불 돼지갈비. 직접 구워줌', area: '문래', price: 2, dist: '20' },
+  { name: '양화냉삼', cat: '고기', lat: 37.5174, lng: 126.8965, rating: 4.9, desc: '냉삼·생삼·오겹살. 돌판짜장면 디저트 필수', area: '문래', price: 2, dist: '20' },
+  { name: '당산오돌', cat: '고기', lat: 37.5276, lng: 126.8998, rating: 4.5, desc: '꼬들살·실크망고목살·껍데기. TV 방영', area: '당산', price: 2, dist: 'walk' },
+  { name: '우시이토 문래점', cat: '고기', lat: 37.5149, lng: 126.8951, rating: 4.9, desc: '일본식 야키니쿠. 꽃갈비살·살치살·안창살', area: '문래', price: 3, dist: '20' },
+  { name: '월화고기 문래점', cat: '고기', lat: 37.5173, lng: 126.8967, rating: 4.2, desc: '100% 순종 듀록 목살·삼겹살. 코르키지 무료', area: '문래', price: 2, dist: '20' },
+  { name: '숏돈 문래점', cat: '고기', lat: 37.5145, lng: 126.8951, rating: 4.1, desc: '주물냄비 뚜껑 고기집. 김치칼국수 마무리', area: '문래', price: 2, dist: '20' },
+  { name: '문래그집', cat: '고기', lat: 37.5216, lng: 126.8903, rating: 4.4, desc: '수세 숙성 한우. 명이나물·젓갈김치 제공', area: '문래', price: 3, dist: '20' },
+  { name: '느루집 문래본점', cat: '고기', lat: 37.5176, lng: 126.8964, rating: 4.2, desc: '뼈없는 닭갈비 전문. 블루리본 4년 연속', area: '문래', price: 2, dist: '20' },
+  { name: '정각 망원', cat: '고기', lat: 37.5545, lng: 126.9040, rating: 5.0, desc: '직접 구워주는 망원 한우 숨은 맛집', area: '망원', price: 3, dist: '20' },
+  { name: '방돈식당', cat: '고기', lat: 37.5220, lng: 126.9301, rating: 4.9, desc: '삼겹+냉삼+생삼 세트. 여의도 직장인 맛집', area: '여의도', price: 2, dist: '20' },
+  { name: '소울갈비 여의도점', cat: '고기', lat: 37.5257, lng: 126.9187, rating: 4.9, desc: '숯불갈비 전문. 깔끔한 분위기 데이트 가능', area: '여의도', price: 2, dist: '20' },
+  { name: 'GIT TTEUL', cat: '고기', lat: 37.5504, lng: 126.9198, rating: 5.0, desc: '연기없는 삼겹살. 직접 구워줌. 홍대 인기', area: '홍대', price: 2, dist: '20' },
+  { name: '육지 홍대', cat: '고기', lat: 37.5497, lng: 126.9175, rating: 4.9, desc: '연기없는 고기집. 들깨국수+순두부찌개 필수', area: '홍대', price: 2, dist: '20' },
+  { name: '단막 홍대합정점', cat: '고기', lat: 37.5489, lng: 126.9189, rating: 4.9, desc: '막창 전문. 깊은 육수 부대찌개도 맛있음', area: '합정', price: 2, dist: '20' },
+  { name: '봉마루집 합정점', cat: '고기', lat: 37.5485, lng: 126.9199, rating: 5.0, desc: '갈비찜 선택 매운맛. 홍대 현지인 맛집', area: '합정', price: 2, dist: '20' },
+  { name: '김숙성 합정점', cat: '고기', lat: 37.5491, lng: 126.9166, rating: 4.9, desc: '삼겹·목살 직화구이. 테이블마다 코너 구분', area: '합정', price: 2, dist: '20' },
+  { name: '김숙성 대흥본점', cat: '고기', lat: 37.5492, lng: 126.9438, rating: 4.8, desc: '봄철 창문 열리는 대흥 삼겹살 맛집', area: '대흥', price: 2, dist: '40' },
+  { name: 'DAEMOK', cat: '고기', lat: 37.5489, lng: 126.9172, rating: 5.0, desc: '합정 신선한 돼지·소고기 BBQ', area: '합정', price: 2, dist: '20' },
+  { name: '토방골식당', cat: '고기', lat: 37.5192, lng: 126.8948, rating: 4.3, desc: '문래 보쌈 전문. 수제 김치와 곁들임', area: '문래', price: 1, dist: '20' },
+  { name: '화포식당 홍대점', cat: '고기', lat: 37.5519, lng: 126.9197, rating: 4.7, desc: '직화 목살+대창구이. 연기없는 숯불', area: '홍대', price: 2, dist: '20' },
+  { name: '구이꾼 상수점', cat: '고기', lat: 37.5475, lng: 126.9215, rating: 4.6, desc: '상수역 숨은 삼겹살 맛집. 쫄깃한 껍데기', area: '상수', price: 2, dist: '20' },
+  { name: '이태원 가야', cat: '고기', lat: 37.5341, lng: 126.9940, rating: 4.8, desc: '한우+왜간장 소스. 이태원 프리미엄 BBQ', area: '이태원', price: 3, dist: '40' },
+  { name: '한남갈비 한남점', cat: '고기', lat: 37.5380, lng: 127.0012, rating: 4.7, desc: '한우 갈비살+채끝. 한남동 직장인 최애', area: '한남', price: 3, dist: '40' },
+  { name: '공덕 참나무집', cat: '고기', lat: 37.5455, lng: 126.9498, rating: 4.5, desc: '참나무 숯불 구이. 돼지갈비 추천', area: '공덕', price: 2, dist: '40' },
+  { name: '마포 소목사', cat: '고기', lat: 37.5476, lng: 126.9504, rating: 4.7, desc: '마포 흑돼지구이 전문. 수제 쌈장 무한리필', area: '마포', price: 2, dist: '40' },
+  { name: '양평 직화구이', cat: '고기', lat: 37.5254, lng: 126.8944, rating: 4.4, desc: '영등포 양평동 삼겹살. 가성비 직화', area: '영등포', price: 1, dist: '20' },
+  { name: '선유 비행기살', cat: '고기', lat: 37.5382, lng: 126.8951, rating: 4.5, desc: '비행기살+항정살. 선유도역 고기집', area: '선유도', price: 2, dist: 'walk' },
+  { name: 'BBQ PARK 여의도', cat: '고기', lat: 37.5253, lng: 126.9240, rating: 4.3, desc: '여의도 루프탑 BBQ. 한강뷰 삼겹살', area: '여의도', price: 2, dist: '20' },
+  { name: '광화문 연탄집', cat: '고기', lat: 37.5720, lng: 126.9760, rating: 4.5, desc: '연탄불 돼지구이. 직장인 단골 갈비집', area: '광화문', price: 2, dist: '40' },
+
+  // ===== 한식 =====
+  { name: '철산장', cat: '한식', lat: 37.5120, lng: 126.8922, rating: 4.9, desc: '미슐랭 셰프 출신 평양냉면+돼지갈비', area: '문래', price: 2, dist: '20' },
+  { name: '소문난식당', cat: '한식', lat: 37.5162, lng: 126.8899, rating: 4.4, desc: '고등어 김치조림. 점심만 운영. 가성비 최고', area: '문래', price: 1, dist: '20' },
+  { name: '도리연 닭도리탕', cat: '한식', lat: 37.5258, lng: 126.8973, rating: 4.9, desc: '해산물 육수 닭도리탕. 칼국수·떡 사리 필수', area: '당산', price: 2, dist: 'walk' },
+  { name: '고방채 서여의도 KBS점', cat: '한식', lat: 37.5262, lng: 126.9177, rating: 4.9, desc: '솥밥 전문. 단체 식사·회식 최적', area: '여의도', price: 2, dist: '20' },
+  { name: '소울한우 새강역점', cat: '한식', lat: 37.5196, lng: 126.9305, rating: 5.0, desc: '간장게장+한우. 코스닥 오르면 샴페인 무료!', area: '여의도', price: 3, dist: '20' },
+  { name: '고우가 여의도점', cat: '한식', lat: 37.5222, lng: 126.9203, rating: 4.9, desc: '한우 코스요리. 룸 식사. 고급 데이트', area: '여의도', price: 3, dist: '20' },
+  { name: '여영관', cat: '한식', lat: 37.5220, lng: 126.9301, rating: 4.9, desc: '한우+도미솥밥. NCT 방문 맛집', area: '여의도', price: 3, dist: '20' },
+  { name: '여의도감', cat: '한식', lat: 37.5205, lng: 126.9305, rating: 4.9, desc: '백합탕 샤브샤브+항정살보쌈. 건강 한식', area: '여의도', price: 2, dist: '20' },
+  { name: '진진수라 여의도점', cat: '한식', lat: 37.5244, lng: 126.9248, rating: 5.0, desc: '품격 있는 한정식 코스. 접대·가족 모임 최적', area: '여의도', price: 3, dist: '20' },
+  { name: '고방채 동여의도 본점', cat: '한식', lat: 37.5202, lng: 126.9295, rating: 4.6, desc: '간장게장+솥밥. 다양한 한식 한상', area: '여의도', price: 2, dist: '20' },
+  { name: '더기와 합정점', cat: '한식', lat: 37.5495, lng: 126.9169, rating: 4.9, desc: '말차막걸리+감자치즈전+김치전골. 합정 1티어', area: '합정', price: 2, dist: '20' },
+  { name: '해정집 합정점', cat: '한식', lat: 37.5489, lng: 126.9168, rating: 5.0, desc: '수제비국밥·칼국수. 깊은 해물 육수', area: '합정', price: 1, dist: '20' },
+  { name: '홍대 부대찌개', cat: '한식', lat: 37.5534, lng: 126.9210, rating: 4.9, desc: '24시간 부대찌개. 라면밥 무한리필', area: '홍대', price: 1, dist: '20' },
+  { name: '술아간', cat: '한식', lat: 37.5619, lng: 126.9246, rating: 4.8, desc: '간장게장+닭볶음탕+꼬막비빔밥. 연남 명소', area: '연남', price: 2, dist: '20' },
+  { name: '우미집 1947', cat: '한식', lat: 37.5647, lng: 126.9230, rating: 4.9, desc: '꼬리곰탕+브레이즈드꼬리. 재즈 감성 한식', area: '연남', price: 3, dist: '20' },
+  { name: '자연애곳간 망원시장점', cat: '한식', lat: 37.5574, lng: 126.9059, rating: 5.0, desc: '망원시장 떡갈비. 밀가루 없이 순수 재료', area: '망원', price: 2, dist: '20' },
+  { name: '싱길리', cat: '한식', lat: 37.5142, lng: 126.8955, rating: 4.8, desc: '문래 신길리. 미나리게탕+돼지갈비찜', area: '문래', price: 2, dist: '20' },
+  { name: '선식당', cat: '한식', lat: 37.5171, lng: 126.8881, rating: 4.5, desc: '문래 볶음밥·면 전문. 대왕 포션', area: '문래', price: 1, dist: '20' },
+  { name: '마포 순대국밥', cat: '한식', lat: 37.5490, lng: 126.9482, rating: 4.6, desc: '마포 원조 순대국밥. 아침 6시 오픈', area: '마포', price: 1, dist: '40' },
+  { name: '인사동 삼청각', cat: '한식', lat: 37.5793, lng: 126.9843, rating: 4.9, desc: '전통 한정식. 북촌 고택 식당', area: '인사동', price: 3, dist: '40' },
+  { name: '강남 콩나물국밥', cat: '한식', lat: 37.4985, lng: 127.0280, rating: 4.5, desc: '강남 24시간 해장국밥. 얼큰 콩나물', area: '강남', price: 1, dist: '40' },
+  { name: '공덕시장 해장국', cat: '한식', lat: 37.5462, lng: 126.9498, rating: 4.7, desc: '60년 전통 뼈다귀 해장국. 공덕 주민 최애', area: '공덕', price: 1, dist: '40' },
+  { name: '종로 삼계탕', cat: '한식', lat: 37.5721, lng: 126.9822, rating: 4.8, desc: '1970년 영계백숙+삼계탕 원조', area: '종로', price: 2, dist: '40' },
+  { name: '상수 냉면 용화', cat: '한식', lat: 37.5486, lng: 126.9225, rating: 4.7, desc: '평양냉면+만두. 수요미식회 소개 명소', area: '상수', price: 2, dist: '20' },
+  { name: '신촌 설렁탕', cat: '한식', lat: 37.5553, lng: 126.9373, rating: 4.5, desc: '60년 전통 새벽 4시 오픈 설렁탕', area: '신촌', price: 1, dist: '40' },
+  { name: '합정 쌀국수비빔밥', cat: '한식', lat: 37.5478, lng: 126.9181, rating: 4.3, desc: '청결한 가성비 한식. 비빔밥+된장찌개', area: '합정', price: 1, dist: '20' },
+  { name: '망원 육개장', cat: '한식', lat: 37.5558, lng: 126.9062, rating: 4.8, desc: '망원 전통 육개장. 진한 소고기 국물', area: '망원', price: 1, dist: '20' },
+  { name: '당산 냉면집', cat: '한식', lat: 37.5310, lng: 126.9020, rating: 4.5, desc: '당산역 근처 냉면 전문. 물냉+비빔냉', area: '당산', price: 1, dist: 'walk' },
+  { name: '문래 순대국', cat: '한식', lat: 37.5155, lng: 126.8965, rating: 4.4, desc: '문래 순대국밥+수육. 낮부터 밤까지', area: '문래', price: 1, dist: '20' },
+  { name: '연남 감자탕', cat: '한식', lat: 37.5640, lng: 126.9240, rating: 4.7, desc: '연남 뼈다귀감자탕. 술안주로도 딱', area: '연남', price: 2, dist: '20' },
+  { name: '홍대 떡볶이 원조', cat: '한식', lat: 37.5521, lng: 126.9236, rating: 4.6, desc: '홍대 원조 떡볶이+순대+튀김', area: '홍대', price: 1, dist: '20' },
+  { name: '신정 국밥', cat: '한식', lat: 37.5228, lng: 126.8913, rating: 4.4, desc: '영등포 뚝배기 국밥. 새벽 5시 오픈', area: '영등포', price: 1, dist: '20' },
+  { name: '영등포 시장 순대', cat: '한식', lat: 37.5197, lng: 126.9068, rating: 4.6, desc: '영등포 시장 60년 전통 순대+막창', area: '영등포', price: 1, dist: '20' },
+  { name: '서울역 갈비탕', cat: '한식', lat: 37.5559, lng: 126.9720, rating: 4.5, desc: '서울역 갈비탕+한우물국. 보양식', area: '서울역', price: 2, dist: '40' },
+  { name: '이태원 소머리국밥', cat: '한식', lat: 37.5338, lng: 126.9909, rating: 4.7, desc: '이태원 소머리국밥+도가니탕', area: '이태원', price: 2, dist: '40' },
+  { name: '신촌 솥밥전문점', cat: '한식', lat: 37.5558, lng: 126.9377, rating: 4.6, desc: '신촌 고등어솥밥+전복솥밥. 점심 성지', area: '신촌', price: 2, dist: '40' },
+  { name: '여의나루 참숯갈비', cat: '한식', lat: 37.5245, lng: 126.9321, rating: 4.5, desc: '여의나루 한강뷰 갈비탕+수육 정식', area: '여의도', price: 2, dist: '20' },
+  { name: '문래 평양냉면 능라도', cat: '한식', lat: 37.5148, lng: 126.8943, rating: 4.9, desc: '문래 순수 메밀 평양냉면. 수육 세트', area: '문래', price: 2, dist: '20' },
+  { name: '이촌 갈비탕 명가', cat: '한식', lat: 37.5216, lng: 126.9705, rating: 4.7, desc: '이촌 전통 갈비탕. 60년 노포 레시피', area: '이촌', price: 2, dist: '40' },
+  { name: '영등포 족발 왕가', cat: '한식', lat: 37.5197, lng: 126.9063, rating: 4.6, desc: '영등포 시장 족발+보쌈 세트. 야식 성지', area: '영등포', price: 2, dist: '20' },
+  { name: '당산 해물순두부', cat: '한식', lat: 37.5322, lng: 126.9048, rating: 4.5, desc: '당산 짜글이+순두부찌개. 점심 정식', area: '당산', price: 1, dist: 'walk' },
+  { name: '선유도 조개구이', cat: '한식', lat: 37.5365, lng: 126.8975, rating: 4.8, desc: '선유도 조개구이 모둠. 한강뷰+조개', area: '선유도', price: 2, dist: 'walk' },
+
+  // ===== 일식·라멘 =====
+  { name: '모에루', cat: '일식', lat: 37.5174, lng: 126.8965, rating: 4.9, desc: '문래 일식 이자카야+라멘. 낮엔 정식', area: '문래', price: 2, dist: '20' },
+  { name: '텐진라멘 문래점', cat: '일식', lat: 37.5209, lng: 126.8908, rating: 4.3, desc: '후쿠오카 돈코츠 라멘. 파이탄+쇼유', area: '문래', price: 1, dist: '20' },
+  { name: '텐진라멘 당산점', cat: '일식', lat: 37.5249, lng: 126.8959, rating: 4.3, desc: '당산 정통 일식 라멘. 점심·저녁 운영', area: '당산', price: 1, dist: 'walk' },
+  { name: 'RORAMEN', cat: '일식', lat: 37.5140, lng: 126.8938, rating: 4.2, desc: '돈코츠+마제소바. 카운터식 정통 라멘', area: '문래', price: 1, dist: '20' },
+  { name: '하코야', cat: '일식', lat: 37.5174, lng: 126.8965, rating: 4.3, desc: '라멘+치즈돈카츠. 문래 점심 맛집', area: '문래', price: 1, dist: '20' },
+  { name: '목화원 문래', cat: '일식', lat: 37.5150, lng: 126.8946, rating: 4.3, desc: '숙성 회·사시미. 사케 페어링 가능', area: '문래', price: 3, dist: '20' },
+  { name: '스시타래', cat: '일식', lat: 37.5214, lng: 126.8896, rating: 4.3, desc: '가성비 스시셋트 14,000원. 선유도역 근처', area: '선유도', price: 1, dist: '20' },
+  { name: '일품 여의도점', cat: '일식', lat: 37.5286, lng: 126.9214, rating: 5.0, desc: '카이센동+스시. 연예인 단골. 예약 필수', area: '여의도', price: 3, dist: '20' },
+  { name: '오시 망원본점', cat: '일식', lat: 37.5552, lng: 126.9077, rating: 4.9, desc: '오코노미야키 망원 1위. 라벤더 하이볼 필수', area: '망원', price: 2, dist: '20' },
+  { name: '소점 망원', cat: '일식', lat: 37.5658, lng: 126.9170, rating: 4.8, desc: '연남 오코노미야키+타코야키. 줄 서는 맛집', area: '연남', price: 1, dist: '20' },
+  { name: '연하동', cat: '일식', lat: 37.5605, lng: 126.9236, rating: 4.8, desc: '연어볼밥+연어니기리. 연남 일식 퓨전', area: '연남', price: 2, dist: '20' },
+  { name: '연남한양집', cat: '일식', lat: 37.5622, lng: 126.9260, rating: 4.9, desc: '연남 이자카야. 마늘보쌈+튀긴삼겹살', area: '연남', price: 2, dist: '20' },
+  { name: '파동 망원', cat: '일식', lat: 37.5552, lng: 126.9078, rating: 4.8, desc: '연어덮밥·마제소바·후토마키. 망원 숨은 맛집', area: '망원', price: 2, dist: '20' },
+  { name: '우이락 망원본점', cat: '일식', lat: 37.5565, lng: 126.9060, rating: 4.7, desc: '망원시장 고추튀김+애플막걸리 명물', area: '망원', price: 2, dist: '20' },
+  { name: '이태원 스시 우오젠', cat: '일식', lat: 37.5345, lng: 126.9924, rating: 4.8, desc: '이태원 한국식 오마카세. 런치 코스 합리적', area: '이태원', price: 3, dist: '40' },
+  { name: '한남동 라멘 NIKU', cat: '일식', lat: 37.5364, lng: 126.9999, rating: 4.7, desc: '한남 도쿄 출신 셰프 라멘. 후토마키 필수', area: '한남', price: 2, dist: '40' },
+  { name: '공덕 라멘야', cat: '일식', lat: 37.5446, lng: 126.9487, rating: 4.5, desc: '공덕역 돈코츠+마제소바 라멘 전문', area: '공덕', price: 1, dist: '40' },
+  { name: '신촌 돈카츠 키요', cat: '일식', lat: 37.5547, lng: 126.9372, rating: 4.6, desc: '신촌 수제 돈카츠. 이베리코 옵션 가능', area: '신촌', price: 2, dist: '40' },
+  { name: '홍대 마제소바 미야비', cat: '일식', lat: 37.5511, lng: 126.9222, rating: 4.7, desc: '홍대 마제소바+치즈볼 토핑. 줄 서는 맛집', area: '홍대', price: 1, dist: '20' },
+  { name: '합정 우동 소노마', cat: '일식', lat: 37.5498, lng: 126.9178, rating: 4.5, desc: '합정 수제 우동+덴푸라. 따뜻한 육수', area: '합정', price: 1, dist: '20' },
+  { name: '망원 스시 히나', cat: '일식', lat: 37.5570, lng: 126.9050, rating: 4.8, desc: '망원 소규모 스시 오마카세. 예약 필수', area: '망원', price: 3, dist: '20' },
+  { name: '연남 이자카야 쿠루미', cat: '일식', lat: 37.5634, lng: 126.9253, rating: 4.6, desc: '연남 단층 이자카야. 생맥주+고추냉이 감자', area: '연남', price: 2, dist: '20' },
+  { name: '서울역 스시 나카', cat: '일식', lat: 37.5557, lng: 126.9706, rating: 4.7, desc: '서울역 스시+사케. 점심 스시세트 가성비', area: '서울역', price: 2, dist: '40' },
+  { name: '강남 라멘 무겐', cat: '일식', lat: 37.5011, lng: 127.0235, rating: 4.6, desc: '강남 진한 육수 라멘. 가츠라멘 추천', area: '강남', price: 1, dist: '40' },
+  { name: '문래 이자카야 소나기', cat: '일식', lat: 37.5162, lng: 126.8957, rating: 4.5, desc: '문래 소규모 이자카야. 안주+사케 페어링', area: '문래', price: 2, dist: '20' },
+  { name: '여의도 우동 파파', cat: '일식', lat: 37.5238, lng: 126.9249, rating: 4.4, desc: '여의도 점심 우동+카레. 가성비 직장인', area: '여의도', price: 1, dist: '20' },
+  { name: '선유도 돈카츠', cat: '일식', lat: 37.5378, lng: 126.8966, rating: 4.3, desc: '선유도역 두꺼운 수제 돈카츠. 정식 저렴', area: '선유도', price: 1, dist: 'walk' },
+  { name: '상수 스시바 오토', cat: '일식', lat: 37.5481, lng: 126.9224, rating: 4.8, desc: '상수 카운터 스시바. 사장님 직접 쥐어줌', area: '상수', price: 2, dist: '20' },
+  { name: '이태원 야키토리 코우', cat: '일식', lat: 37.5332, lng: 126.9905, rating: 4.7, desc: '이태원 야키토리+사케 바. 날개살+넥이 최고', area: '이태원', price: 2, dist: '40' },
+
+  // ===== 이탈리안 =====
+  { name: '스케줄 합정', cat: '이탈리안', lat: 37.5492, lng: 126.9161, rating: 4.8, desc: '합정 이탈리안. 테이블마다 생화. 데이트 명소', area: '합정', price: 2, dist: '20' },
+  { name: '퀴진아 여의도', cat: '이탈리안', lat: 37.5218, lng: 126.9265, rating: 4.8, desc: '트러플 파스타+보타르가 리조또. 여의도 데이트', area: '여의도', price: 3, dist: '20' },
+  { name: '심퍼티쿠시 여의도', cat: '이탈리안', lat: 37.5214, lng: 126.9233, rating: 4.9, desc: '한국+서양 퓨전 파인다이닝. 계절 메뉴', area: '여의도', price: 3, dist: '20' },
+  { name: '비스트로 위', cat: '이탈리안', lat: 37.5268, lng: 126.8953, rating: 4.8, desc: '당산 수제 뇨키+라자냐. 마르게리타 피자', area: '당산', price: 2, dist: 'walk' },
+  { name: '한강뷰당산', cat: '이탈리안', lat: 37.5353, lng: 126.9024, rating: 5.0, desc: '메트로29 10층 한강뷰 이탈리안. 전복리조또', area: '당산', price: 3, dist: 'walk' },
+  { name: '당산친친', cat: '이탈리안', lat: 37.5350, lng: 126.8984, rating: 4.5, desc: '드라이아이스 샐러드쇼. 카르보나라 리조또', area: '당산', price: 2, dist: 'walk' },
+  { name: '르포르테', cat: '이탈리안', lat: 37.5353, lng: 126.8995, rating: 4.2, desc: '당산 고층 한강뷰 피자파스타. 예약 권장', area: '당산', price: 2, dist: 'walk' },
+  { name: '데블스 바지니코 합정', cat: '이탈리안', lat: 37.5452, lng: 126.9143, rating: 4.8, desc: '나폴리탄 피자. 스테파노 페라라 화덕 보유', area: '합정', price: 2, dist: '20' },
+  { name: 'PizzeriaO 합정', cat: '이탈리안', lat: 37.5522, lng: 126.9158, rating: 4.9, desc: '정통 나폴리 피자. 영어 메뉴 제공', area: '합정', price: 2, dist: '20' },
+  { name: 'Spacca Napoli', cat: '이탈리안', lat: 37.5489, lng: 126.9156, rating: 4.4, desc: '홍대 최고 피자. 화덕 피자 줄 서는 맛집', area: '합정', price: 2, dist: '20' },
+  { name: '한길비스트로', cat: '이탈리안', lat: 37.5487, lng: 126.9151, rating: 4.8, desc: '합정 전복내장 크림파스타+와인바', area: '합정', price: 2, dist: '20' },
+  { name: 'Kitchen 485', cat: '이탈리안', lat: 37.5487, lng: 126.9180, rating: 4.0, desc: '수제 생파스타. 반려동물·아이 동반 가능', area: '합정', price: 2, dist: '20' },
+  { name: '연남동 와이탑', cat: '이탈리안', lat: 37.5649, lng: 126.9243, rating: 4.9, desc: '비프웰링턴+스테이크+피자. 연남 이탈리안', area: '연남', price: 3, dist: '20' },
+  { name: 'Moi 여의도', cat: '이탈리안', lat: 37.5261, lng: 126.9308, rating: 5.0, desc: '버섯치킨 리조또+생면 파스타. 여의도 데이트', area: '여의도', price: 2, dist: '20' },
+  { name: '이태원 파스타 로마', cat: '이탈리안', lat: 37.5340, lng: 126.9931, rating: 4.7, desc: '이태원 정통 이탈리아 파스타. 오일파스타 최강', area: '이태원', price: 2, dist: '40' },
+  { name: '한남 피자 나폴레', cat: '이탈리안', lat: 37.5372, lng: 127.0011, rating: 4.8, desc: '한남 화덕 피자+와인바. 루꼴라 피자 추천', area: '한남', price: 2, dist: '40' },
+  { name: '공덕 파스타 아모레', cat: '이탈리안', lat: 37.5453, lng: 126.9502, rating: 4.6, desc: '공덕 수제 생파스타+와인. 소박한 이탈리안', area: '공덕', price: 2, dist: '40' },
+  { name: '상수 파스타 소레', cat: '이탈리안', lat: 37.5477, lng: 126.9228, rating: 4.7, desc: '상수역 감성 파스타 카페. 카르보나라+브런치', area: '상수', price: 2, dist: '20' },
+  { name: '홍대 피자 세크레타', cat: '이탈리안', lat: 37.5531, lng: 126.9228, rating: 4.6, desc: '홍대 돌가마 피자. 버섯 트러플 피자 추천', area: '홍대', price: 2, dist: '20' },
+  { name: '연남 파스타 이루마', cat: '이탈리안', lat: 37.5651, lng: 126.9243, rating: 4.7, desc: '연남 숨은 파스타 맛집. 신선한 재료만 사용', area: '연남', price: 2, dist: '20' },
+  { name: '여의도 리조또 베네', cat: '이탈리안', lat: 37.5224, lng: 126.9199, rating: 4.5, desc: '여의도 점심 리조또 세트. 생선 리조또 강추', area: '여의도', price: 2, dist: '20' },
+  { name: '강남 파스타 비아', cat: '이탈리안', lat: 37.5008, lng: 127.0231, rating: 4.7, desc: '강남 파인 이탈리안. 런치 파스타 코스', area: '강남', price: 3, dist: '40' },
+  { name: '신촌 피자비올라', cat: '이탈리안', lat: 37.5548, lng: 126.9368, rating: 4.5, desc: '신촌 이탈리안. 페스토 파스타 추천', area: '신촌', price: 2, dist: '40' },
+
+  // ===== 스테이크·양식 =====
+  { name: 'Heavy Steak 여의도', cat: '스테이크', lat: 37.5299, lng: 126.9208, rating: 4.8, desc: '여의도 합리적 가격 스테이크. 직장인 점심', area: '여의도', price: 2, dist: '20' },
+  { name: 'The Steak House', cat: '스테이크', lat: 37.5248, lng: 126.9254, rating: 4.1, desc: 'IFC몰 스테이크하우스. 앤틱한 분위기', area: '여의도', price: 3, dist: '20' },
+  { name: '선유일층', cat: '스테이크', lat: 37.5385, lng: 126.8961, rating: 4.9, desc: '선유도 뷰 회+스테이크+그노키. 데이트 명소', area: '선유도', price: 3, dist: 'walk' },
+  { name: '우수 공덕', cat: '스테이크', lat: 37.5449, lng: 126.9506, rating: 5.0, desc: '공덕역 연결 한우 코스. 프라이빗룸 데이트', area: '공덕', price: 3, dist: '40' },
+  { name: '라그릴리아', cat: '스테이크', lat: 37.5262, lng: 126.9278, rating: 4.4, desc: '더현대 서울 내 이탈리안 그릴. 로봇 서빙', area: '여의도', price: 2, dist: '20' },
+  { name: '이태원 스테이크 하우스', cat: '스테이크', lat: 37.5343, lng: 126.9930, rating: 4.7, desc: '이태원 프리미엄 스테이크. T본+와규', area: '이태원', price: 3, dist: '40' },
+  { name: '한남 그릴 하우스', cat: '스테이크', lat: 37.5374, lng: 127.0008, rating: 4.8, desc: '한남 건식숙성 한우 스테이크. 데이트 맛집', area: '한남', price: 3, dist: '40' },
+  { name: '강남 스테이크 레어', cat: '스테이크', lat: 37.5014, lng: 127.0246, rating: 4.7, desc: '강남 합리적 프리미엄 스테이크. 런치 세트', area: '강남', price: 3, dist: '40' },
+  { name: '마포 그릴 앤 다인', cat: '스테이크', lat: 37.5480, lng: 126.9500, rating: 4.5, desc: '마포 수제버거+스테이크. 수~일요일 런치', area: '마포', price: 2, dist: '40' },
+  { name: '홍대 스테이크 바이트', cat: '스테이크', lat: 37.5527, lng: 126.9212, rating: 4.6, desc: '홍대 합리적 스테이크. 채끝 150g 가성비', area: '홍대', price: 2, dist: '20' },
+  { name: '합정 그릴 앤 와인', cat: '스테이크', lat: 37.5497, lng: 126.9178, rating: 4.7, desc: '합정 와인바+스테이크. 투스카니 레드 추천', area: '합정', price: 3, dist: '20' },
+  { name: '여의도 스테이크 팜', cat: '스테이크', lat: 37.5265, lng: 126.9317, rating: 4.4, desc: '여의도 목장직송 스테이크. 점심 세트 가성비', area: '여의도', price: 2, dist: '20' },
+  { name: '당산 다이닝 오크', cat: '스테이크', lat: 37.5299, lng: 126.9013, rating: 4.6, desc: '당산 탄화오크 석쇠 스테이크. 감자수프 필수', area: '당산', price: 3, dist: 'walk' },
+
+  // ===== 태국·아시안 =====
+  { name: '끼끼 합정', cat: '태국', lat: 37.5487, lng: 126.9164, rating: 4.7, desc: '합정 태국 음식. 모닝글로리+바지락볶음', area: '합정', price: 2, dist: '20' },
+  { name: 'Saint Augustin', cat: '태국', lat: 37.5511, lng: 126.9135, rating: 4.8, desc: '소프트쉘크랩 커리 최고. 합정 태국 음식', area: '합정', price: 2, dist: '20' },
+  { name: '심플리타이 합정점', cat: '태국', lat: 37.5488, lng: 126.9174, rating: 4.2, desc: '합정 태국 음식. 새우볶음밥+그린커리', area: '합정', price: 1, dist: '20' },
+  { name: 'Amazing Nongkhai', cat: '태국', lat: 37.5553, lng: 126.9199, rating: 4.4, desc: '진짜 태국인이 오는 태국 음식점. 팟타이 최강', area: '홍대', price: 1, dist: '20' },
+  { name: '쑥 이리', cat: '태국', lat: 37.5565, lng: 126.9221, rating: 4.6, desc: '연남 태국 음식. 새우오믈렛+마리네이드 시푸드', area: '연남', price: 2, dist: '20' },
+  { name: '살라타이', cat: '태국', lat: 37.5511, lng: 126.9119, rating: 5.0, desc: '합정 태국 음식. 진짜 태국 셰프 운영', area: '합정', price: 2, dist: '20' },
+  { name: 'SOOKJAI', cat: '태국', lat: 37.5581, lng: 126.9246, rating: 4.2, desc: '연남 태국 음식. 팟카파오+태국 밀크티', area: '연남', price: 1, dist: '20' },
+  { name: '이태원 팟타이 방콕', cat: '태국', lat: 37.5350, lng: 126.9933, rating: 4.7, desc: '이태원 정통 태국 음식. 현지인도 오는 곳', area: '이태원', price: 1, dist: '40' },
+  { name: '한남 쌀국수 포', cat: '태국', lat: 37.5370, lng: 127.0003, rating: 4.6, desc: '한남 정통 쌀국수 전문. 소뼈 18시간 육수', area: '한남', price: 1, dist: '40' },
+  { name: '연남 쌀국수 소나무', cat: '태국', lat: 37.5627, lng: 126.9247, rating: 4.6, desc: '연남 베트남 쌀국수+반미. 냉쌀국수 추천', area: '연남', price: 1, dist: '20' },
+  { name: '합정 베트남 라미', cat: '태국', lat: 37.5502, lng: 126.9185, rating: 4.5, desc: '합정 분짜+쌀국수. 베트남 현지 느낌', area: '합정', price: 1, dist: '20' },
+  { name: '문래 베트남 쌀국수', cat: '태국', lat: 37.5166, lng: 126.8958, rating: 4.4, desc: '문래 쌀국수 전문. 깔끔한 소고기 육수', area: '문래', price: 1, dist: '20' },
+  { name: '망원 태국 바질', cat: '태국', lat: 37.5560, lng: 126.9069, rating: 4.7, desc: '망원 팟카파오+쏨땀+카오만가이. 정통 태국', area: '망원', price: 1, dist: '20' },
+
+  // ===== 중식 =====
+  { name: '슈쿤안 마라탕 홍대점', cat: '중식', lat: 37.5504, lng: 126.9209, rating: 4.9, desc: '홍대 24시간 마라탕+꼬치훈궐. 사천식', area: '홍대', price: 1, dist: '20' },
+  { name: '무탄 여의도점', cat: '중식', lat: 37.5212, lng: 126.9178, rating: 5.0, desc: '여의도 최고 중식당. 독특한 메뉴 구성', area: '여의도', price: 3, dist: '20' },
+  { name: '홍대 마라탕 황제', cat: '중식', lat: 37.5526, lng: 126.9215, rating: 4.5, desc: '홍대 마라탕+마라샹궈. 얼얼한 사천식', area: '홍대', price: 1, dist: '20' },
+  { name: '신촌 딤섬 하우스', cat: '중식', lat: 37.5551, lng: 126.9383, rating: 4.5, desc: '신촌 홍콩식 딤섬 전문. 하카우+시우마이', area: '신촌', price: 2, dist: '40' },
+  { name: '종로 홍콩반점', cat: '중식', lat: 37.5690, lng: 126.9806, rating: 4.6, desc: '종로 홍콩 광둥 요리. 게살요리+탕수육', area: '종로', price: 2, dist: '40' },
+  { name: '강남 마라탕 위력', cat: '중식', lat: 37.4982, lng: 127.0275, rating: 4.6, desc: '강남 1인 마라탕+꼬치훈궐. 혼밥 가능', area: '강남', price: 1, dist: '40' },
+  { name: '여의도 마라탕 쓰촨', cat: '중식', lat: 37.5250, lng: 126.9248, rating: 4.4, desc: '여의도 정통 쓰촨 마라탕. 마라우육면 추천', area: '여의도', price: 1, dist: '20' },
+  { name: '당산 딤섬 롤링', cat: '중식', lat: 37.5315, lng: 126.9038, rating: 4.5, desc: '당산 딤섬+스팀바스켓. 주말 브런치 가능', area: '당산', price: 2, dist: 'walk' },
+
+  // ===== 카페·브런치 =====
+  { name: '베르데 문래', cat: '카페·브런치', lat: 37.5139, lng: 126.8937, rating: 4.7, desc: '문래 공장 감성 브런치카페+와인바', area: '문래', price: 2, dist: '20' },
+  { name: 'La Crescenta', cat: '카페·브런치', lat: 37.5188, lng: 126.8922, rating: 4.3, desc: '문래 브런치. 머쉬룸 리조또+감성 인테리어', area: '문래', price: 2, dist: '20' },
+  { name: '아뤼블랑제리 선유도역점', cat: '카페·브런치', lat: 37.5375, lng: 126.8955, rating: 4.9, desc: '선유도역 소금빵+커피. 아침 일찍 오픈', area: '선유도', price: 1, dist: 'walk' },
+  { name: '커피라이커스 선유 본점', cat: '카페·브런치', lat: 37.5360, lng: 126.8972, rating: 4.5, desc: '선유도 멜트다운 라테. 4층 대형 카페', area: '선유도', price: 1, dist: 'walk' },
+  { name: '공간다반사 선유점', cat: '카페·브런치', lat: 37.5375, lng: 126.8983, rating: 4.4, desc: '선유도 감성 빈티지 카페. 쑥라테 명소', area: '선유도', price: 1, dist: 'walk' },
+  { name: 'duskblue', cat: '카페·브런치', lat: 37.5287, lng: 126.8991, rating: 4.5, desc: '당산 감성 카페바. 시그니처 칵테일+티라미수', area: '당산', price: 2, dist: 'walk' },
+  { name: 'Brunch Bean 당산', cat: '카페·브런치', lat: 37.5325, lng: 126.9052, rating: 4.1, desc: '당산역 근처 브런치 카페. K-브런치 메뉴', area: '당산', price: 2, dist: 'walk' },
+  { name: '힐러 (Heuler)', cat: '카페·브런치', lat: 37.5288, lng: 126.8971, rating: 5.0, desc: '당산 수제 샌드위치+원두커피. 8시 오픈', area: '당산', price: 1, dist: 'walk' },
+  { name: '앤티크커피 영등포점', cat: '카페·브런치', lat: 37.5286, lng: 126.8968, rating: 4.4, desc: '앤틱 감성. 더티라테 시그니처. 7시30분 오픈', area: '당산', price: 1, dist: 'walk' },
+  { name: 'Cafe Sullivan 당산', cat: '카페·브런치', lat: 37.5352, lng: 126.9025, rating: 4.4, desc: '당산 한강뷰 카페. 캐럿케이크+말차 라테', area: '당산', price: 2, dist: 'walk' },
+  { name: '그린앤피니 망원본점', cat: '카페·브런치', lat: 37.5553, lng: 126.9052, rating: 5.0, desc: '망원 포케+샐러드. 갈비목살샐러드 추천', area: '망원', price: 2, dist: '20' },
+  { name: '연남동 카페 아테네', cat: '카페·브런치', lat: 37.5631, lng: 126.9264, rating: 4.8, desc: '연남 가장 예쁜 카페. 크루아상+아이스 아메리카노', area: '연남', price: 1, dist: '20' },
+  { name: '홍대 앞 배마당', cat: '카페·브런치', lat: 37.5533, lng: 126.9231, rating: 4.7, desc: '홍대 창고 감성 카페. 수제 에이드+케이크', area: '홍대', price: 1, dist: '20' },
+  { name: '합정 하프앤하프', cat: '카페·브런치', lat: 37.5496, lng: 126.9182, rating: 4.6, desc: '합정 브런치 카페. 에그베네딕트+라떼', area: '합정', price: 2, dist: '20' },
+  { name: '망원 조용한 카페', cat: '카페·브런치', lat: 37.5572, lng: 126.9083, rating: 4.8, desc: '망원 독립 서점 카페. 핸드드립+마들렌', area: '망원', price: 1, dist: '20' },
+  { name: '이태원 카페 블루보틀', cat: '카페·브런치', lat: 37.5344, lng: 126.9929, rating: 4.5, desc: '이태원 블루보틀. 콜드브루+카페 라떼', area: '이태원', price: 2, dist: '40' },
+  { name: '한남 카페 온그라운드', cat: '카페·브런치', lat: 37.5380, lng: 127.0024, rating: 4.7, desc: '한남 갤러리 카페. 아트 작품 감상하며 커피', area: '한남', price: 2, dist: '40' },
+  { name: '상수 브런치 카페 루트', cat: '카페·브런치', lat: 37.5484, lng: 126.9225, rating: 4.7, desc: '상수 한옥 개조 카페. 브런치+핸드드립', area: '상수', price: 2, dist: '20' },
+  { name: '마포 카페 오목', cat: '카페·브런치', lat: 37.5498, lng: 126.9498, rating: 4.5, desc: '마포 지역 특산 커피. 오목 시그니처 라떼', area: '마포', price: 1, dist: '40' },
+  { name: '공덕 파파커피', cat: '카페·브런치', lat: 37.5448, lng: 126.9495, rating: 4.4, desc: '공덕역 직영 로스터리. 싱글오리진+브런치', area: '공덕', price: 1, dist: '40' },
+  { name: '신촌 꿈꾸는책방 카페', cat: '카페·브런치', lat: 37.5565, lng: 126.9371, rating: 4.6, desc: '신촌 서점 카페. 독립출판물+핸드드립', area: '신촌', price: 1, dist: '40' },
+  { name: '망원 시장 팥빙수', cat: '카페·브런치', lat: 37.5579, lng: 126.9058, rating: 4.8, desc: '망원 시장 수제 팥빙수. 여름 필수 방문', area: '망원', price: 1, dist: '20' },
+  { name: '연남 젠틀몬스터 카페', cat: '카페·브런치', lat: 37.5633, lng: 126.9256, rating: 4.5, desc: '연남 트렌디한 아트 카페. 젤라또+커피', area: '연남', price: 2, dist: '20' },
+  { name: '홍대 카페 그리팅', cat: '카페·브런치', lat: 37.5515, lng: 126.9220, rating: 4.7, desc: '홍대 독립 로스터리. 아이스 핸드드립 추천', area: '홍대', price: 1, dist: '20' },
+  { name: '문래 카페 모먼트', cat: '카페·브런치', lat: 37.5155, lng: 126.8955, rating: 4.6, desc: '문래 공장 개조 감성 카페. 크림 라테', area: '문래', price: 2, dist: '20' },
+  { name: '여의도 파르나스 카페', cat: '카페·브런치', lat: 37.5254, lng: 126.9302, rating: 4.5, desc: '여의도 한강 뷰 카페. 조각 케이크+콜드브루', area: '여의도', price: 2, dist: '20' },
+  { name: '선유도 카페 온더루프', cat: '카페·브런치', lat: 37.5370, lng: 126.8977, rating: 4.8, desc: '선유도 루프탑 카페. 한강 뷰 아메리카노', area: '선유도', price: 2, dist: 'walk' },
+  { name: '당산 빵집 노아', cat: '카페·브런치', lat: 37.5295, lng: 126.9016, rating: 4.9, desc: '당산 수제 빵+소금빵. 매일 아침 갓구운', area: '당산', price: 1, dist: 'walk' },
+  { name: '합정 커피 탐험', cat: '카페·브런치', lat: 37.5503, lng: 126.9163, rating: 4.6, desc: '합정 스페셜티 커피. 싱글오리진 핸드드립', area: '합정', price: 1, dist: '20' },
+  { name: '연남 브런치 오트밀', cat: '카페·브런치', lat: 37.5624, lng: 126.9250, rating: 4.7, desc: '연남 건강 브런치. 아보카도 토스트+스무디', area: '연남', price: 2, dist: '20' },
+  { name: '이태원 카페 쎄비', cat: '카페·브런치', lat: 37.5349, lng: 126.9937, rating: 4.6, desc: '이태원 루프탑 카페. 칵테일 커피+야경', area: '이태원', price: 2, dist: '40' },
+  { name: '북촌 찻집 심다', cat: '카페·브런치', lat: 37.5816, lng: 126.9816, rating: 4.9, desc: '북촌 한옥 전통 찻집. 대추차+경단', area: '북촌', price: 2, dist: '40' },
+  { name: '경복궁 카페 풍경', cat: '카페·브런치', lat: 37.5791, lng: 126.9745, rating: 4.7, desc: '경복궁 근처 한옥 카페. 식혜+떡 케이크', area: '경복궁', price: 2, dist: '40' },
+  { name: '상암 카페 하늘', cat: '카페·브런치', lat: 37.5672, lng: 126.8959, rating: 4.5, desc: '상암 옥외 카페. 시그니처 음료 다양', area: '상암', price: 1, dist: '20' },
+  { name: '여의도 빵이야기', cat: '카페·브런치', lat: 37.5228, lng: 126.9199, rating: 4.7, desc: '여의도 아침 빵집. 크루아상+계란샌드위치', area: '여의도', price: 1, dist: '20' },
+  { name: '홍대 쥬스바', cat: '카페·브런치', lat: 37.5524, lng: 126.9237, rating: 4.4, desc: '홍대 신선 과일 스무디+아사이볼', area: '홍대', price: 1, dist: '20' },
+  { name: '합정 도넛 체리', cat: '카페·브런치', lat: 37.5487, lng: 126.9195, rating: 4.8, desc: '합정 수제 도넛+아이스커피. SNS 감성 필수', area: '합정', price: 1, dist: '20' },
+  { name: '망원 와플 하우스', cat: '카페·브런치', lat: 37.5568, lng: 126.9071, rating: 4.6, desc: '망원 리에주 와플+아이스 크림. 달달한 카페', area: '망원', price: 1, dist: '20' },
+  { name: '연남 아이스크림 팔레트', cat: '카페·브런치', lat: 37.5625, lng: 126.9261, rating: 4.7, desc: '연남 수제 아이스크림 카페. 독특한 맛 조합', area: '연남', price: 1, dist: '20' },
+  { name: '신촌 크레페 갤러리', cat: '카페·브런치', lat: 37.5557, lng: 126.9381, rating: 4.5, desc: '신촌 수제 크레페+따뜻한 코코아', area: '신촌', price: 1, dist: '40' },
+  { name: '강남 스타벅스 리저브', cat: '카페·브런치', lat: 37.5080, lng: 127.0639, rating: 4.4, desc: '강남 스타벅스 리저브 2층. 리저브 블렌드', area: '삼성', price: 2, dist: '60' },
+];
+
+let map, markers = [], currentCat = '전체';
+let selectedPrices = new Set(); // empty = 전체
+let selectedDist = 'all';
+
+map = L.map('map', { zoomControl: false, preferCanvas: true }).setView([37.530, 126.916], 13);
+L.control.zoom({ position: 'bottomright' }).addTo(map);
+L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+  attribution: '© OpenStreetMap © CARTO', maxZoom: 19, subdomains: 'abcd'
+}).addTo(map);
+
+const homeIcon = L.divIcon({
+  className: '',
+  html: `<div class="home-marker" title="우리집">🏠</div>`,
+  iconAnchor: [18, 18]
+});
+L.marker([37.5276, 126.9019], { icon: homeIcon }).addTo(map)
+  .bindPopup('<div style="background:#22222e;color:#f0f0f5;padding:12px;border-radius:10px;font-family:Noto Sans KR,sans-serif"><b style="font-size:14px">🏠 우리집</b><br><span style="font-size:11px;color:#888">영신로 55길 8 브라운스톤</span></div>', { maxWidth: 200 });
+
+const COLOR_MAP = { '한식': '#ff6b6b', '고기': '#ff8c42', '일식': '#4ecdc4', '이탈리안': '#a8e063', '태국': '#f7dc6f', '중식': '#e056d6', '스테이크': '#c0392b', '카페·브런치': '#74b9ff' };
+function getColor(cat) { return COLOR_MAP[cat] || '#888'; }
+function getEmoji(cat) { return CATS[cat]?.emoji || '🍽'; }
+
+function getFiltered() {
+  return RESTAURANTS.filter(r => {
+    const catOk = currentCat === '전체' || r.cat === currentCat;
+    const priceOk = selectedPrices.size === 0 || selectedPrices.has(r.price);
+    let distOk = true;
+    if (selectedDist === 'walk') distOk = r.dist === 'walk';
+    else if (selectedDist === '20') distOk = r.dist === 'walk' || r.dist === '20';
+    else if (selectedDist === '40') distOk = r.dist === 'walk' || r.dist === '20' || r.dist === '40';
+    // 'all' or '60' = 전체
+    return catOk && priceOk && distOk;
+  });
+}
+
+function renderMarkers() {
+  markers.forEach(m => map.removeLayer(m));
+  markers = [];
+
+  const filtered = getFiltered();
+
+  filtered.forEach((r, i) => {
+    const color = getColor(r.cat);
+    const icon = L.divIcon({
+      className: '',
+      html: `<div class="custom-marker" style="background:${color};border-color:rgba(255,255,255,0.4)" title="${r.name}">${getEmoji(r.cat)}</div>`,
+      iconAnchor: [16, 16]
+    });
+
+    const marker = L.marker([r.lat, r.lng], { icon }).addTo(map);
+    marker.bindPopup(`
+      <div class="popup-inner">
+        <div class="popup-cat" style="color:${color}">${getEmoji(r.cat)} ${r.cat}</div>
+        <div class="popup-name">${r.name}</div>
+        <div class="popup-desc">${r.desc}</div>
+        <div class="popup-meta">
+          <span class="popup-tag">⭐ ${r.rating}</span>
+          <span class="popup-tag">📍 ${r.area}</span>
+          <span class="popup-tag">${PRICE_LABEL[r.price]}</span>
+          <span class="popup-tag">${DIST_LABEL[r.dist]}</span>
+        </div>
+      </div>
+    `, { maxWidth: 280 });
+
+    marker.on('click', () => { selectItem(i, filtered); });
+    markers.push(marker);
+  });
+
+  renderList(filtered);
+  document.getElementById('countBadge').textContent = `${filtered.length}곳 표시 중`;
+}
+
+function renderList(filtered) {
+  const list = document.getElementById('restaurantList');
+  const header = document.getElementById('panelHeader');
+  header.textContent = `${currentCat === '전체' ? '전체' : currentCat} ${filtered.length}곳`;
+
+  if (filtered.length === 0) {
+    list.innerHTML = '<div class="empty-state">해당 조건에 맞는 결과 없음</div>';
+    return;
+  }
+
+  list.innerHTML = filtered.map((r, i) => {
+    const color = getColor(r.cat);
+    return `
+      <div class="rest-card" id="card-${i}" onclick="selectItem(${i}, null)">
+        <div class="rest-card-top">
+          <span class="rest-cat-dot" style="background:${color}"></span>
+          <span class="rest-cat-label" style="color:${color}">${r.cat}</span>
+          <span style="font-size:10px;color:#aaa;margin-left:2px">${PRICE_LABEL[r.price]}</span>
+          <span class="rest-rating">⭐ ${r.rating}</span>
+        </div>
+        <div class="rest-name">${r.name}</div>
+        <div class="rest-desc">${r.desc} · <span style="color:#666">${r.area}</span> · <span style="color:#555">${DIST_LABEL[r.dist]}</span></div>
+      </div>
+    `;
+  }).join('');
+}
+
+function selectItem(i, filtered) {
+  const list = filtered || getFiltered();
+  const r = list[i];
+  if (!r) return;
+
+  document.querySelectorAll('.rest-card').forEach(c => c.classList.remove('selected'));
+  const card = document.getElementById(`card-${i}`);
+  if (card) { card.classList.add('selected'); card.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); }
+
+  if (window.innerWidth <= 768) showTab('map', document.querySelector('.tab-btn'));
+
+  map.setView([r.lat, r.lng], 15, { animate: true });
+  if (markers[i]) { setTimeout(() => markers[i].openPopup(), 300); }
+}
+
+function filterCat(cat, btn) {
+  currentCat = cat;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderMarkers();
+}
+
+function togglePrice(price, btn) {
+  if (selectedPrices.has(price)) {
+    selectedPrices.delete(price);
+    btn.classList.remove('active');
+  } else {
+    selectedPrices.add(price);
+    btn.classList.add('active');
+  }
+  renderMarkers();
+}
+
+function selectDist(dist, btn) {
+  selectedDist = dist;
+  document.querySelectorAll('.filter-bar2 .f2btn[id^="dbtn"]').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderMarkers();
+}
+
+function showTab(tab, btn) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  const panel = document.querySelector('.side-panel');
+  const mapEl = document.getElementById('map');
+  if (tab === 'list') {
+    panel.classList.add('visible');
+    mapEl.style.display = 'none';
+  } else {
+    panel.classList.remove('visible');
+    mapEl.style.display = '';
+    setTimeout(() => map.invalidateSize(), 100);
+  }
+}
+
+renderMarkers();
+</script>
+</body>
+</html>
