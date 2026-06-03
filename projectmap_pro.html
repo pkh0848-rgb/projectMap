@@ -451,6 +451,7 @@ tr:hover td{background:var(--bg3);}
         <div class="page-header">
           <div class="page-title">사용자 관리 <span id="userCount"></span></div>
           <button class="btn-primary" onclick="openAddUserModal()" style="margin-left:auto">＋ 사용자 초대</button>
+          <button class="btn-secondary admin-only" onclick="seedMilestones()" style="margin-left:8px;font-size:11px;opacity:0.6" title="마일스톤 없는 프로젝트에 일정 자동 생성">🔧 마일스톤 자동생성</button>
         </div>
         <div class="table-wrap"><table>
           <thead><tr><th>이름</th><th>이메일</th><th>역할</th><th>상태</th><th>가입일</th><th>관리</th></tr></thead>
@@ -482,8 +483,8 @@ tr:hover td{background:var(--bg3);}
       </div>
 
       <div class="form-group"><label>위험도</label><select id="fRisk"><option value="low">낮음</option><option value="mid">보통</option><option value="high">높음</option></select></div>
-      <div class="form-group"><label>시작일</label><input id="fStart" placeholder="2025.03.15"/></div>
-      <div class="form-group"><label>종료일 (계약)</label><input id="fEnd" placeholder="2026.12.31"/></div>
+      <div class="form-group"><label>시작일 <span style="color:#ef4444">*</span></label><input id="fStart" placeholder="2025.03.15"/></div>
+      <div class="form-group"><label>종료일 (계약) <span style="color:#ef4444">*</span></label><input id="fEnd" placeholder="2026.12.31"/></div>
       <div style="background:var(--bg);border:1px solid var(--border2);border-radius:10px;padding:12px 14px;margin-bottom:4px;">
         <div style="font-size:11px;color:var(--blue);font-weight:700;margin-bottom:10px;">📌 단계별 마일스톤 (입력 시 상태 자동 계산)</div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
@@ -892,7 +893,8 @@ function startRealtime(){
         else p.openDate='';
       }
     });
-    projects.sort((a,b)=>a.id>b.id?1:-1);
+    // 프로젝트: 생성일 내림차순 (최신 추가 우선). 수정해도 순서 안 바뀜
+    projects.sort((a,b)=>{const ta=a.createdAt?.seconds||0,tb=b.createdAt?.seconds||0;return tb-ta;});
     document.getElementById('syncIndicator').className='sync-ok';
     document.getElementById('syncIndicator').textContent='● 실시간 연결';
     if(currentPage==='dashboard')renderDashboard();
@@ -1061,7 +1063,7 @@ function searchMember(name){document.getElementById('globalSearch').value=name;s
 // ═══════════════════════════════════
 async function renderUsers(){
   const snap=await db.collection('users').get();
-  appUsers=snap.docs.map(d=>d.data());
+  appUsers=snap.docs.map(d=>d.data()).sort((a,b)=>{const ta=a.createdAt?.seconds||0,tb=b.createdAt?.seconds||0;return tb-ta;});
   document.getElementById('userCount').textContent=`(${appUsers.length}명)`;
   document.getElementById('usersTable').innerHTML=appUsers.map(u=>{
     const statusBadge=u.isActive===false&&u.emailVerified===false?`<span class="user-status-badge badge-pending">인증 대기</span>`:u.isActive===false?`<span class="user-status-badge badge-inactive">비활성</span>`:u.mustChangePassword?`<span class="user-status-badge badge-pending">초대됨</span>`:`<span class="user-status-badge badge-active">활성</span>`;
@@ -1147,28 +1149,87 @@ function generateTempPw(){return Math.random().toString(36).slice(-6)+Math.rando
 //  프로젝트 CRUD
 // ═══════════════════════════════════
 function initDatePickers(){
-  const fmt={dateFormat:'Y.m.d',locale:'ko',allowInput:true};
-  ['fStart','fEnd','fDesignEnd','fDevEnd','fTestEnd','fOpenDate'].forEach(id=>{
-    const el=document.getElementById(id);
-    if(el&&!el._flatpickr)flatpickr(el,{...fmt,onReady:function(_,__,fp){fp.calendarContainer&&fp.calendarContainer.classList.add('flatpickr-dark');}});
+  ['fStart','fEnd','fDesignEnd','fDevEnd','fTestEnd','fOpenDate'].forEach(fid=>{
+    const el=document.getElementById(fid);
+    if(!el||el._flatpickr)return;
+    flatpickr(el,{
+      dateFormat:'Y.m.d',locale:'ko',allowInput:true,
+      onReady:function(_,__,fp){fp.calendarContainer&&fp.calendarContainer.classList.add('flatpickr-dark');},
+      onClose:function(_,dateStr,fp){
+        // 사용자가 직접 타이핑한 값 우선 유지
+        const typed=fp.element.value;
+        if(typed&&typed!==dateStr){fp.element.value=typed;}
+      }
+    });
+    // Enter: 타이핑한 값 유지하면서 달력 닫기
+    el.addEventListener('keydown',function(e){
+      if(e.key==='Enter'){
+        e.stopPropagation();e.preventDefault();
+        const val=this.value;
+        this._flatpickr&&this._flatpickr.close();
+        this.value=val;
+        updateAutoStatusPreview();
+      }
+    });
   });
 }
 function openProjModal(id){
-  document.getElementById('projModalOverlay').classList.add('open');setTimeout(initDatePickers,50);
+  window._projModalDirty=false;
+  document.getElementById('projModalOverlay').classList.add('open');
+  const _ar=document.getElementById('addrSearchResult');
+  if(_ar){_ar.style.display='none';_ar.innerHTML='';}
+  setTimeout(()=>{
+    initDatePickers();
+    // 폼 변경 감지 - dirty 플래그
+    document.querySelectorAll('#projModalOverlay input,#projModalOverlay select,#projModalOverlay textarea').forEach(el=>{
+      el.addEventListener('input',()=>{window._projModalDirty=true;},{once:false,capture:false});
+    });
+  },50);
   if(id){const p=projects.find(x=>x.id===id);if(!p)return;document.getElementById('projModalTitle').textContent='프로젝트 수정';document.getElementById('fId').value=p.id;document.getElementById('fName').value=p.name||'';document.getElementById('fClient').value=p.client||'';document.getElementById('fPm').value=p.pm||'';document.getElementById('fLocation').value=p.location||'';document.getElementById('fLat').value=p.lat||'';document.getElementById('fLng').value=p.lng||'';document.getElementById('fRisk').value=p.risk||'mid';document.getElementById('fStart').value=p.start||'';document.getElementById('fEnd').value=p.end||'';document.getElementById('fMembers').value=p.members||'';document.getElementById('fBudget').value=p.budget||'';document.getElementById('fType').value=p.type||'신규개발';document.getElementById('fLangs').value=(p.langs||[]).join(', ');document.getElementById('fTeam').value=(p.team||[]).map(t=>`${t.name}:${t.role}`).join(', ');document.getElementById('fDesc').value=p.desc||'';document.getElementById('fOpenDate').value=p.openDate||'';
 document.getElementById('fDesignEnd').value=p.designEnd||'';
 document.getElementById('fDevEnd').value=p.devEnd||'';
 document.getElementById('fTestEnd').value=p.testEnd||'';
 updateAutoStatusPreview();}
   else{document.getElementById('projModalTitle').textContent='프로젝트 추가';document.getElementById('fId').value='';['fName','fClient','fPm','fLocation','fLat','fLng','fStart','fEnd','fOpenDate','fDesignEnd','fDevEnd','fTestEnd','fMembers','fBudget','fLangs','fTeam','fDesc'].forEach(i=>document.getElementById(i).value='');document.getElementById('fType').value='신규개발';document.getElementById('fRisk').value='mid';}}
-function closeProjModal(){document.getElementById('projModalOverlay').classList.remove('open');}
-async function saveProject(){const name=document.getElementById('fName').value.trim();if(!name){showToast('프로젝트명을 입력해주세요.');return;}const id=document.getElementById('fId').value,docId=id||('p'+Date.now());const now=firebase.firestore.FieldValue.serverTimestamp();const editor=userProfile?userProfile.name||userProfile.email:'unknown';const p={id:docId,name,client:document.getElementById('fClient').value,pm:document.getElementById('fPm').value,location:document.getElementById('fLocation').value,lat:parseFloat(document.getElementById('fLat').value)||37.5665,lng:parseFloat(document.getElementById('fLng').value)||126.9780,status:calcAutoStatus({designEnd:document.getElementById('fDesignEnd').value,devEnd:document.getElementById('fDevEnd').value,testEnd:document.getElementById('fTestEnd').value,openDate:document.getElementById('fOpenDate').value,end:document.getElementById('fEnd').value,start:document.getElementById('fStart').value}),start:document.getElementById('fStart').value,end:document.getElementById('fEnd').value,members:(document.getElementById('fTeam').value?document.getElementById('fTeam').value.split(',').map(s=>s.trim()).filter(Boolean).length:0),budget:document.getElementById('fBudget').value,type:document.getElementById('fType').value,risk:document.getElementById('fRisk').value,langs:document.getElementById('fLangs').value?document.getElementById('fLangs').value.split(',').map(s=>s.trim()).filter(Boolean):[],team:document.getElementById('fTeam').value?document.getElementById('fTeam').value.split(',').map(s=>{const[n,r]=s.trim().split(':');return{name:(n||'').trim(),role:(r||'').trim()};}).filter(t=>t.name):[],desc:document.getElementById('fDesc').value,openDate:document.getElementById('fOpenDate').value.trim()||'',
+function closeProjModal(force){
+  if(!force&&window._projModalDirty){
+    if(!confirm('입력 중인 내용이 저장되지 않습니다.\n닫으시겠습니까?'))return;
+  }
+  window._projModalDirty=false;
+  document.getElementById('projModalOverlay').classList.remove('open');
+  // 주소 검색 결과 초기화
+  const ar=document.getElementById('addrSearchResult');
+  if(ar){ar.style.display='none';ar.innerHTML='';}
+}
+async function saveProject(){const name=document.getElementById('fName').value.trim();if(!name){showToast('프로젝트명을 입력해주세요.');return;}const _start=document.getElementById('fStart').value.trim(),_end=document.getElementById('fEnd').value.trim();if(!_start||!_end){showToast('시작일과 종료일은 필수입력입니다. (예: 2025.03.15)');return;}const id=document.getElementById('fId').value,docId=id||('p'+Date.now());const now=firebase.firestore.FieldValue.serverTimestamp();const editor=userProfile?userProfile.name||userProfile.email:'unknown';const p={id:docId,name,client:document.getElementById('fClient').value,pm:document.getElementById('fPm').value,location:document.getElementById('fLocation').value,lat:parseFloat(document.getElementById('fLat').value)||37.5665,lng:parseFloat(document.getElementById('fLng').value)||126.9780,status:calcAutoStatus({designEnd:document.getElementById('fDesignEnd').value,devEnd:document.getElementById('fDevEnd').value,testEnd:document.getElementById('fTestEnd').value,openDate:document.getElementById('fOpenDate').value,end:document.getElementById('fEnd').value,start:document.getElementById('fStart').value}),start:document.getElementById('fStart').value,end:document.getElementById('fEnd').value,members:(document.getElementById('fTeam').value?document.getElementById('fTeam').value.split(',').map(s=>s.trim()).filter(Boolean).length:0),budget:document.getElementById('fBudget').value,type:document.getElementById('fType').value,risk:document.getElementById('fRisk').value,langs:document.getElementById('fLangs').value?document.getElementById('fLangs').value.split(',').map(s=>s.trim()).filter(Boolean):[],team:document.getElementById('fTeam').value?document.getElementById('fTeam').value.split(',').map(s=>{const[n,r]=s.trim().split(':');return{name:(n||'').trim(),role:(r||'').trim()};}).filter(t=>t.name):[],desc:document.getElementById('fDesc').value,openDate:document.getElementById('fOpenDate').value.trim()||'',
     designEnd:document.getElementById('fDesignEnd').value.trim()||'',
     devEnd:document.getElementById('fDevEnd').value.trim()||'',
     testEnd:document.getElementById('fTestEnd').value.trim()||'',updatedBy:editor,updatedAt:now};if(!id){p.createdBy=editor;p.createdAt=now;await db.collection('projects').doc(docId).set(p);}
   else{// 수정 시 createdBy/createdAt 건드리지 않음
     const {createdBy,createdAt,...updateData}=p;
-    await db.collection('projects').doc(docId).update(updateData);}closeProjModal();showToast(id?'수정됐습니다.':'추가됐습니다.');}
+    await db.collection('projects').doc(docId).update(updateData);}closeProjModal(true);showToast(id?'수정됐습니다.':'추가됐습니다.');}
+async function seedMilestones(){
+  const targets=projects.filter(p=>!p.designEnd&&!p.devEnd&&!p.testEnd&&p.start&&p.end);
+  if(!targets.length){showToast('모든 프로젝트에 이미 마일스톤이 있습니다.');return;}
+  if(!confirm(`마일스톤 없는 ${targets.length}개 프로젝트에 시작일/종료일 기준으로 마일스톤을 자동 생성합니다.`))return;
+  const pd=s=>{if(!s)return null;const a=s.split('.');return new Date(parseInt(a[0]),parseInt(a[1]||1)-1,parseInt(a[2]||1));};
+  const fmt=d=>`${d.getFullYear()}.${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')}`;
+  let count=0;
+  for(const p of targets){
+    const start=pd(p.start),end=pd(p.end);
+    if(!start||!end)continue;
+    const dur=end-start;
+    const designEnd=new Date(start.getTime()+dur*0.25);
+    const devEnd=new Date(start.getTime()+dur*0.6);
+    const testEnd=new Date(start.getTime()+dur*0.85);
+    const openDate=new Date(end.getTime()-15*24*60*60*1000);
+    const update={designEnd:fmt(designEnd),devEnd:fmt(devEnd),testEnd:fmt(testEnd),openDate:fmt(openDate)};
+    update.status=calcAutoStatus({...p,...update});
+    await db.collection('projects').doc(p.id).update(update);
+    count++;
+  }
+  showToast(`${count}개 프로젝트에 마일스톤 자동 생성 완료`);
+}
 async function deleteProject(id){if(!confirm('정말 삭제하시겠습니까?'))return;await db.collection('projects').doc(id).delete();showToast('삭제됐습니다.');}
 
 // ═══════════════════════════════════
@@ -1177,7 +1238,7 @@ async function deleteProject(id){if(!confirm('정말 삭제하시겠습니까?')
 // 빈 양식 다운로드
 function downloadTemplate(){
   // 위도/경도 컬럼 추가, 팀원 형식을 업로드와 일치(이름:역할)
-  const headers=[{'프로젝트명':'(예시) 우리카드 통합단말 재구축','고객사':'우리카드','PM':'김정후 상무','위치주소':'서울 상암 디지털단지','시작일':'2025.01.01','종료일':'2026.12.31','설계완료일':'2025.05.30','개발완료일':'2026.03.31','테스트완료일':'2026.05.31','오픈일':'2026.06.01','계약규모':'15억','유형':'재구축','위험도':'보통','기술스택':'Java, Spring, Oracle','팀원':'김철수:개발, 이영희:기획','개요':'프로젝트 설명'}];
+  const headers=[{'프로젝트명':'(예시) 우리카드 통합단말 재구축','고객사':'우리카드','PM':'김정후 상무','위치주소':'서울 상암 디지털단지','시작일(필수)':'2025.01.01','종료일(필수)':'2026.12.31','설계완료일':'2025.05.30','개발완료일':'2026.03.31','테스트완료일':'2026.05.31','오픈일':'2026.06.01','계약규모':'15억','유형':'재구축','위험도':'보통','기술스택':'Java, Spring, Oracle','팀원':'김철수:개발, 이영희:기획','개요':'프로젝트 설명'}];
   const ws=XLSX.utils.json_to_sheet(headers),wb=XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb,ws,'프로젝트');
   XLSX.writeFile(wb,'프로젝트맵_업로드양식.xlsx');
@@ -1251,8 +1312,8 @@ function uploadExcel(e){
         }catch(e){/* 변환 실패시 기본값 유지 */}
         await new Promise(r=>setTimeout(r,150));// API 호출 간격
       }
-      const start=excelDateToStr(row['시작일']);
-      const end=excelDateToStr(row['종료일']);
+      const start=excelDateToStr(row['시작일(필수)']||row['시작일']);
+      const end=excelDateToStr(row['종료일(필수)']||row['종료일']);
       const team=row['팀원']?row['팀원'].toString().split(',').map(s=>{const[n,r]=s.trim().split(':');return{name:(n||'').trim(),role:(r||'').trim()};}).filter(t=>t.name):[];
       const isExisting=existingMap.has(name);
       const docId=isExisting?existingMap.get(name):'p'+Date.now()+added;
