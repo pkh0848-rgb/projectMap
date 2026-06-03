@@ -580,9 +580,13 @@ auth.onAuthStateChanged(async fbUser=>{
     try{
       const doc=await db.collection('users').doc(fbUser.uid).get();
       if(!doc.exists||doc.data().isActive===false){await auth.signOut();showScreen('login');return;}
-      // 이메일 인증 체크 (초기 설정 관리자는 예외 - admin role이면 통과)
+      // 이메일 인증 체크 (admin role이면 예외)
       if(!fbUser.emailVerified && doc.data().role!=='admin'){
         await auth.signOut();showScreen('login');return;
+      }
+      // 이메일 인증 완료 시 isActive 자동 활성화
+      if(fbUser.emailVerified && doc.data().isActive===false && doc.data().role!=='admin'){
+        await db.collection('users').doc(fbUser.uid).update({isActive:true,emailVerified:true});
       }
       userProfile=doc.data();currentUser=fbUser;
       if(userProfile.mustChangePassword){showScreen('changePw');}
@@ -632,7 +636,7 @@ async function doSetup(){
   if(pw!==pw2){err.textContent='비밀번호가 일치하지 않습니다.';err.style.display='block';return;}
   try{
     const cred=await auth.createUserWithEmailAndPassword(email,pw);
-    await db.collection('users').doc(cred.user.uid).set({uid:cred.user.uid,name,email,role:'admin',isOwner:true,mustChangePassword:false,isActive:true,createdAt:firebase.firestore.FieldValue.serverTimestamp()});
+    await db.collection('users').doc(cred.user.uid).set({uid:cred.user.uid,name,email,role:'admin',isOwner:true,mustChangePassword:false,isActive:false,emailVerified:false,createdAt:firebase.firestore.FieldValue.serverTimestamp()});
     showToast('관리자 계정이 생성됐습니다.');
   }catch(e){err.textContent=firebaseErrMsg(e.code);err.style.display='block';}}
 
@@ -673,7 +677,7 @@ async function doSignup(){
     // Firestore 프로필 저장
     await db.collection('users').doc(cred.user.uid).set({
       uid:cred.user.uid,name,email,role:'viewer',
-      mustChangePassword:false,isActive:true,
+      mustChangePassword:false,isActive:false,emailVerified:false,
       createdAt:firebase.firestore.FieldValue.serverTimestamp()
     });
     // 인증 이메일 발송
@@ -1057,7 +1061,7 @@ async function renderUsers(){
   appUsers=snap.docs.map(d=>d.data());
   document.getElementById('userCount').textContent=`(${appUsers.length}명)`;
   document.getElementById('usersTable').innerHTML=appUsers.map(u=>{
-    const statusBadge=u.isActive===false?`<span class="user-status-badge badge-inactive">비활성</span>`:u.mustChangePassword?`<span class="user-status-badge badge-pending">초대됨</span>`:`<span class="user-status-badge badge-active">활성</span>`;
+    const statusBadge=u.isActive===false&&u.emailVerified===false?`<span class="user-status-badge badge-pending">인증 대기</span>`:u.isActive===false?`<span class="user-status-badge badge-inactive">비활성</span>`:u.mustChangePassword?`<span class="user-status-badge badge-pending">초대됨</span>`:`<span class="user-status-badge badge-active">활성</span>`;
     const roleBadge=u.role==='admin'?`<span class="role-badge role-admin">관리자</span>`:`<span class="role-badge role-viewer">일반직원</span>`;
     const isSelf=currentUser&&u.uid===currentUser.uid;
     const isOwner=!!u.isOwner;
