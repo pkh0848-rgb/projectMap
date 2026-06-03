@@ -928,11 +928,12 @@ function goPage(page){
 // 마일스톤 기반 자동 상태 계산
 function calcAutoStatus(p){
   const hasMilestones=p.designEnd||p.devEnd||p.testEnd;
-  if(!hasMilestones)return 'none'; // 마일스톤 없으면 미정
   const pd=s=>{if(!s)return null;const a=s.split('.');return new Date(parseInt(a[0]),parseInt(a[1]||1)-1,parseInt(a[2]||1));};
   const now=new Date();
-  const end=pd(p.end),open=pd(p.openDate),testEnd=pd(p.testEnd),devEnd=pd(p.devEnd),designEnd=pd(p.designEnd);
-  if(end&&now>=end)return'done';
+  const end=pd(p.end);
+  if(end&&now>=end)return'done'; // 마일스톤 없어도 종료일 지났으면 종료
+  if(!hasMilestones)return 'none'; // 마일스톤 없으면 미정
+  const open=pd(p.openDate),testEnd=pd(p.testEnd),devEnd=pd(p.devEnd),designEnd=pd(p.designEnd);
   if(open&&now>=open)return'stable';
   if(testEnd&&now>=testEnd)return'stable';
   if(devEnd&&now>=devEnd)return'test';
