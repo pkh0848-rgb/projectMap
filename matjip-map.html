@@ -21,6 +21,15 @@ body { font-family: 'Noto Sans KR', sans-serif; background: var(--bg); color: va
 .header-title { font-size: 15px; font-weight: 900; letter-spacing: -0.5px; }
 .header-sub { font-size: 11px; color: var(--muted); }
 .count-badge { margin-left: auto; background: rgba(255,255,255,0.1); border-radius: 20px; padding: 4px 12px; font-size: 12px; font-weight: 700; }
+/* 검색바 */
+.search-bar { background: var(--surface); border-bottom: 1px solid var(--border); padding: 8px 16px; display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+.search-input-wrap { flex: 1; position: relative; display: flex; align-items: center; }
+.search-icon { position: absolute; left: 10px; font-size: 13px; opacity: 0.4; pointer-events: none; }
+.search-input { width: 100%; background: var(--card); border: 1.5px solid var(--border); border-radius: 20px; padding: 7px 32px 7px 32px; color: var(--text); font-size: 13px; font-family: 'Noto Sans KR', sans-serif; outline: none; transition: border-color 0.2s; }
+.search-input::placeholder { color: var(--muted); }
+.search-input:focus { border-color: rgba(255,255,255,0.3); }
+.search-clear { position: absolute; right: 10px; background: none; border: none; color: var(--muted); cursor: pointer; font-size: 14px; padding: 0; line-height: 1; display: none; }
+.search-clear.visible { display: block; }
 .filter-bar2 { background: var(--surface); border-bottom: 1px solid var(--border); padding: 8px 16px; display: flex; align-items: center; gap: 8px; flex-shrink: 0; overflow-x: auto; scrollbar-width: none; }
 .filter-bar2::-webkit-scrollbar { display: none; }
 .filter2-label { font-size: 10px; font-weight: 700; color: var(--muted); white-space: nowrap; flex-shrink: 0; }
@@ -102,6 +111,15 @@ body { font-family: 'Noto Sans KR', sans-serif; background: var(--bg); color: va
 <div class="tab-btns">
   <button class="tab-btn active" onclick="showTab('map',this)">🗺 지도</button>
   <button class="tab-btn" onclick="showTab('list',this)">📋 목록</button>
+</div>
+
+<!-- 검색바 -->
+<div class="search-bar">
+  <div class="search-input-wrap">
+    <span class="search-icon">🔍</span>
+    <input class="search-input" id="searchInput" type="text" placeholder="식당명, 지역, 음식 종류로 검색..." oninput="onSearch(this.value)" />
+    <button class="search-clear" id="searchClear" onclick="clearSearch()">✕</button>
+  </div>
 </div>
 
 <!-- 가격대 + 거리 + 주차 필터 -->
@@ -363,6 +381,7 @@ const RESTAURANTS = [
 
 let map, markers=[];
 let selectedCats=new Set(), selectedPrices=new Set(), selectedDist='all', selectedParking=false;
+let searchQuery='';
 
 map=L.map('map',{zoomControl:false,preferCanvas:true}).setView([37.530,126.916],13);
 L.control.zoom({position:'bottomright'}).addTo(map);
@@ -375,6 +394,7 @@ function getColor(c){return COLOR_MAP[c]||'#888';}
 function getEmoji(c){return CATS[c]?.emoji||'🍽';}
 
 function getFiltered(){
+  const q=searchQuery.trim().toLowerCase();
   return RESTAURANTS.filter(r=>{
     const catOk=selectedCats.size===0||selectedCats.has(r.cat);
     const priceOk=selectedPrices.size===0||selectedPrices.has(r.price);
@@ -383,7 +403,8 @@ function getFiltered(){
     if(selectedDist==='walk')distOk=r.dist==='walk';
     else if(selectedDist==='20')distOk=r.dist==='walk'||r.dist==='20';
     else if(selectedDist==='40')distOk=r.dist==='walk'||r.dist==='20'||r.dist==='40';
-    return catOk&&priceOk&&parkOk&&distOk;
+    const searchOk=!q||(r.name.toLowerCase().includes(q)||r.desc.toLowerCase().includes(q)||r.area.toLowerCase().includes(q)||r.cat.toLowerCase().includes(q));
+    return catOk&&priceOk&&parkOk&&distOk&&searchOk;
   });
 }
 
@@ -466,6 +487,19 @@ function selectDist(dist,btn){
 function toggleParking(btn){
   selectedParking=!selectedParking;
   btn.classList.toggle('active',selectedParking);
+  renderMarkers();
+}
+
+function onSearch(val){
+  searchQuery=val;
+  document.getElementById('searchClear').classList.toggle('visible', val.length>0);
+  renderMarkers();
+}
+
+function clearSearch(){
+  searchQuery='';
+  document.getElementById('searchInput').value='';
+  document.getElementById('searchClear').classList.remove('visible');
   renderMarkers();
 }
 
