@@ -469,9 +469,9 @@ tr:hover td{background:var(--bg3);}
     <h2 id="projModalTitle">프로젝트 추가</h2>
     <div class="form-grid">
       <input type="hidden" id="fId"/>
-      <div class="form-group form-full"><label>프로젝트명</label><input id="fName" placeholder="예: 우리카드 통합단말 재구축"/></div>
-      <div class="form-group"><label>고객사</label><input id="fClient"/></div>
-      <div class="form-group"><label>PM</label><input id="fPm" placeholder="예: 김정후 상무"/></div>
+      <div class="form-group form-full"><label>프로젝트명 <span style="color:#ef4444">*</span></label><input id="fName" placeholder="예: 우리카드 통합단말 재구축"/></div>
+      <div class="form-group"><label>고객사 <span style="color:#ef4444">*</span></label><input id="fClient"/></div>
+      <div class="form-group"><label>PM <span style="color:#ef4444">*</span></label><input id="fPm" placeholder="예: 김정후 상무"/></div>
       <div class="form-group" style="grid-column:1/-1">
         <label>위치 (주소 검색)</label>
         <div style="display:flex;gap:8px;">
@@ -1202,7 +1202,7 @@ function closeProjModal(force){
   const ar=document.getElementById('addrSearchResult');
   if(ar){ar.style.display='none';ar.innerHTML='';}
 }
-async function saveProject(){const name=document.getElementById('fName').value.trim();if(!name){showToast('프로젝트명을 입력해주세요.');return;}const _start=document.getElementById('fStart').value.trim(),_end=document.getElementById('fEnd').value.trim();if(!_start||!_end){showToast('시작일과 종료일은 필수입력입니다. (예: 2025.03.15)');return;}const id=document.getElementById('fId').value,docId=id||('p'+Date.now());const now=firebase.firestore.FieldValue.serverTimestamp();const editor=userProfile?userProfile.name||userProfile.email:'unknown';const p={id:docId,name,client:document.getElementById('fClient').value,pm:document.getElementById('fPm').value,location:document.getElementById('fLocation').value,lat:parseFloat(document.getElementById('fLat').value)||37.5665,lng:parseFloat(document.getElementById('fLng').value)||126.9780,status:calcAutoStatus({designEnd:document.getElementById('fDesignEnd').value,devEnd:document.getElementById('fDevEnd').value,testEnd:document.getElementById('fTestEnd').value,openDate:document.getElementById('fOpenDate').value,end:document.getElementById('fEnd').value,start:document.getElementById('fStart').value}),start:document.getElementById('fStart').value,end:document.getElementById('fEnd').value,members:(document.getElementById('fTeam').value?document.getElementById('fTeam').value.split(',').map(s=>s.trim()).filter(Boolean).length:0),budget:document.getElementById('fBudget').value,type:document.getElementById('fType').value,risk:document.getElementById('fRisk').value,langs:document.getElementById('fLangs').value?document.getElementById('fLangs').value.split(',').map(s=>s.trim()).filter(Boolean):[],team:document.getElementById('fTeam').value?document.getElementById('fTeam').value.split(',').map(s=>{const[n,r]=s.trim().split(':');return{name:(n||'').trim(),role:(r||'').trim()};}).filter(t=>t.name):[],desc:document.getElementById('fDesc').value,openDate:document.getElementById('fOpenDate').value.trim()||'',
+async function saveProject(){const name=document.getElementById('fName').value.trim();if(!name){showToast('프로젝트명을 입력해주세요.');return;}const _client=document.getElementById('fClient').value.trim(),_pm=document.getElementById('fPm').value.trim();if(!_client){showToast('고객사는 필수입력입니다.');return;}if(!_pm){showToast('PM은 필수입력입니다.');return;}const _start=document.getElementById('fStart').value.trim(),_end=document.getElementById('fEnd').value.trim();if(!_start||!_end){showToast('시작일과 종료일은 필수입력입니다. (예: 2025.03.15)');return;}const id=document.getElementById('fId').value,docId=id||('p'+Date.now());const now=firebase.firestore.FieldValue.serverTimestamp();const editor=userProfile?userProfile.name||userProfile.email:'unknown';const p={id:docId,name,client:document.getElementById('fClient').value,pm:document.getElementById('fPm').value,location:document.getElementById('fLocation').value,lat:parseFloat(document.getElementById('fLat').value)||37.5665,lng:parseFloat(document.getElementById('fLng').value)||126.9780,status:calcAutoStatus({designEnd:document.getElementById('fDesignEnd').value,devEnd:document.getElementById('fDevEnd').value,testEnd:document.getElementById('fTestEnd').value,openDate:document.getElementById('fOpenDate').value,end:document.getElementById('fEnd').value,start:document.getElementById('fStart').value}),start:document.getElementById('fStart').value,end:document.getElementById('fEnd').value,members:(document.getElementById('fTeam').value?document.getElementById('fTeam').value.split(',').map(s=>s.trim()).filter(Boolean).length:0),budget:document.getElementById('fBudget').value,type:document.getElementById('fType').value,risk:document.getElementById('fRisk').value,langs:document.getElementById('fLangs').value?document.getElementById('fLangs').value.split(',').map(s=>s.trim()).filter(Boolean):[],team:document.getElementById('fTeam').value?document.getElementById('fTeam').value.split(',').map(s=>{const[n,r]=s.trim().split(':');return{name:(n||'').trim(),role:(r||'').trim()};}).filter(t=>t.name):[],desc:document.getElementById('fDesc').value,openDate:document.getElementById('fOpenDate').value.trim()||'',
     designEnd:document.getElementById('fDesignEnd').value.trim()||'',
     devEnd:document.getElementById('fDevEnd').value.trim()||'',
     testEnd:document.getElementById('fTestEnd').value.trim()||'',updatedBy:editor,updatedAt:now};if(!id){p.createdBy=editor;p.createdAt=now;await db.collection('projects').doc(docId).set(p);}
@@ -1239,7 +1239,7 @@ async function deleteProject(id){if(!confirm('정말 삭제하시겠습니까?')
 // 빈 양식 다운로드
 function downloadTemplate(){
   // 위도/경도 컬럼 추가, 팀원 형식을 업로드와 일치(이름:역할)
-  const headers=[{'프로젝트명':'(예시) 우리카드 통합단말 재구축','고객사':'우리카드','PM':'김정후 상무','위치주소':'서울 상암 디지털단지','시작일(필수)':'2025.01.01','종료일(필수)':'2026.12.31','설계완료일':'2025.05.30','개발완료일':'2026.03.31','테스트완료일':'2026.05.31','오픈일':'2026.06.01','계약규모':'15억','유형':'재구축','위험도':'보통','기술스택':'Java, Spring, Oracle','팀원':'김철수:개발, 이영희:기획','개요':'프로젝트 설명'}];
+  const headers=[{'프로젝트명':'(예시) 우리카드 통합단말 재구축','고객사(필수)':'우리카드','PM(필수)':'김정후 상무','위치주소':'서울 상암 디지털단지','시작일(필수)':'2025.01.01','종료일(필수)':'2026.12.31','설계완료일':'2025.05.30','개발완료일':'2026.03.31','테스트완료일':'2026.05.31','오픈일':'2026.06.01','계약규모':'15억','유형':'재구축','위험도':'보통','기술스택':'Java, Spring, Oracle','팀원':'김철수:개발, 이영희:기획','개요':'프로젝트 설명'}];
   const ws=XLSX.utils.json_to_sheet(headers),wb=XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb,ws,'프로젝트');
   XLSX.writeFile(wb,'프로젝트맵_업로드양식.xlsx');
@@ -1319,7 +1319,7 @@ function uploadExcel(e){
       const isExisting=existingMap.has(name);
       const docId=isExisting?existingMap.get(name):'p'+Date.now()+added;
       const data={id:docId,name,
-        client:row['고객사']||'',pm:row['PM']||'',location:address||'',
+        client:row['고객사(필수)']||row['고객사']||'',pm:row['PM(필수)']||row['PM']||'',location:address||'',
         lat,lng,
         status:sm[row['상태']]||'plan',
         start,end,
