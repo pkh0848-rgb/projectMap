@@ -114,7 +114,7 @@ body{font-family:'Segoe UI',sans-serif;background:var(--bg);color:var(--text);he
 .cal-title{font-size:14px;font-weight:700;color:var(--text);}
 .cal-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:2px;}
 .cal-dow{text-align:center;font-size:10px;color:var(--text3);padding:4px 0;font-weight:600;}
-.cal-day{min-height:44px;background:var(--bg);border-radius:6px;padding:4px;transition:background 0.15s;position:relative;}
+.cal-day{height:72px;overflow:hidden;background:var(--bg);border-radius:6px;padding:4px;transition:background 0.15s;position:relative;}
 .cal-day:hover{background:var(--bg3);}
 .cal-day.today{background:var(--bg4);border:1px solid #4f9eff44;}
 .cal-day.other-month{opacity:0.3;}
@@ -247,7 +247,7 @@ tr:hover td{background:var(--bg3);}
 /* ── 모달 ── */
 .modal-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:#000000aa;z-index:2000;display:none;align-items:center;justify-content:center;}
 .modal-overlay.open{display:flex;}
-.modal{background:var(--bg2);border:1px solid var(--border2);border-radius:18px;padding:24px;width:620px;max-width:calc(100vw - 40px);margin:0 20px;max-height:85vh;overflow-y:auto;box-shadow:0 24px 60px rgba(0,0,0,0.7);}
+.modal{background:var(--bg2);border:1px solid var(--border2);border-radius:18px;padding:24px 32px 24px 24px;width:660px;max-width:calc(100vw - 40px);margin:0 20px;max-height:85vh;overflow-y:auto;scrollbar-gutter:stable;box-shadow:0 24px 60px rgba(0,0,0,0.7);}
 .modal-sm{width:440px;}
 .modal h2{font-size:17px;font-weight:800;margin-bottom:20px;}
 .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
