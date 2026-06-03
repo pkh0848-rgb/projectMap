@@ -1,3 +1,7 @@
+https://raw.githubusercontent.com/pkh0848-rgb/projectMap/main/projectmap_pro.html
+→ https://raw.githubusercontent.com/pkh0848-rgb/projectMap/main/projectmap_pro.html
+Content-Type: text/plain; charset=utf-8
+
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -103,7 +107,7 @@ body{font-family:'Segoe UI',sans-serif;background:var(--bg);color:var(--text);he
 .kpi-value{font-size:28px;font-weight:800;margin-bottom:4px;}
 .kpi-sub{font-size:11px;color:var(--text3);}
 .kpi-icon{position:absolute;top:16px;right:16px;font-size:22px;opacity:0.5;}
-.dash-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px;align-items:start;}
+.dash-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px;align-items:stretch;}
 .dash-card{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:20px;}
 .dash-card h3{font-size:13px;font-weight:700;margin-bottom:16px;}
 
@@ -112,15 +116,15 @@ body{font-family:'Segoe UI',sans-serif;background:var(--bg);color:var(--text);he
 .cal-nav{background:none;border:none;color:var(--text2);cursor:pointer;font-size:18px;padding:2px 8px;border-radius:6px;}
 .cal-nav:hover{background:var(--bg3);}
 .cal-title{font-size:14px;font-weight:700;color:var(--text);}
-.cal-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:2px;}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;}
 .cal-dow{text-align:center;font-size:10px;color:var(--text3);padding:4px 0;font-weight:600;}
-.cal-day{min-height:44px;background:var(--bg);border-radius:6px;padding:4px;transition:background 0.15s;position:relative;}
+.cal-day{height:72px;overflow:hidden;background:var(--bg);border-radius:6px;padding:4px;transition:background 0.15s;position:relative;}
 .cal-day:hover{background:var(--bg3);}
 .cal-day.today{background:var(--bg4);border:1px solid #4f9eff44;}
 .cal-day.other-month{opacity:0.3;}
 .cal-day-num{font-size:11px;color:var(--text3);margin-bottom:2px;}
 .cal-day.today .cal-day-num{color:var(--blue);font-weight:700;}
-.cal-event{font-size:9px;padding:1px 4px;border-radius:3px;margin-bottom:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.5;max-width:100%;display:block;}
+.cal-event{font-size:9px;padding:1px 4px;border-radius:3px;margin-bottom:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.5;}
 .cal-event.start{background:#4f9eff22;color:#4f9eff;border-left:2px solid #4f9eff;}
 .cal-event.end{background:#ef444422;color:#ef4444;border-left:2px solid #ef4444;}
 .cal-event.active{background:#4fcc7a18;color:#4fcc7a;border-left:2px solid #4fcc7a;}
@@ -245,9 +249,9 @@ tr:hover td{background:var(--bg3);}
 .risk-pill{padding:3px 9px;border-radius:6px;font-size:10px;font-weight:600;}
 
 /* ── 모달 ── */
-.modal-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:#000000aa;z-index:2000;display:none;align-items:center;justify-content:center;}
+.modal-overlay{position:fixed;inset:0;background:#000000aa;z-index:2000;display:none;align-items:center;justify-content:center;}
 .modal-overlay.open{display:flex;}
-.modal{background:var(--bg2);border:1px solid var(--border2);border-radius:18px;padding:24px;width:620px;max-width:calc(100vw - 40px);margin:0 20px;max-height:85vh;overflow-y:auto;box-shadow:0 24px 60px rgba(0,0,0,0.7);}
+.modal{background:var(--bg2);border:1px solid var(--border2);border-radius:18px;padding:28px 36px 28px 28px;width:660px;max-height:85vh;overflow-y:auto;box-shadow:0 24px 60px rgba(0,0,0,0.7);scrollbar-gutter:stable;}
 .modal-sm{width:440px;}
 .modal h2{font-size:17px;font-weight:800;margin-bottom:20px;}
 .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
@@ -383,9 +387,9 @@ tr:hover td{background:var(--bg3);}
       <div class="page active" id="page-dashboard"><div class="page-inner">
         <div class="kpi-grid" id="kpiGrid"></div>
         <div class="dash-grid">
-          <div style="display:flex;flex-direction:column;gap:16px;">
+          <div style="display:flex;flex-direction:column;gap:16px;height:100%;">
             <div class="dash-card"><h3>📊 상태별 현황</h3><div class="chart-wrap"><canvas id="statusChart"></canvas></div></div>
-            <div class="dash-card" style="display:flex;flex-direction:column;"><h3>📅 프로젝트 캘린더</h3>
+            <div class="dash-card" style="flex:1;display:flex;flex-direction:column;"><h3>📅 프로젝트 캘린더</h3>
               <div class="cal-header">
                 <button class="cal-nav" onclick="calPrev()">‹</button>
                 <span class="cal-title" id="calTitle"></span>
@@ -400,7 +404,7 @@ tr:hover td{background:var(--bg3);}
               </div>
             </div>
           </div>
-          <div class="dash-card" id="alertCard" style="display:flex;flex-direction:column;overflow:hidden;"><h3 style="flex-shrink:0">⚡ 알림 센터</h3><div class="alert-list" id="alertList" style="flex:1;overflow-y:auto;min-height:0;"></div></div>
+          <div class="dash-card" style="display:flex;flex-direction:column;"><h3>⚡ 알림 센터</h3><div class="alert-list" id="alertList" style="flex:1;overflow-y:auto;max-height:none;"></div></div>
         </div>
         <div class="dash-card"><h3>🚀 진행률 현황</h3><div id="progressBars" style="margin-top:8px"></div></div>
       </div></div>
@@ -475,7 +479,10 @@ tr:hover td{background:var(--bg3);}
           <button type="button" onclick="searchAddress()" style="background:var(--blue);border:none;color:#fff;padding:0 16px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;">🔍 검색</button>
         </div>
         <div id="addrSearchResult" style="display:none;margin-top:6px;background:var(--bg);border:1px solid var(--border2);border-radius:8px;overflow:hidden;max-height:160px;overflow-y:auto;"></div>
-        <input type="hidden" id="fLat"/><input type="hidden" id="fLng"/>
+        <div style="display:flex;gap:8px;margin-top:6px;">
+          <input id="fLat" placeholder="위도 (자동입력)" style="flex:1;font-size:12px;"/>
+          <input id="fLng" placeholder="경도 (자동입력)" style="flex:1;font-size:12px;"/>
+        </div>
       </div>
       <div class="form-group"><label>상태 <span style="font-size:10px;color:var(--text3)">(마일스톤 없을 때만 적용)</span></label><select id="fStatus"><option value="plan">설계</option><option value="dev">개발 중</option><option value="test">테스트</option><option value="stable">운영안정화</option><option value="done">종료</option></select></div>
       <div class="form-group"><label>위험도</label><select id="fRisk"><option value="low">낮음</option><option value="mid">보통</option><option value="high">높음</option></select></div>
@@ -773,40 +780,50 @@ async function doModalChangePw(){
 //  앱 초기화
 // ═══════════════════════════════════
 function searchAddress(){
-  var query=document.getElementById('fLocation').value.trim();
-  if(!query){showToast('주소나 건물명을 입력해주세요.');return;}
-  var resultEl=document.getElementById('addrSearchResult');
+  const query=document.getElementById('fLocation').value.trim();
+  if(!query){showToast('주소를 입력해주세요.');return;}
+  const resultEl=document.getElementById('addrSearchResult');
   resultEl.style.display='block';
   resultEl.innerHTML='<div style="padding:10px 12px;font-size:12px;color:var(--text3)">🔍 검색 중...</div>';
-  if(!window._kakaoReady){setTimeout(searchAddress,500);return;}
-  var results=[];var done=0;
-  var finish=function(){done++;if(done<2)return;
-    if(results.length===0){resultEl.innerHTML='<div style="padding:10px 12px;font-size:12px;color:var(--text3)">검색 결과가 없습니다.</div>';return;}
+  if(!window._kakaoReady){
+    // SDK 아직 로딩 중이면 재시도
+    setTimeout(searchAddress,800);
+    return;
+  }
+  const geocoder=new kakao.maps.services.Geocoder();
+  const places=new kakao.maps.services.Places();
+  const results=[];
+  let done=0;
+  // 주소 검색
+  geocoder.addressSearch(query,function(res,status){
+    if(status===kakao.maps.services.Status.OK)res.forEach(r=>results.push({name:r.address_name,lat:r.y,lng:r.x,type:'주소'}));
+    done++;if(done===2)showResults();
+  });
+  // 키워드 검색 (건물명 등)
+  places.keywordSearch(query,function(res,status){
+    if(status===kakao.maps.services.Status.OK)res.forEach(r=>results.push({name:r.place_name+(r.road_address_name?' ('+r.road_address_name+')':''),lat:r.y,lng:r.x,type:'장소'}));
+    done++;if(done===2)showResults();
+  },{size:5});
+  function showResults(){
+    if(results.length===0){
+      resultEl.innerHTML='<div style="padding:10px 12px;font-size:12px;color:var(--text3)">검색 결과가 없습니다.</div>';
+      return;
+    }
     window._addrResults=results;
     if(results.length===1){applyAddress(results[0]);return;}
-    resultEl.innerHTML=results.map(function(r,i){
-      return '<div onclick="applyAddressIdx('+i+')" style="padding:8px 12px;font-size:12px;cursor:pointer;border-bottom:1px solid var(--border);color:var(--text2);" onmouseover="this.style.background=\'var(--bg3)\'" onmouseout="this.style.background=\'\'">'+
-        '<span style="color:var(--text);font-weight:600">'+r.name+'</span>'+
-        '<span style="margin-left:6px;font-size:10px;color:var(--blue);background:var(--bg3);padding:1px 5px;border-radius:4px;">'+r.type+'</span></div>';
-    }).join('');
-  };
-  var places=new kakao.maps.services.Places();
-  places.keywordSearch(query,function(res,status){
-    if(status===kakao.maps.services.Status.OK)res.forEach(function(r){results.push({name:r.place_name+(r.road_address_name?' ('+r.road_address_name+')':''),lat:parseFloat(r.y),lon:parseFloat(r.x),type:'장소'});});
-    finish();
-  },{size:5});
-  var geocoder=new kakao.maps.services.Geocoder();
-  geocoder.addressSearch(query,function(res,status){
-    if(status===kakao.maps.services.Status.OK)res.forEach(function(r){results.push({name:r.address_name,lat:parseFloat(r.y),lon:parseFloat(r.x),type:'주소'});});
-    finish();
-  });
+    resultEl.innerHTML=results.map((r,i)=>
+      `<div onclick="applyAddressIdx(${i})" style="padding:8px 12px;font-size:12px;cursor:pointer;border-bottom:1px solid var(--border);color:var(--text2);" onmouseover="this.style.background='var(--bg3)'" onmouseout="this.style.background=''">
+        <span style="color:var(--text);font-weight:600">${r.name}</span>
+        <span style="margin-left:6px;font-size:10px;color:var(--blue);background:var(--bg3);padding:1px 5px;border-radius:4px;">${r.type}</span>
+      </div>`).join('');
+  }
 }
 function applyAddressIdx(i){applyAddress(window._addrResults[i]);}
 function applyAddress(r){
   const name=r.name||r.address_name;
   document.getElementById('fLocation').value=name;
   document.getElementById('fLat').value=parseFloat(r.lat||r.y).toFixed(6);
-  document.getElementById('fLng').value=parseFloat(r.lon||r.lng||r.x).toFixed(6);
+  document.getElementById('fLng').value=parseFloat(r.lon||r.x).toFixed(6);
   document.getElementById('addrSearchResult').style.display='none';
   showToast('📍 주소가 적용됐습니다.');
 }
@@ -959,7 +976,6 @@ function renderDashboard(){
   document.getElementById('alertList').innerHTML=alerts.length?alerts.map(a=>`<div class="alert-item ${a.type}"><span class="alert-icon">${a.icon}</span><div><div class="alert-title">${a.title}</div><div class="alert-desc">${a.desc}</div></div></div>`).join(''):'<div style="color:var(--text3);font-size:12px;text-align:center;padding:20px">✅ 현재 알림이 없습니다</div>';
   document.getElementById('progressBars').innerHTML=projects.filter(p=>calcAutoStatus(p)!=='done').sort((a,b)=>calcProgress(b)-calcProgress(a)).map(p=>{const s=STATUS_CFG[p.status],prog=calcProgress(p);return`<div style="display:flex;align-items:center;gap:12px;margin-bottom:10px"><div style="width:160px;font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${p.name}</div><span class="status-pill" style="background:${s.bg};color:${s.color};min-width:80px;justify-content:center">${s.label}</span><div style="flex:1;height:6px;background:var(--bg);border-radius:3px;overflow:hidden"><div style="height:100%;width:${prog}%;background:linear-gradient(90deg,${s.color}88,${s.color});border-radius:3px"></div></div><span style="font-size:12px;font-weight:700;color:${s.color};min-width:32px">${prog}%</span><span style="font-size:11px;color:var(--text3);min-width:60px">~${p.end}</span></div>`;}).join('');
   renderCalendar();
-  setTimeout(syncAlertHeight,50);
 }
 
 // ═══════════════════════════════════
@@ -1025,242 +1041,4 @@ function renderCalendar(){
 }
 
 function getAlerts(){const alerts=[];const now=new Date();projects.forEach(p=>{if(p.status==='done')return;if(p.end){const parts=p.end.split('.');if(parts.length>=2){// 월말 기준으로 계산 (해당 월의 마지막 날)
-          const d=parts[2]?new Date(parseInt(parts[0]),parseInt(parts[1])-1,parseInt(parts[2])):new Date(parseInt(parts[0]),parseInt(parts[1]),0);const diff=Math.round((d-now)/(1000*60*60*24));if(diff>=0&&diff<=30)alerts.push({type:'danger',icon:'🚨',title:`마감 임박: ${p.name}`,desc:`${diff}일 후 종료`});else if(diff>=0&&diff<=90)alerts.push({type:'warn',icon:'⚠️',title:`마감 주의: ${p.name}`,desc:`${diff}일 후 종료`});}}if(p.risk==='high')alerts.push({type:'danger',icon:'🔴',title:`고위험: ${p.name}`,desc:'위험도 높음'});});const pp={};projects.filter(p=>calcAutoStatus(p)!=='done').forEach(p=>{(p.team||[]).forEach(m=>{if(!pp[m.name])pp[m.name]=[];pp[m.name].push(p.name);});});Object.entries(pp).forEach(([n,ps])=>{if(ps.length>1)alerts.push({type:'warn',icon:'👤',title:`인력 중복: ${n}`,desc:ps.join(', ')});});return alerts;}
-
-// ═══════════════════════════════════
-//  지도
-// ═══════════════════════════════════
-function initMap(){if(leafletMap)return;leafletMap=L.map('theMap',{zoomControl:false,preferCanvas:true}).setView([37.55,127.05],11);L.control.zoom({position:'bottomright'}).addTo(leafletMap);L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{attribution:'© OpenStreetMap © CARTO',maxZoom:19,subdomains:'abcd'}).addTo(leafletMap);markerLayerGroup=L.layerGroup().addTo(leafletMap);addHQMarker();}
-function addHQMarker(){const html=`<div class="marker-card marker-hq"><div class="mc-top"><span style="font-size:14px">🏢</span><span class="mc-status" style="color:var(--gold)">본사</span></div><div class="mc-name" style="color:var(--gold)">뱅크웨어글로벌</div><div class="mc-client" style="color:#a08040">서울 중구 시청 인근</div></div>`;const icon=L.divIcon({className:'',html,iconAnchor:[92,72]});const m=L.marker([HQ.lat,HQ.lng],{icon,zIndexOffset:1000}).addTo(leafletMap);m.bindPopup(`<div><div class="pu-head" style="border-bottom:1px solid #f0b42933"><div class="pu-badge" style="background:#2a2000;color:var(--gold)">🏢 본사</div><div class="pu-title" style="color:var(--gold)">뱅크웨어글로벌</div><div class="pu-loc">📍 ${HQ.address}</div></div><div class="pu-body"><div class="pi" style="margin-bottom:8px"><div class="pk">설립</div><div class="pv">2010년</div></div><div class="pi" style="margin-bottom:8px"><div class="pk">상장</div><div class="pv">KOSDAQ (2024.08)</div></div><div class="pi"><div class="pk">주요사업</div><div class="pv">금융 SI · 핀테크 솔루션</div></div></div></div>`,{maxWidth:280,minWidth:260});}
-let mapCurrentFilter='all';
-function renderMap(filter){if(!leafletMap)return;if(filter)mapCurrentFilter=filter;markerLayerGroup.clearLayers();let data=mapCurrentFilter==='all'?projects:projects.filter(p=>p.status===mapCurrentFilter);const memberMatch=searchQuery?projects.filter(p=>(p.team||[]).some(m=>m.name.includes(searchQuery))):[];if(memberMatch.length>0&&searchQuery){data=memberMatch;const lats=memberMatch.map(p=>p.lat),lngs=memberMatch.map(p=>p.lng);if(lats.length)leafletMap.fitBounds([[Math.min(...lats)-.05,Math.min(...lngs)-.05],[Math.max(...lats)+.05,Math.max(...lngs)+.05]]);}else if(searchQuery){data=data.filter(p=>p.name.toLowerCase().includes(searchQuery)||p.client.toLowerCase().includes(searchQuery)||(p.langs||[]).some(l=>l.toLowerCase().includes(searchQuery)));}data.forEach(p=>addMapMarker(p));}
-function mapFilter(status,btn){document.querySelectorAll('.mfp-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');renderMap(status);}
-function addMapMarker(p){const _st=calcAutoStatus(p);const s=STATUS_CFG[_st]||STATUS_CFG.plan,r=RISK_CFG[p.risk]||RISK_CFG.mid,prog=calcProgress(p);const isAdmin=userProfile&&userProfile.role==='admin';const html=`<div class="marker-card"><div class="mc-top"><span class="mc-dot" style="background:${s.color}"></span><span class="mc-status" style="color:${s.color}">${s.label}</span></div><div class="mc-name">${p.name}</div><div class="mc-client">${p.client}</div><div class="mc-bottom"><span class="mc-period">~ ${p.end||'-'}</span><span class="mc-members">👥 ${(p.team||[]).length}명</span></div></div>`;const icon=L.divIcon({className:'',html,iconAnchor:[92,82]});const marker=L.marker([p.lat,p.lng],{icon}).addTo(markerLayerGroup);const budgetRow=isAdmin?`<div class="pi"><div class="pk">계약규모</div><div class="pv">${p.budget}</div></div>`:'';const riskRow=isAdmin?`<span class="risk-pill" style="background:${r.bg};color:${r.color}">위험 ${r.label}</span>`:'';const editRow=isAdmin&&(p.updatedBy||p.createdBy)?`<div style="font-size:10px;color:var(--text3);margin-top:6px">✏️ ${p.updatedBy||p.createdBy} · ${fmtDate(p.updatedAt||p.createdAt)}</div>`:'';marker.bindPopup(`<div><div class="pu-head"><div class="pu-badge" style="background:${s.bg};color:${s.color}">${s.label}</div><div class="pu-title">${p.name}</div><div class="pu-loc">📍 ${p.location} · 🏢 ${p.client}</div></div><div class="pu-body"><div class="pu-prog-wrap"><div class="pu-prog-top"><span>진행률 (자동)</span><strong style="color:${s.color}">${prog}%</strong></div><div class="pu-prog-track"><div class="pu-prog-fill" style="width:${prog}%;background:${s.color}"></div></div></div><div class="pu-g2"><div class="pi"><div class="pk">기간</div><div class="pv" style="font-size:10px">${p.start} ~ ${p.end}</div></div><div class="pi">${p.openDate?`<div class="pk">오픈일</div><div class="pv" style="color:#a855f7">🚀 ${p.openDate}</div>`:''}</div><div class="pi"><div class="pk">인원</div><div class="pv">${(p.team||[]).length}명</div></div><div class="pi"><div class="pk">유형</div><div class="pv">${p.type}</div></div>${budgetRow}</div><div class="pu-tags">${(p.langs||[]).map(l=>`<span class="pu-tag">${l}</span>`).join('')}</div></div><div class="pu-foot"><div class="pu-pm"><div class="pu-pm-av">${(p.pm||'?')[0]}</div><div><div class="pu-pm-name">PM · ${p.pm}</div><div class="pu-pm-role">Project Manager</div></div></div>${riskRow}<button id="teambtn-${p.id}" class="team-toggle-btn" onclick="toggleTeam('${p.id}')">👥 멤버 보기</button></div>${editRow}<div id="team-${p.id}" class="pu-team" style="display:none"><div class="pu-team-title">팀 구성원</div>${(p.team&&p.team.length)?p.team.map(t=>`<div class="pu-team-row"><div class="pu-team-av">${(t.name||'?')[0]}</div><div class="pu-team-name">${t.name}</div><div class="pu-team-role">${t.role}</div></div>`).join(''):'<div style="font-size:11px;color:var(--text3)">팀원 정보 없음</div>'}</div></div>`,{maxWidth:320,minWidth:320});}
-
-// ═══════════════════════════════════
-//  프로젝트 목록
-// ═══════════════════════════════════
-function fmtDate(ts){if(!ts)return'-';const d=ts.toDate?ts.toDate():new Date(ts);const diff=Math.floor((Date.now()-d)/1000);if(diff<60)return '방금 전';if(diff<3600)return Math.floor(diff/60)+'분 전';if(diff<86400)return Math.floor(diff/3600)+'시간 전';if(diff<86400*7)return Math.floor(diff/86400)+'일 전';return d.toLocaleDateString('ko-KR');}
-function renderProjects(){const isAdmin=userProfile&&userProfile.role==='admin';document.getElementById('projCount').textContent=`(${projects.length}건)`;document.getElementById('projTable').innerHTML=projects.map(p=>{const s=STATUS_CFG[p.status]||STATUS_CFG.plan,r=RISK_CFG[p.risk]||RISK_CFG.mid,prog=calcProgress(p);const actions=isAdmin?`<div class="action-btns"><button class="btn-sm btn-edit" onclick="openProjModal('${p.id}')">수정</button><button class="btn-sm btn-del" onclick="deleteProject('${p.id}')">삭제</button></div>`:'-';const riskCell=isAdmin?`<td style="color:${r.color}">${r.label}</td>`:'';const budgetCell=isAdmin?`<td style="font-size:11px">${p.budget}</td>`:'';const editCell=isAdmin?`<td style="font-size:11px"><div style="font-weight:600;color:var(--text)">${p.updatedBy||p.createdBy||'-'}</div><div style="color:var(--text3);margin-top:2px">${fmtDate(p.updatedAt||p.createdAt)}</div></td>`:'';const actionCell=isAdmin?`<td>${actions}</td>`:'';return`<tr><td style="font-weight:600">${p.name}</td><td style="color:var(--text2)">${p.client}</td><td>${p.pm}</td><td><span class="status-pill" style="background:${s.bg};color:${s.color}">${s.label}</span></td><td style="font-size:11px;color:var(--text2)">${p.start} ~ ${p.end}</td><td>${(p.team||[]).length}명</td><td><div class="progress-cell"><div class="prog-bar"><div class="prog-fill" style="width:${prog}%;background:${s.color}"></div></div><span class="prog-pct">${prog}%</span></div></td>${riskCell}${budgetCell}${editCell}${actionCell}</tr>`;}).join('');}
-
-// ═══════════════════════════════════
-//  인력 현황
-// ═══════════════════════════════════
-function renderResources(){const pm={};projects.filter(p=>calcAutoStatus(p)!=='done').forEach(p=>{(p.team||[]).forEach(m=>{if(!pm[m.name])pm[m.name]={name:m.name,roles:[],projects:[]};pm[m.name].projects.push({name:p.name,status:p.status,role:m.role});if(!pm[m.name].roles.includes(m.role))pm[m.name].roles.push(m.role);});});const people=Object.values(pm).sort((a,b)=>b.projects.length-a.projects.length);const conflicts=people.filter(p=>p.projects.length>1).length;document.getElementById('conflictBadge').style.display=conflicts?'inline':'none';document.getElementById('conflictBadge').textContent=conflicts;document.getElementById('resCount').textContent=`(${people.length}명)`;const colors=['#4f9eff','#4fcc7a','#a855f7','#f59e0b','#ef4444','#06b6d4','#ec4899'];document.getElementById('resourceGrid').innerHTML=people.map((person,idx)=>{const bg=colors[idx%colors.length],isConflict=person.projects.length>1;const projHtml=person.projects.map(proj=>{const s=STATUS_CFG[proj.status]||STATUS_CFG.plan;return`<div class="rc-proj-item"><span class="rc-proj-dot" style="background:${s.color}"></span><span class="rc-proj-name">${proj.name}</span><span class="rc-util" style="background:${s.bg};color:${s.color}">${proj.role}</span></div>`;}).join('');const conflictHtml=isConflict?`<div class="conflict-badge">⚠️ 중복 투입 (${person.projects.length}개) <button onclick="searchMember('${person.name}')" style="background:none;border:none;color:var(--blue);cursor:pointer;font-size:10px;margin-left:4px">지도보기 →</button></div>`:'';return`<div class="resource-card" style="${isConflict?'border-color:#ef444433':''}"><div class="rc-top"><div class="rc-avatar" style="background:${bg}33;color:${bg};border:1px solid ${bg}44">${person.name[0]}</div><div><div class="rc-name">${person.name}</div><div class="rc-title">${[...new Set(person.roles)].join(' / ')}</div></div></div><div>${projHtml}</div>${conflictHtml}</div>`;}).join('');}
-function searchMember(name){document.getElementById('globalSearch').value=name;searchQuery=name.toLowerCase();goPage('map');}
-
-// ═══════════════════════════════════
-//  사용자 관리
-// ═══════════════════════════════════
-async function renderUsers(){
-  const snap=await db.collection('users').get();
-  appUsers=snap.docs.map(d=>d.data());
-  document.getElementById('userCount').textContent=`(${appUsers.length}명)`;
-  document.getElementById('usersTable').innerHTML=appUsers.map(u=>{
-    const statusBadge=u.isActive===false?`<span class="user-status-badge badge-inactive">비활성</span>`:u.mustChangePassword?`<span class="user-status-badge badge-pending">초대됨</span>`:`<span class="user-status-badge badge-active">활성</span>`;
-    const roleBadge=u.role==='admin'?`<span class="role-badge role-admin">관리자</span>`:`<span class="role-badge role-viewer">일반직원</span>`;
-    const isSelf=currentUser&&u.uid===currentUser.uid;
-    const isOwner=!!u.isOwner;
-    const createdAt=u.createdAt?new Date(u.createdAt.seconds*1000).toLocaleDateString('ko-KR'):'-';
-    const actions=isSelf?'<span style="font-size:11px;color:var(--text3)">(본인)</span>':isOwner?'<span style="font-size:11px;color:var(--gold)">👑 오너</span>':`
-      <div class="action-btns">
-        <button class="btn-sm btn-edit" onclick="toggleRole('${u.uid}','${u.role}')">${u.role==='admin'?'일반으로':'관리자로'}</button>
-        <button class="btn-sm btn-warn" onclick="resendInvite('${u.email}')">재초대</button>
-        ${u.isActive!==false?`<button class="btn-sm btn-del" onclick="deactivateUser('${u.uid}')">비활성화</button>`:`<button class="btn-sm btn-edit" onclick="activateUser('${u.uid}')">활성화</button>`}
-        <button class="btn-sm btn-del" onclick="deleteUser('${u.uid}','${u.name||u.email}')">삭제</button>
-      </div>`;
-    return`<tr><td style="font-weight:600">${u.name||'-'}</td><td style="color:var(--text2)">${u.email}</td><td>${roleBadge}</td><td>${statusBadge}</td><td style="font-size:11px;color:var(--text3)">${createdAt}</td><td>${actions}</td></tr>`;
-  }).join('');}
-
-function openAddUserModal(){
-  document.getElementById('inviteName').value='';
-  document.getElementById('inviteEmail').value='';
-  document.getElementById('inviteRole').value='viewer';
-  document.getElementById('inviteErr').style.display='none';
-  document.getElementById('inviteOk').style.display='none';
-  document.getElementById('addUserModalOverlay').classList.add('open');}
-function closeAddUserModal(){document.getElementById('addUserModalOverlay').classList.remove('open');}
-
-async function inviteUser(){
-  const name=document.getElementById('inviteName').value.trim();
-  const email=document.getElementById('inviteEmail').value.trim();
-  const role=document.getElementById('inviteRole').value;
-  const err=document.getElementById('inviteErr'),ok=document.getElementById('inviteOk');
-  const btn=document.getElementById('inviteBtn');
-  err.style.display='none';ok.style.display='none';
-  if(!name||!email){err.textContent='이름과 이메일을 입력해주세요.';err.style.display='block';return;}
-  btn.disabled=true;btn.textContent='처리 중...';
-  try{
-    // Firebase REST API로 사용자 생성 (현재 관리자 세션 유지)
-    const tempPw=generateTempPw();
-    const res=await fetch(`https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=${firebaseConfig.apiKey}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email,password:tempPw,returnSecureToken:false})});
-    const data=await res.json();
-    if(data.error)throw new Error(data.error.message==='EMAIL_EXISTS'?'이미 존재하는 이메일입니다.':data.error.message);
-    const uid=data.localId;
-    // Firestore에 사용자 프로필 저장
-    await db.collection('users').doc(uid).set({uid,name,email,role,mustChangePassword:true,isActive:true,createdAt:firebase.firestore.FieldValue.serverTimestamp()});
-    // 비밀번호 설정 이메일 발송 (초대 이메일 역할)
-    await auth.sendPasswordResetEmail(email);
-    ok.textContent=`✅ ${name}님께 초대 이메일을 발송했습니다. 이메일을 확인해 비밀번호를 설정하면 로그인할 수 있습니다.`;
-    ok.style.display='block';
-    renderUsers();
-  }catch(e){err.textContent=e.message||firebaseErrMsg(e.code);err.style.display='block';}
-  btn.disabled=false;btn.textContent='✉️ 초대 이메일 발송';}
-
-async function toggleRole(uid,currentRole){
-  const target=appUsers.find(u=>u.uid===uid);
-  if(target&&target.isOwner){showToast('최초 관리자(오너)의 역할은 변경할 수 없습니다.');return;}
-  const newRole=currentRole==='admin'?'viewer':'admin';
-  if(!confirm(`역할을 ${newRole==='admin'?'관리자':'일반직원'}로 변경하시겠습니까?`))return;
-  await db.collection('users').doc(uid).update({role:newRole});
-  showToast('역할이 변경됐습니다.');renderUsers();}
-
-async function deactivateUser(uid){
-  if(!confirm('이 사용자를 비활성화하면 로그인할 수 없습니다. 계속하시겠습니까?'))return;
-  await db.collection('users').doc(uid).update({isActive:false});
-  showToast('비활성화됐습니다.');renderUsers();}
-
-async function activateUser(uid){
-  await db.collection('users').doc(uid).update({isActive:true});
-  showToast('활성화됐습니다.');renderUsers();}
-
-async function resendInvite(email){
-  await auth.sendPasswordResetEmail(email);
-  showToast(`${email}로 초대 이메일을 재발송했습니다.`);}
-
-async function deleteUser(uid, name){
-  if(!confirm(`"${name}" 사용자를 삭제하시겠습니까?\n삭제하면 즉시 로그인이 차단됩니다.`))return;
-  await db.collection('users').doc(uid).delete();
-  showToast(`${name} 사용자가 삭제됐습니다.`);
-  renderUsers();}
-
-function generateTempPw(){return Math.random().toString(36).slice(-6)+Math.random().toString(36).toUpperCase().slice(-4)+'!9';}
-
-// ═══════════════════════════════════
-//  프로젝트 CRUD
-// ═══════════════════════════════════
-function openProjModal(id){
-  document.getElementById('projModalOverlay').classList.add('open');
-  if(id){const p=projects.find(x=>x.id===id);if(!p)return;document.getElementById('projModalTitle').textContent='프로젝트 수정';document.getElementById('fId').value=p.id;document.getElementById('fName').value=p.name||'';document.getElementById('fClient').value=p.client||'';document.getElementById('fPm').value=p.pm||'';document.getElementById('fLocation').value=p.location||'';document.getElementById('fLat').value=p.lat||'';document.getElementById('fLng').value=p.lng||'';document.getElementById('fStatus').value=p.status||'plan';document.getElementById('fRisk').value=p.risk||'mid';document.getElementById('fStart').value=p.start||'';document.getElementById('fEnd').value=p.end||'';document.getElementById('fMembers').value=p.members||'';document.getElementById('fBudget').value=p.budget||'';document.getElementById('fType').value=p.type||'신규개발';document.getElementById('fLangs').value=(p.langs||[]).join(', ');document.getElementById('fTeam').value=(p.team||[]).map(t=>`${t.name}:${t.role}`).join(', ');document.getElementById('fDesc').value=p.desc||'';document.getElementById('fOpenDate').value=p.openDate||'';
-document.getElementById('fDesignEnd').value=p.designEnd||'';
-document.getElementById('fDevEnd').value=p.devEnd||'';
-document.getElementById('fTestEnd').value=p.testEnd||'';
-updateAutoStatusPreview();}
-  else{document.getElementById('projModalTitle').textContent='프로젝트 추가';document.getElementById('fId').value='';['fName','fClient','fPm','fLocation','fLat','fLng','fStart','fEnd','fOpenDate','fDesignEnd','fDevEnd','fTestEnd','fMembers','fBudget','fLangs','fTeam','fDesc'].forEach(i=>document.getElementById(i).value='');document.getElementById('fStatus').value='plan';document.getElementById('fType').value='신규개발';document.getElementById('fRisk').value='mid';}}
-function closeProjModal(){document.getElementById('projModalOverlay').classList.remove('open');}
-async function saveProject(){const name=document.getElementById('fName').value.trim();if(!name){showToast('프로젝트명을 입력해주세요.');return;}const id=document.getElementById('fId').value,docId=id||('p'+Date.now());const now=firebase.firestore.FieldValue.serverTimestamp();const editor=userProfile?userProfile.name||userProfile.email:'unknown';const p={id:docId,name,client:document.getElementById('fClient').value,pm:document.getElementById('fPm').value,location:document.getElementById('fLocation').value,lat:parseFloat(document.getElementById('fLat').value)||37.5665,lng:parseFloat(document.getElementById('fLng').value)||126.9780,status:document.getElementById('fStatus').value,start:document.getElementById('fStart').value,end:document.getElementById('fEnd').value,members:(document.getElementById('fTeam').value?document.getElementById('fTeam').value.split(',').map(s=>s.trim()).filter(Boolean).length:0),budget:document.getElementById('fBudget').value,type:document.getElementById('fType').value,risk:document.getElementById('fRisk').value,langs:document.getElementById('fLangs').value?document.getElementById('fLangs').value.split(',').map(s=>s.trim()).filter(Boolean):[],team:document.getElementById('fTeam').value?document.getElementById('fTeam').value.split(',').map(s=>{const[n,r]=s.trim().split(':');return{name:(n||'').trim(),role:(r||'').trim()};}).filter(t=>t.name):[],desc:document.getElementById('fDesc').value,openDate:document.getElementById('fOpenDate').value.trim()||'',
-    designEnd:document.getElementById('fDesignEnd').value.trim()||'',
-    devEnd:document.getElementById('fDevEnd').value.trim()||'',
-    testEnd:document.getElementById('fTestEnd').value.trim()||'',updatedBy:editor,updatedAt:now};if(!id){p.createdBy=editor;p.createdAt=now;await db.collection('projects').doc(docId).set(p);}
-  else{// 수정 시 createdBy/createdAt 건드리지 않음
-    const {createdBy,createdAt,...updateData}=p;
-    await db.collection('projects').doc(docId).update(updateData);}closeProjModal();showToast(id?'수정됐습니다.':'추가됐습니다.');}
-async function deleteProject(id){if(!confirm('정말 삭제하시겠습니까?'))return;await db.collection('projects').doc(id).delete();showToast('삭제됐습니다.');}
-
-// ═══════════════════════════════════
-//  엑셀
-// ═══════════════════════════════════
-// 빈 양식 다운로드
-function downloadTemplate(){
-  // 위도/경도 컬럼 추가, 팀원 형식을 업로드와 일치(이름:역할)
-  const headers=[{'프로젝트명':'(예시) 우리카드 통합단말 재구축','고객사':'우리카드','PM':'김정후 상무','위치':'서울 상암','위도':37.5793,'경도':126.8897,'상태':'개발 중','시작일':'2025.01','종료일':'2026.12','투입인원':10,'계약규모':'15억','유형':'재구축','위험도':'보통','기술스택':'Java, Spring, Oracle','팀원':'김철수:개발, 이영희:기획','개요':'프로젝트 설명'}];
-  const ws=XLSX.utils.json_to_sheet(headers),wb=XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb,ws,'프로젝트');
-  XLSX.writeFile(wb,'프로젝트맵_업로드양식.xlsx');
-  showToast('양식 파일을 다운로드했습니다. 2행부터 실제 데이터를 입력하세요.');}
-
-// 현재 데이터 다운로드
-function downloadExcel(){
-  const data=projects.map(p=>({'프로젝트명':p.name,'고객사':p.client,'PM':p.pm,'위치':p.location,'위도':p.lat||'','경도':p.lng||'','상태':STATUS_CFG[p.status]?.label,'시작일':p.start,'종료일':p.end,'오픈일':p.openDate||'','투입인원':(p.team||[]).length,'계약규모':p.budget,'유형':p.type,'위험도':RISK_CFG[p.risk]?.label,'기술스택':(p.langs||[]).join(', '),'팀원':(p.team||[]).map(t=>`${t.name}:${t.role}`).join(', '),'개요':p.desc||''}));
-  const ws=XLSX.utils.json_to_sheet(data),wb=XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb,ws,'프로젝트');
-  const _d=new Date();const _ds=`${_d.getFullYear()}${String(_d.getMonth()+1).padStart(2,'0')}${String(_d.getDate()).padStart(2,'0')}`;XLSX.writeFile(wb,`프로젝트맵_현황_${_ds}.xlsx`);
-  showToast('엑셀 다운로드 완료');}
-
-// 엑셀 날짜 시리얼 → "YYYY.MM" 문자열 변환
-function excelDateToStr(val){
-  if(!val)return'';
-  // 이미 문자열이면 그대로
-  if(typeof val==='string')return val.trim();
-  // 숫자(Excel 시리얼)이면 변환
-  if(typeof val==='number'){
-    const d=new Date(Math.round((val-25569)*86400*1000));
-    return`${d.getUTCFullYear()}.${String(d.getUTCMonth()+1).padStart(2,'0')}`;
-  }
-  return String(val);}
-
-// 엑셀 업로드 (프로젝트명 기준 중복 방지)
-function uploadExcel(e){
-  const file=e.target.files[0];if(!file)return;
-  const reader=new FileReader();
-  reader.onload=async evt=>{
-    const wb=XLSX.read(evt.target.result,{type:'binary',cellDates:false}),ws=wb.Sheets[wb.SheetNames[0]],rows=XLSX.utils.sheet_to_json(ws,{raw:true});
-    const sm={'개발 중':'dev','테스트':'test','운영안정화':'stable','설계':'plan','종료':'done'};
-    const rm={'낮음':'low','보통':'mid','높음':'high'};
-    // 기존 프로젝트를 name→id 맵으로 관리 (업데이트용)
-    const existingMap=new Map(projects.map(p=>[p.name.trim(),p.id]));
-    let added=0,updated=0,errors=[];
-    for(const row of rows){
-      const name=(row['프로젝트명']||'').trim();
-      if(!name||name.startsWith('(예시)'))continue;
-      const lat=parseFloat(row['위도'])||37.5665;
-      const lng=parseFloat(row['경도'])||126.9780;
-      const start=excelDateToStr(row['시작일']);
-      const end=excelDateToStr(row['종료일']);
-      const team=row['팀원']?row['팀원'].toString().split(',').map(s=>{const[n,r]=s.trim().split(':');return{name:(n||'').trim(),role:(r||'').trim()};}).filter(t=>t.name):[];
-      const isExisting=existingMap.has(name);
-      const docId=isExisting?existingMap.get(name):'p'+Date.now()+added;
-      const data={id:docId,name,
-        client:row['고객사']||'',pm:row['PM']||'',location:row['위치']||'',
-        lat,lng,
-        status:sm[row['상태']]||'plan',
-        start,end,
-        members:parseInt(row['투입인원'])||0,budget:String(row['계약규모']||''),
-        type:row['유형']||'신규개발',risk:rm[row['위험도']]||'mid',
-        langs:row['기술스택']?row['기술스택'].toString().split(',').map(s=>s.trim()).filter(Boolean):[],
-        team,desc:row['개요']||''};
-      try{
-        if(isExisting){
-          await db.collection('projects').doc(docId).update(data);
-          updated++;
-        }else{
-          await db.collection('projects').doc(docId).set(data);
-          existingMap.set(name,docId);added++;
-        }
-      }catch(err){errors.push(name);}
-    }
-    let msg=`${added}개 추가`;
-    if(updated>0)msg+=`, ${updated}개 업데이트`;
-    if(errors.length)msg+=`, 오류 ${errors.length}건`;
-    showToast(msg);
-    e.target.value='';
-  };
-  reader.readAsBinaryString(file);}
-
-// ═══════════════════════════════════
-//  검색
-// ═══════════════════════════════════
-function onGlobalSearch(val){searchQuery=val.toLowerCase();if(currentPage==='map')renderMap();if(currentPage==='projects'){document.querySelectorAll('#projTable tr').forEach(tr=>{tr.style.display=tr.textContent.toLowerCase().includes(searchQuery)?'':'none';});}}
-
-// ═══════════════════════════════════
-//  유틸
-// ═══════════════════════════════════
-function firebaseErrMsg(code){const msgs={'auth/email-already-in-use':'이미 사용 중인 이메일입니다.','auth/invalid-email':'올바른 이메일 형식이 아닙니다.','auth/weak-password':'비밀번호가 너무 짧습니다. (6자 이상)','auth/user-not-found':'등록된 이메일이 아닙니다.','auth/wrong-password':'비밀번호가 올바르지 않습니다.','auth/too-many-requests':'너무 많은 시도입니다. 잠시 후 다시 시도해주세요.','auth/requires-recent-login':'보안을 위해 다시 로그인 후 시도해주세요.'};return msgs[code]||'오류가 발생했습니다. 다시 시도해주세요.';}
-function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2800);}
-document.getElementById('projModalOverlay').addEventListener('click',function(e){if(e.target===this)closeProjModal();});
-document.getElementById('addUserModalOverlay').addEventListener('click',function(e){if(e.target===this)closeAddUserModal();});
-document.getElementById('changePwModalOverlay').addEventListener('click',function(e){if(e.target===this)closeChangePwModal();});
-document.getElementById('setupPw').addEventListener('input',e=>checkPwStrength(e.target.value,'setupPwBar','setupPwHint'));
-function toggleUserMenu(){const m=document.getElementById('userMenu');m.classList.toggle('open');}
-document.addEventListener('click',e=>{const chip=document.getElementById('userChip');if(chip&&!chip.contains(e.target)){document.getElementById('userMenu')?.classList.remove('open');}});
-
-function syncAlertHeight(){
-  var leftCol=document.querySelector('.dash-grid>div:first-child');
-  var alertCard=document.getElementById('alertCard');
-  if(leftCol&&alertCard){
-    alertCard.style.maxHeight=leftCol.offsetHeight+'px';
-  }
-}
-</script>
-</body>
-</html>
+          const d=parts[2]?new Date(parseInt(parts[0]),parseInt(parts[1])-1,parseInt(parts[2])):new Date(parseInt(parts[0]),parseInt(parts[1]),0);const diff=Math.round((d-now)/(1000*60*60*24));if(diff>=0&&diff<=30)alerts.push({type:'danger',icon:'🚨',title:`마감 임박: ${p.name}`,desc:`${diff}일 후 종료`});else if(diff>=0&&diff<=90)alerts.push({type:'warn',icon:'⚠️',title:`마감 주의: ${p.name}`,desc:`${diff}일 
