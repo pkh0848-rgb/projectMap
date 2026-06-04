@@ -1401,20 +1401,20 @@ document.getElementById('setupPw').addEventListener('input',e=>checkPwStrength(e
   const tip=document.getElementById('calTooltip');
   document.addEventListener('mouseover',function(e){
     const el=e.target.closest('[data-tip]');
-    if(!el){tip.style.display='none';return;}
-    tip.textContent=el.getAttribute('data-tip');
-    tip.style.display='block';
+    if(el){
+      tip.textContent=el.getAttribute('data-tip');
+      tip.style.display='block';
+    } else {
+      tip.style.display='none';
+    }
   });
   document.addEventListener('mousemove',function(e){
     if(tip.style.display==='none')return;
     const x=e.clientX,y=e.clientY;
     const tw=tip.offsetWidth,th=tip.offsetHeight;
     const vw=window.innerWidth,vh=window.innerHeight;
-    tip.style.left=(x+tw+14>vw?x-tw-6:x+12)+'px';
-    tip.style.top=(y+th+14>vh?y-th-6:y+14)+'px';
-  });
-  document.addEventListener('mouseout',function(e){
-    if(!e.target.closest('[data-tip]'))tip.style.display='none';
+    tip.style.left=(x+tw+16>vw?x-tw-4:x+14)+'px';
+    tip.style.top=(y+th+16>vh?y-th-4:y+16)+'px';
   });
 })();
 function toggleUserMenu(){const m=document.getElementById('userMenu');m.classList.toggle('open');}
