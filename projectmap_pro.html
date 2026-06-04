@@ -1244,22 +1244,22 @@ async function deleteProject(id){if(!confirm('정말 삭제하시겠습니까?')
 function downloadTemplate(){
   // 컬럼 정의: [key, 예시값, 필수여부, 너비(chars)]
   const cols=[
-    ['프로젝트명*','(예시) 우리카드 통합단말 재구축',true,36],
-    ['고객사*','우리카드',true,16],
-    ['PM*','김정후 상무',true,16],
-    ['위치주소','서울 상암 디지털단지',false,24],
-    ['시작일*','2025.01.01',true,14],
-    ['종료일*','2026.12.31',true,14],
-    ['설계완료일','2025.05.30',false,14],
-    ['개발완료일','2026.03.31',false,14],
-    ['테스트완료일','2026.05.31',false,14],
-    ['오픈일','2026.06.01',false,14],
-    ['계약규모','15억',false,12],
-    ['유형','재구축',false,12],
+    ['프로젝트명*','(예시) 우리카드 통합단말 재구축',true,28],
+    ['고객사*','우리카드',true,14],
+    ['PM*','김정후 상무',true,14],
+    ['위치주소','서울 상암 디지털단지',false,20],
+    ['시작일*','2025.01.01',true,12],
+    ['종료일*','2026.12.31',true,12],
+    ['설계완료일','2025.05.30',false,12],
+    ['개발완료일','2026.03.31',false,12],
+    ['테스트완료일','2026.05.31',false,13],
+    ['오픈일','2026.06.01',false,12],
+    ['계약규모','15억',false,10],
+    ['유형','재구축',false,10],
     ['위험도','보통',false,10],
-    ['기술스택','Java, Spring, Oracle',false,28],
-    ['팀원','김철수:개발, 이영희:기획',false,28],
-    ['개요','프로젝트 설명',false,32],
+    ['기술스택','Java, Spring, Oracle',false,24],
+    ['팀원','김철수:개발, 이영희:기획',false,24],
+    ['개요','프로젝트 설명',false,28],
   ];
   const row={};cols.forEach(([k,,],i)=>row[k]=cols[i][1]);
   const ws=XLSX.utils.json_to_sheet([row]);
@@ -1286,25 +1286,15 @@ function downloadTemplate(){
 
 // 현재 데이터 다운로드
 function downloadExcel(){
-  const data=projects.map(p=>({'프로젝트명':p.name,'고객사':p.client,'PM':p.pm,'위치':p.location,'위도':p.lat||'','경도':p.lng||'','상태':STATUS_CFG[p.status]?.label,'시작일':p.start,'종료일':p.end,'오픈일':p.openDate||'','투입인원':(p.team||[]).length,'계약규모':p.budget,'유형':p.type,'위험도':RISK_CFG[p.risk]?.label,'기술스택':(p.langs||[]).join(', '),'팀원':(p.team||[]).map(t=>`${t.name}:${t.role}`).join(', '),'개요':p.desc||''}));
-  const ws=XLSX.utils.json_to_sheet(data),wb=XLSX.utils.book_new();
+  const data=projects.map(p=>({'프로젝트명':p.name,'고객사':p.client,'PM':p.pm,'위치주소':p.location,'시작일':p.start,'종료일':p.end,'설계완료일':p.designEnd||'','개발완료일':p.devEnd||'','테스트완료일':p.testEnd||'','오픈일':p.openDate||'','계약규모':p.budget||'','유형':p.type||'','위험도':RISK_CFG[p.risk]?.label||p.risk||'','기술스택':(p.langs||[]).join(', '),'팀원':(p.team||[]).map(t=>t.name+(t.role?':'+t.role:'')).join(', '),'개요':p.desc||''}));
+  const ws=XLSX.utils.json_to_sheet(data);
+  ws['!cols']=[{wch:28},{wch:14},{wch:14},{wch:20},{wch:12},{wch:12},{wch:12},{wch:12},{wch:13},{wch:12},{wch:10},{wch:10},{wch:10},{wch:24},{wch:24},{wch:28}];
+  const wb=XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb,ws,'프로젝트');
-  const _d=new Date();const _ds=`${_d.getFullYear()}${String(_d.getMonth()+1).padStart(2,'0')}${String(_d.getDate()).padStart(2,'0')}`;XLSX.writeFile(wb,`프로젝트맵_현황_${_ds}.xlsx`);
+  const _d=new Date();
+  const _ds=`${_d.getFullYear()}${String(_d.getMonth()+1).padStart(2,'0')}${String(_d.getDate()).padStart(2,'0')}`;
+  XLSX.writeFile(wb,`프로젝트맵_현황_${_ds}.xlsx`);
   showToast('엑셀 다운로드 완료');}
-
-// 엑셀 날짜 시리얼 → "YYYY.MM" 문자열 변환
-function excelDateToStr(val){
-  if(!val)return'';
-  // 이미 문자열이면 그대로
-  if(typeof val==='string')return val.trim();
-  // 숫자(Excel 시리얼)이면 변환
-  if(typeof val==='number'){
-    const d=new Date(Math.round((val-25569)*86400*1000));
-    return`${d.getUTCFullYear()}.${String(d.getUTCMonth()+1).padStart(2,'0')}`;
-  }
-  return String(val);}
-
-// 엑셀 업로드 (프로젝트명 기준 중복 방지)
 function uploadExcel(e){
   const file=e.target.files[0];if(!file)return;
   const reader=new FileReader();
