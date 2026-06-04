@@ -436,7 +436,7 @@ tr:hover td{background:var(--bg3);}
           </div>
         </div>
         <div class="table-wrap"><table>
-          <thead><tr><th>프로젝트명</th><th>고객사</th><th>PM</th><th>상태</th><th>기간</th><th>인원</th><th>진행률</th><th class="admin-only">위험도</th><th class="admin-only">계약규모</th><th class="admin-only">최종 수정</th><th class="admin-only">관리</th></tr></thead>
+          <thead><tr><th onclick="setSortKey('name')" style="cursor:pointer;user-select:none">프로젝트명<span id="si-name" style="font-size:10px;color:var(--text3)"> ⇅</span></th><th onclick="setSortKey('client')" style="cursor:pointer;user-select:none">고객사<span id="si-client" style="font-size:10px;color:var(--text3)"> ⇅</span></th><th>PM</th><th onclick="setSortKey('status')" style="cursor:pointer;user-select:none">상태<span id="si-status" style="font-size:10px;color:var(--text3)"> ⇅</span></th><th onclick="setSortKey('period')" style="cursor:pointer;user-select:none">기간<span id="si-period" style="font-size:10px;color:var(--text3)"> ⇅</span></th><th onclick="setSortKey('members')" style="cursor:pointer;user-select:none">인원<span id="si-members" style="font-size:10px;color:var(--text3)"> ⇅</span></th><th onclick="setSortKey('progress')" style="cursor:pointer;user-select:none">진행률<span id="si-progress" style="font-size:10px;color:var(--text3)"> ⇅</span></th><th class="admin-only" onclick="setSortKey('risk')" style="cursor:pointer;user-select:none">위험도<span id="si-risk" style="font-size:10px;color:var(--text3)"> ⇅</span></th><th class="admin-only" onclick="setSortKey('budget')" style="cursor:pointer;user-select:none">계약규모<span id="si-budget" style="font-size:10px;color:var(--text3)"> ⇅</span></th><th class="admin-only">최종 수정</th><th class="admin-only">관리</th></tr></thead>
           <tbody id="projTable"></tbody>
         </table></div>
       </div></div>
@@ -896,7 +896,7 @@ function startRealtime(){
       }
     });
     // 프로젝트: 생성일 내림차순 (최신 추가 우선). 수정해도 순서 안 바뀜
-    projects.sort((a,b)=>{const ta=a.createdAt?.seconds||0,tb=b.createdAt?.seconds||0;return tb-ta;});
+    projects.sort((a,b)=>{const na=parseInt(a.id.replace("p",""))||0,nb=parseInt(b.id.replace("p",""))||0;return na-nb;});
     document.getElementById('syncIndicator').className='sync-ok';
     document.getElementById('syncIndicator').textContent='● 실시간 연결';
     if(currentPage==='dashboard')renderDashboard();
@@ -1055,7 +1055,77 @@ function addMapMarker(p){const _st=calcAutoStatus(p);const s=STATUS_CFG[_st]||ST
 //  프로젝트 목록
 // ═══════════════════════════════════
 function fmtDate(ts){if(!ts)return'-';const d=ts.toDate?ts.toDate():new Date(ts);const diff=Math.floor((Date.now()-d)/1000);if(diff<60)return '방금 전';if(diff<3600)return Math.floor(diff/60)+'분 전';if(diff<86400)return Math.floor(diff/3600)+'시간 전';if(diff<86400*7)return Math.floor(diff/86400)+'일 전';return d.toLocaleDateString('ko-KR');}
-function renderProjects(){const isAdmin=userProfile&&userProfile.role==='admin';document.getElementById('projCount').textContent=`(${projects.length}건)`;document.getElementById('projTable').innerHTML=projects.map(p=>{const s=STATUS_CFG[calcAutoStatus(p)]||STATUS_CFG.none,r=RISK_CFG[p.risk]||RISK_CFG.mid,prog=calcProgress(p);const actions=isAdmin?`<div class="action-btns"><button class="btn-sm btn-edit" onclick="openProjModal('${p.id}')">수정</button><button class="btn-sm btn-del" onclick="deleteProject('${p.id}')">삭제</button></div>`:'-';const riskCell=isAdmin?`<td style="color:${r.color}">${r.label}</td>`:'';const budgetCell=isAdmin?`<td style="font-size:11px">${p.budget}</td>`:'';const editCell=isAdmin?`<td style="font-size:11px"><div style="font-weight:600;color:var(--text)">${p.updatedBy||p.createdBy||'-'}</div><div style="color:var(--text3);margin-top:2px">${fmtDate(p.updatedAt||p.createdAt)}</div></td>`:'';const actionCell=isAdmin?`<td>${actions}</td>`:'';return`<tr><td style="font-weight:600">${p.name}</td><td style="color:var(--text2)">${p.client}</td><td>${p.pm}</td><td><span class="status-pill" style="background:${s.bg};color:${s.color}">${s.label}</span></td><td style="font-size:11px;color:var(--text2)">${p.start} ~ ${p.end}</td><td>${(p.team||[]).length}명</td><td><div class="progress-cell"><div class="prog-bar"><div class="prog-fill" style="width:${prog}%;background:${s.color}"></div></div><span class="prog-pct">${prog}%</span></div></td>${riskCell}${budgetCell}${editCell}${actionCell}</tr>`;}).join('');}
+// ═══════════════════════════════════
+//  정렬 & 포맷
+// ═══════════════════════════════════
+let _sortKey=null,_sortDir=1,_sortPeriodMode=0;
+const STATUS_SORT_ORDER={plan:0,dev:1,test:2,stable:3,done:4};
+const RISK_SORT_ORDER={low:0,medium:1,high:2};
+
+function formatBudget(n){
+  if(!n||n===0)return'-';
+  const e=Math.floor(n/100000000);
+  const c=Math.floor((n%100000000)/10000000);
+  if(e===0)return Math.round(n/10000).toLocaleString()+'만';
+  if(c===0)return e+'억';
+  return e+'억'+c+'천';
+}
+
+function sortedProjects(){
+  const arr=[...projects];
+  if(!_sortKey){
+    arr.sort((a,b)=>{const na=parseInt(a.id.replace('p',''))||0,nb=parseInt(b.id.replace('p',''))||0;return na-nb;});
+    return arr;
+  }
+  arr.sort((a,b)=>{
+    if(_sortKey==='period'){
+      const field=_sortPeriodMode<=1?'start':'end';
+      const dir=_sortPeriodMode%2===0?1:-1;
+      const va=a[field]||'',vb=b[field]||'';
+      return dir*(va<vb?-1:va>vb?1:0);
+    }
+    let va,vb;
+    if(_sortKey==='name'){va=a.name||'';vb=b.name||'';}
+    else if(_sortKey==='client'){va=a.client||'';vb=b.client||'';}
+    else if(_sortKey==='status'){va=STATUS_SORT_ORDER[calcAutoStatus(a)]??9;vb=STATUS_SORT_ORDER[calcAutoStatus(b)]??9;}
+    else if(_sortKey==='members'){va=(a.team||[]).length;vb=(b.team||[]).length;}
+    else if(_sortKey==='progress'){va=calcProgress(a);vb=calcProgress(b);}
+    else if(_sortKey==='risk'){va=RISK_SORT_ORDER[a.risk]??9;vb=RISK_SORT_ORDER[b.risk]??9;}
+    else if(_sortKey==='budget'){va=a.budget||0;vb=b.budget||0;}
+    if(typeof va==='string')return _sortDir*va.localeCompare(vb,'ko');
+    return _sortDir*(va-vb);
+  });
+  return arr;
+}
+
+function setSortKey(key){
+  if(key==='period'){
+    if(_sortKey==='period'){_sortPeriodMode=(_sortPeriodMode+1)%4;}
+    else{_sortKey='period';_sortPeriodMode=0;}
+  } else {
+    if(_sortKey===key){_sortDir*=-1;}
+    else{_sortKey=key;_sortDir=1;}
+  }
+  renderProjects();
+}
+
+function updateSortIndicators(){
+  const keys=['name','client','status','period','members','progress','risk','budget'];
+  keys.forEach(k=>{
+    const el=document.getElementById('si-'+k);
+    if(!el)return;
+    if(k==='period'&&_sortKey==='period'){
+      const lbl=['시작▲','시작▼','종료▲','종료▼'];
+      el.textContent=' '+lbl[_sortPeriodMode];el.style.color='var(--blue)';
+    } else if(_sortKey===k){
+      el.textContent=_sortDir===1?' ▲':' ▼';el.style.color='var(--blue)';
+    } else {
+      el.textContent=' ⇅';el.style.color='var(--text3)';
+    }
+  });
+}
+
+function renderProjects(){updateSortIndicators();const isAdmin=userProfile&&userProfile.role==='admin';document.getElementById('projCount').textContent=`(${projects.length}건)`;document.getElementById('projTable').innerHTML=sortedProjects().map(p=>{const s=STATUS_CFG[calcAutoStatus(p)]||STATUS_CFG.none,r=RISK_CFG[p.risk]||RISK_CFG.mid,prog=calcProgress(p);const actions=isAdmin?`<div class="action-btns"><button class="btn-sm btn-edit" onclick="openProjModal('${p.id}')">수정</button><button class="btn-sm btn-del" onclick="deleteProject('${p.id}')">삭제</button></div>`:'-';const riskCell=isAdmin?`<td style="color:${r.color}">${r.label}</td>`:'';const budgetCell=isAdmin?`<td style="font-size:11px">${formatBudget(p.budget)}</td>`:'';const editCell=isAdmin?`<td style="font-size:11px"><div style="font-weight:600;color:var(--text)">${p.updatedBy||p.createdBy||'-'}</div><div style="color:var(--text3);margin-top:2px">${fmtDate(p.updatedAt||p.createdAt)}</div></td>`:'';const actionCell=isAdmin?`<td>${actions}</td>`:'';return`<tr><td style="font-weight:600">${p.name}</td><td style="color:var(--text2)">${p.client}</td><td>${p.pm}</td><td><span class="status-pill" style="background:${s.bg};color:${s.color}">${s.label}</span></td><td style="font-size:11px;color:var(--text2)">${p.start} ~ ${p.end}</td><td>${(p.team||[]).length}명</td><td><div class="progress-cell"><div class="prog-bar"><div class="prog-fill" style="width:${prog}%;background:${s.color}"></div></div><span class="prog-pct">${prog}%</span></div></td>${riskCell}${budgetCell}${editCell}${actionCell}</tr>`;}).join('');}
 
 // ═══════════════════════════════════
 //  인력 현황
