@@ -123,7 +123,8 @@ body{font-family:'Segoe UI',sans-serif;background:var(--bg);color:var(--text);he
 .cal-day.other-month{opacity:0.3;}
 .cal-day-num{font-size:11px;color:var(--text3);margin-bottom:2px;}
 .cal-day.today .cal-day-num{color:var(--blue);font-weight:700;}
-.cal-event{font-size:9px;padding:1px 4px;border-radius:3px;margin-bottom:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.5;max-width:100%;display:block;}
+.cal-event{font-size:9px;padding:1px 4px;border-radius:3px;margin-bottom:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.5;max-width:100%;display:block;position:relative;cursor:pointer;}
+.cal-event[data-tip]:hover::after{content:attr(data-tip);position:absolute;left:0;top:calc(100% + 3px);background:#0f172a;color:#e2e8f0;padding:5px 9px;border-radius:7px;font-size:11px;white-space:nowrap;z-index:9999;border:1px solid #334155;box-shadow:0 4px 16px rgba(0,0,0,0.6);pointer-events:none;font-weight:500;}
 .cal-event.start{background:#4f9eff22;color:#4f9eff;border-left:2px solid #4f9eff;}
 .cal-event.end{background:#ef444422;color:#ef4444;border-left:2px solid #ef4444;}
 .cal-event.active{background:#4fcc7a18;color:#4fcc7a;border-left:2px solid #4fcc7a;}
@@ -553,7 +554,7 @@ const db=firebase.firestore();
 //  CONSTANTS
 // ═══════════════════════════════════
 const HQ={name:'뱅크웨어글로벌 본사',address:'서울 중구 서소문로 11길 19',lat:37.5643,lng:126.9752};
-const STATUS_CFG={dev:{label:'개발 중',color:'#4f9eff',bg:'#1e3a5f'},test:{label:'테스트',color:'#4fcc7a',bg:'#1e4d2e'},stable:{label:'운영안정화',color:'#a855f7',bg:'#2d1e5f'},plan:{label:'설계',color:'#f59e0b',bg:'#3a2e1e'},done:{label:'종료',color:'#666',bg:'#222'},none:{label:'미정',color:'#888',bg:'#2a2a2a'}};
+const STATUS_CFG={dev:{label:'개발 중',color:'#4f9eff',bg:'#1e3a5f'},test:{label:'테스트',color:'#4fcc7a',bg:'#1e4d2e'},stable:{label:'운영안정화',color:'#a855f7',bg:'#2d1e5f'},plan:{label:'설계',color:'#f59e0b',bg:'#3a2e1e'},done:{label:'종료',color:'#94a3b8',bg:'#1e2533'},none:{label:'미정',color:'#64748b',bg:'#1e2533'}};
 const RISK_CFG={low:{label:'낮음',color:'#4fcc7a',bg:'#1e4d2e'},mid:{label:'보통',color:'#f59e0b',bg:'#3a2e1e'},high:{label:'높음',color:'#ef4444',bg:'#4d1e1e'}};
 const DEFAULT_PROJECTS=[
 {id:'p1',name:'SBI 프로젝트',client:'SBI저축은행',location:'서울 광화문',lat:37.5759,lng:126.9768,status:'done',start:'2024.03.04',end:'2025.12.31',designEnd:'2024.05.31',devEnd:'2025.06.30',testEnd:'2025.10.31',openDate:'2025.12.01',members:9,budget:'12억',type:'신규개발',risk:'low',pm:'금승철 상무',langs:['Java','Spring','Oracle','React'],team:[{name:'금승철',role:'PM'},{name:'홍길동',role:'개발리드'},{name:'이수빈',role:'개발자'},{name:'박준혁',role:'개발자'},{name:'김민지',role:'개발자'},{name:'최재원',role:'DBA'},{name:'장하은',role:'개발자'},{name:'윤도현',role:'QA'},{name:'정수아',role:'분석가'}],desc:'저축은행 차세대 뱅킹 시스템 구축'},
@@ -967,7 +968,7 @@ function renderDashboard(){
   const ctx=document.getElementById('statusChart').getContext('2d');
   statusChartObj=new Chart(ctx,{type:'doughnut',data:{labels:Object.values(STATUS_CFG).map(s=>s.label),datasets:[{data:Object.keys(STATUS_CFG).map(k=>sc[k]),backgroundColor:Object.values(STATUS_CFG).map(s=>s.color+'cc'),borderColor:Object.values(STATUS_CFG).map(s=>s.color),borderWidth:2}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right',labels:{color:'#9ca3b0',font:{size:11},padding:12}}},cutout:'65%'}});
   document.getElementById('alertList').innerHTML=alerts.length?alerts.map(a=>`<div class="alert-item ${a.type}"><span class="alert-icon">${a.icon}</span><div><div class="alert-title">${a.title}</div><div class="alert-desc">${a.desc}</div></div></div>`).join(''):'<div style="color:var(--text3);font-size:12px;text-align:center;padding:20px">✅ 현재 알림이 없습니다</div>';
-  document.getElementById('progressBars').innerHTML=projects.filter(p=>calcAutoStatus(p)!=='done').sort((a,b)=>calcProgress(b)-calcProgress(a)).map(p=>{const s=STATUS_CFG[p.status],prog=calcProgress(p);return`<div style="display:flex;align-items:center;gap:12px;margin-bottom:10px"><div style="width:160px;font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${p.name}</div><span class="status-pill" style="background:${s.bg};color:${s.color};min-width:80px;justify-content:center">${s.label}</span><div style="flex:1;height:6px;background:var(--bg);border-radius:3px;overflow:hidden"><div style="height:100%;width:${prog}%;background:linear-gradient(90deg,${s.color}88,${s.color});border-radius:3px"></div></div><span style="font-size:12px;font-weight:700;color:${s.color};min-width:32px">${prog}%</span><span style="font-size:11px;color:var(--text3);min-width:60px">~${p.end}</span></div>`;}).join('');
+  document.getElementById('progressBars').innerHTML=projects.filter(p=>calcAutoStatus(p)!=='done').sort((a,b)=>calcProgress(b)-calcProgress(a)).map(p=>{const s=STATUS_CFG[calcAutoStatus(p)]||STATUS_CFG.none,prog=calcProgress(p);return`<div style="display:flex;align-items:center;gap:12px;margin-bottom:10px"><div style="width:160px;font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${p.name}</div><span class="status-pill" style="background:${s.bg};color:${s.color};min-width:80px;justify-content:center">${s.label}</span><div style="flex:1;height:6px;background:var(--bg);border-radius:3px;overflow:hidden"><div style="height:100%;width:${prog}%;background:linear-gradient(90deg,${s.color}88,${s.color});border-radius:3px"></div></div><span style="font-size:12px;font-weight:700;color:${s.color};min-width:32px">${prog}%</span><span style="font-size:11px;color:var(--text3);min-width:60px">~${p.end}</span></div>`;}).join('');
   renderCalendar();
   setTimeout(syncAlertHeight,50);
 }
@@ -1010,11 +1011,11 @@ function renderCalendar(){
       const e=hasDay(p.end)?parseDate(p.end):null;
       const o=(p.openDate&&hasDay(p.openDate))?parseDate(p.openDate):null;
       if(s&&s.getFullYear()===calYear&&s.getMonth()===calMonth&&s.getDate()===d)
-        events+=`<div class="cal-event start">▶ ${p.name}</div>`;
+        events+=`<div class="cal-event start" data-tip="▶ 시작: ${p.name}">▶ ${p.name}</div>`;
       if(o&&o.getFullYear()===calYear&&o.getMonth()===calMonth&&o.getDate()===d)
-        events+=`<div class="cal-event open">🚀 ${p.name}</div>`;
+        events+=`<div class="cal-event open" data-tip="🚀 오픈: ${p.name}">🚀 ${p.name}</div>`;
       if(e&&e.getFullYear()===calYear&&e.getMonth()===calMonth&&e.getDate()===d)
-        events+=`<div class="cal-event end">◀ ${p.name}</div>`;
+        events+=`<div class="cal-event end" data-tip="◀ 종료: ${p.name}">◀ ${p.name}</div>`;
     });
     html+=`<div class="cal-day${isToday?' today':''}"><div class="cal-day-num">${d}</div>${events}</div>`;
   }
