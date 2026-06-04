@@ -1100,11 +1100,15 @@ function sortedProjects(){
 
 function setSortKey(key){
   if(key==='period'){
-    if(_sortKey==='period'){_sortPeriodMode=(_sortPeriodMode+1)%4;}
-    else{_sortKey='period';_sortPeriodMode=0;}
+    if(_sortKey==='period'){
+      _sortPeriodMode++;
+      if(_sortPeriodMode>=4){_sortKey=null;_sortPeriodMode=0;}
+    } else {_sortKey='period';_sortPeriodMode=0;}
   } else {
-    if(_sortKey===key){_sortDir*=-1;}
-    else{_sortKey=key;_sortDir=1;}
+    if(_sortKey===key){
+      if(_sortDir===1){_sortDir=-1;}
+      else{_sortKey=null;_sortDir=1;}
+    } else {_sortKey=key;_sortDir=1;}
   }
   renderProjects();
 }
