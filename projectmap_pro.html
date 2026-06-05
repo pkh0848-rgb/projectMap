@@ -253,6 +253,30 @@ tr:hover td{background:var(--bg3);}
 .modal-overlay.open{display:flex;}
 .modal{background:var(--bg2);border:1px solid var(--border2);border-radius:18px;padding:24px 32px 24px 24px;width:660px;max-width:calc(100vw - 40px);margin:0 20px;max-height:85vh;overflow-y:auto;scrollbar-gutter:stable;box-shadow:0 24px 60px rgba(0,0,0,0.7);}
 .modal-sm{width:440px;}
+/* ── 엑셀 미리보기 모달 ── */
+.ep-modal{width:960px;}
+.ep-stats{display:flex;align-items:center;gap:8px;margin-bottom:14px;flex-wrap:wrap;}
+.ep-chip{display:inline-flex;align-items:center;gap:5px;padding:4px 12px;border-radius:20px;font-size:11px;font-weight:700;}
+.ep-chip.new{background:#0d3528;color:#10b981;border:1px solid #10b98133;}
+.ep-chip.mod{background:#3a2e1e;color:#f59e0b;border:1px solid #f59e0b33;}
+.ep-chip.same{background:var(--bg);color:var(--text3);border:1px solid var(--border);}
+.ep-toggle{margin-left:auto;font-size:11px;color:var(--blue);cursor:pointer;text-decoration:underline;}
+.ep-table-wrap{max-height:420px;overflow-y:auto;border:1px solid var(--border2);border-radius:10px;}
+.ep-table{width:100%;border-collapse:collapse;font-size:12px;}
+.ep-table th{background:var(--bg3);color:var(--text3);font-size:10px;text-transform:uppercase;letter-spacing:0.5px;padding:8px 12px;text-align:left;position:sticky;top:0;z-index:1;}
+.ep-table td{padding:8px 12px;border-bottom:1px solid var(--border);vertical-align:middle;}
+.ep-table tr.ep-new{background:#0d352820;border-left:3px solid #10b981;}
+.ep-table tr.ep-mod{background:#3a2e1e30;border-left:3px solid #f59e0b;}
+.ep-table tr.ep-same{opacity:0.4;}
+.ep-table tr.ep-same.hidden{display:none;}
+.ep-badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700;}
+.ep-badge.new{background:#0d3528;color:#10b981;}
+.ep-badge.mod{background:#3a2e1e;color:#f59e0b;}
+.ep-badge.same{background:var(--bg3);color:var(--text3);}
+.ep-fields{display:flex;flex-wrap:wrap;gap:3px;margin-top:3px;}
+.ep-field-tag{background:#f59e0b18;color:#f59e0b;border:1px solid #f59e0b33;padding:1px 6px;border-radius:4px;font-size:10px;}
+.ep-cb{width:15px;height:15px;cursor:pointer;accent-color:var(--blue);}
+
 .modal h2{font-size:17px;font-weight:800;margin-bottom:20px;}
 .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
 .form-full{grid-column:1/-1;}
@@ -541,6 +565,36 @@ tr:hover td{background:var(--bg3);}
       <div class="form-group form-full"><label>프로젝트 개요</label><textarea id="fDesc"></textarea></div>
     </div>
     <div class="modal-footer"><button class="btn-cancel" onclick="closeProjModal()">취소</button><button class="btn-primary" onclick="saveProject()">💾 저장</button></div>
+  </div>
+</div>
+
+<!-- ── 엑셀 업로드 미리보기 모달 ── -->
+<div class="modal-overlay" id="excelPreviewOverlay">
+  <div class="modal ep-modal">
+    <h2>📊 엑셀 업로드 미리보기</h2>
+    <div class="ep-stats" id="epStats"></div>
+    <div class="ep-table-wrap">
+      <table class="ep-table" id="epTable">
+        <thead><tr>
+          <th style="width:32px"><input type="checkbox" class="ep-cb" id="epCheckAll" title="전체 선택/해제"></th>
+          <th style="width:60px">상태</th>
+          <th>프로젝트명</th>
+          <th>고객사</th>
+          <th>PM</th>
+          <th>기간</th>
+          <th>계약규모</th>
+          <th>변경 항목</th>
+        </tr></thead>
+        <tbody id="epBody"></tbody>
+      </table>
+    </div>
+    <div class="modal-footer" style="margin-top:16px">
+      <span style="font-size:12px;color:var(--text3)" id="epSaveCount"></span>
+      <div style="display:flex;gap:10px;margin-left:auto">
+        <button class="btn-cancel" onclick="closeExcelPreview()">취소</button>
+        <button class="btn-primary" id="epConfirmBtn" onclick="confirmExcelSave()">💾 변경사항 저장</button>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -1428,91 +1482,173 @@ function excelDateToStr(val){
   }
   return String(val);
 }
+// 엑셀 미리보기 전역 상태
+let _epData=[];
+let _epShowAll=false;
+const _epChkKeys=['name','client','pm','location','start','end','openDate','designEnd','devEnd','budget','type','risk','desc'];
+const _epFieldLabel={name:'프로젝트명',client:'고객사',pm:'PM',location:'위치',start:'시작일',end:'종료일',openDate:'오픈일',designEnd:'설계완료일',devEnd:'개발완료일',budget:'계약규모',type:'유형',risk:'위험도',desc:'개요'};
+
 function uploadExcel(e){
   const file=e.target.files[0];if(!file)return;
   const reader=new FileReader();
-  reader.onload=async evt=>{
+  reader.onload=evt=>{
     const wb=XLSX.read(evt.target.result,{type:'binary',cellDates:false}),ws=wb.Sheets[wb.SheetNames[0]],rows=XLSX.utils.sheet_to_json(ws,{raw:true});
     const sm={'착수':'plan','설계':'dev','개발':'test','테스트':'stable','운영안정화':'ops','종료':'done'};
     const rm={'낮음':'low','보통':'mid','높음':'high'};
-    // 기존 프로젝트를 name→id 맵으로 관리 (업데이트용)
     const existingMap=new Map(projects.map(p=>[p.name.trim(),p.id]));
-    let added=0,updated=0,errors=[];
+    _epData=[];let idx=0;
     for(const row of rows){
       const name=(row['프로젝트명*']||row['프로젝트명']||'').trim();
       if(!name||name.startsWith('(예시)'))continue;
-      // 주소 → 위경도 자동 변환 (카카오 Geocoder)
       const address=(row['위치주소']||row['위치']||'').trim();
-      let lat=37.5665,lng=126.9780;
-      if(address&&window._kakaoReady){
-        try{
-          lat=await new Promise((res,rej)=>{
-            const gc=new kakao.maps.services.Geocoder();
-            gc.addressSearch(address,function(result,status){
-              if(status===kakao.maps.services.Status.OK&&result[0]){res(parseFloat(result[0].y));}
-              else{// 장소 검색으로 fallback
-                const ps=new kakao.maps.services.Places();
-                ps.keywordSearch(address,function(r2,s2){
-                  if(s2===kakao.maps.services.Status.OK&&r2[0]){res(parseFloat(r2[0].y));}
-                  else rej();
-                });
-              }
-            });
-          });
-          lng=await new Promise((res,rej)=>{
-            const gc=new kakao.maps.services.Geocoder();
-            gc.addressSearch(address,function(result,status){
-              if(status===kakao.maps.services.Status.OK&&result[0]){res(parseFloat(result[0].x));}
-              else{
-                const ps=new kakao.maps.services.Places();
-                ps.keywordSearch(address,function(r2,s2){
-                  if(s2===kakao.maps.services.Status.OK&&r2[0]){res(parseFloat(r2[0].x));}
-                  else rej();
-                });
-              }
-            });
-          });
-        }catch(e){/* 변환 실패시 기본값 유지 */}
-        await new Promise(r=>setTimeout(r,150));// API 호출 간격
-      }
       const start=excelDateToStr(row['시작일*']||row['시작일(필수)']||row['시작일']);
       const end=excelDateToStr(row['종료일*']||row['종료일(필수)']||row['종료일']);
+      const pmVal=String(row['PM*']||row['PM(필수)']||row['PM']||'').trim();
       const team=row['팀원']?row['팀원'].toString().split(',').map(s=>{const[n,r]=s.trim().split(':');return{name:(n||'').trim(),role:(r||'').trim()};}).filter(t=>t.name):[];
+      if(pmVal&&!team.some(t=>t.name===pmVal))team.unshift({name:pmVal,role:'PM'});
       const isExisting=existingMap.has(name);
-      const docId=isExisting?existingMap.get(name):'p'+Date.now()+added;
+      const docId=isExisting?existingMap.get(name):('p'+Date.now()+idx);
       const data={id:docId,name,
-        client:row['고객사*']||row['고객사(필수)']||row['고객사']||'',pm:row['PM*']||row['PM(필수)']||row['PM']||'',location:address||'',
-        lat,lng,
-        status:sm[row['상태']]||'plan',
-        start,end,
+        client:String(row['고객사*']||row['고객사(필수)']||row['고객사']||''),
+        pm:pmVal,location:address,lat:37.5665,lng:126.9780,
+        status:sm[row['상태']]||'plan',start,end,
         members:parseInt(row['투입인원'])||0,budget:String(row['계약규모']||''),
         type:row['유형']||'신규개발',risk:rm[row['위험도']]||'mid',
         langs:row['기술스택']?row['기술스택'].toString().split(',').map(s=>s.trim()).filter(Boolean):[],
-        team:(()=>{const _pm=(row['PM*']||row['PM(필수)']||row['PM']||'').trim();if(_pm&&!team.some(t=>t.name===_pm)){team.unshift({name:_pm,role:'PM'});}return team;})(),desc:row['개요']||'',openDate:excelDateToStr(row['오픈일'])||'',designEnd:excelDateToStr(row['설계완료일'])||'',devEnd:excelDateToStr(row['개발완료일'])||''};
-      try{
-        if(isExisting){
-          const _existing=projects.find(p=>p.id===docId);
-        const _chkKeys=['name','client','pm','location','start','end','openDate','designEnd','devEnd','budget','type','risk','desc'];
-        const _changed=!_existing||_chkKeys.some(k=>String(_existing[k]||'')!==String(data[k]||''));
-        if(_changed){
-          const _upd={...data,updatedAt:firebase.firestore.FieldValue.serverTimestamp(),updatedBy:userProfile?.name||userProfile?.displayName||currentUser?.displayName||currentUser?.email||''};
-          ['openDate','designEnd','devEnd'].forEach(k=>{if(_upd[k]==='')delete _upd[k];});
-          await db.collection('projects').doc(docId).update(_upd);
-          updated++;
-        }
-        }else{
-          await db.collection('projects').doc(docId).set({...data,updatedAt:firebase.firestore.FieldValue.serverTimestamp(),updatedBy:userProfile?.name||userProfile?.displayName||currentUser?.displayName||currentUser?.email||''});
-          existingMap.set(name,docId);added++;
-        }
-      }catch(err){errors.push(name);}
+        team,desc:row['개요']||'',openDate:excelDateToStr(row['오픈일'])||'',
+        designEnd:excelDateToStr(row['설계완료일'])||'',devEnd:excelDateToStr(row['개발완료일'])||''};
+      const existing=isExisting?projects.find(p=>p.id===docId):null;
+      let type='new',changedFields=[];
+      if(isExisting&&existing){
+        changedFields=_epChkKeys.filter(k=>String(existing[k]||'')!==String(data[k]||''));
+        type=changedFields.length?'modified':'unchanged';
+      }
+      _epData.push({data,existing,type,changedFields,docId,selected:type!=='unchanged'});
+      idx++;
     }
-    let msg=`${added}개 추가`;
-    if(updated>0)msg+=`, ${updated}개 업데이트`;
-    if(errors.length)msg+=`, 오류 ${errors.length}건`;
-    showToast(msg);
     e.target.value='';
+    showExcelPreview();
   };
-  reader.readAsBinaryString(file);}
+  reader.readAsBinaryString(file);
+}
+
+function showExcelPreview(){
+  const newC=_epData.filter(r=>r.type==='new').length;
+  const modC=_epData.filter(r=>r.type==='modified').length;
+  const sameC=_epData.filter(r=>r.type==='unchanged').length;
+  // 통계 칩
+  document.getElementById('epStats').innerHTML=
+    `<span class="ep-chip new">✚ 신규 ${newC}건</span>`+
+    `<span class="ep-chip mod">✎ 수정 ${modC}건</span>`+
+    `<span class="ep-chip same">— 변경없음 ${sameC}건</span>`+
+    `<span class="ep-toggle" onclick="epToggleAll()">${_epShowAll?'변경사항만 보기':'전체 보기'}</span>`;
+  // 테이블 렌더
+  epRenderTable();
+  // 저장 건수 업데이트
+  epUpdateCount();
+  // 전체선택 체크박스
+  document.getElementById('epCheckAll').checked=true;
+  document.getElementById('excelPreviewOverlay').classList.add('open');
+}
+
+function epRenderTable(){
+  document.getElementById('epBody').innerHTML=_epData.map((r,i)=>{
+    const cls=r.type==='new'?'ep-new':r.type==='modified'?'ep-mod':'ep-same';
+    const hidCls=(!_epShowAll&&r.type==='unchanged')?' hidden':'';
+    const badge=r.type==='new'?'<span class="ep-badge new">신규</span>':r.type==='modified'?'<span class="ep-badge mod">수정</span>':'<span class="ep-badge same">변경없음</span>';
+    const fields=r.changedFields.map(k=>`<span class="ep-field-tag">${_epFieldLabel[k]||k}</span>`).join('');
+    const period=r.data.start?(r.data.start+(r.data.end?'~'+r.data.end:'')):'';
+    return `<tr class="${cls}${hidCls}" data-idx="${i}">
+      <td><input type="checkbox" class="ep-cb ep-row-cb" ${r.selected?'checked':''} onchange="_epData[${i}].selected=this.checked;epUpdateCount()"></td>
+      <td>${badge}</td>
+      <td style="font-weight:600;color:var(--text)">${r.data.name}</td>
+      <td style="color:var(--text2)">${r.data.client}</td>
+      <td style="color:var(--text2)">${r.data.pm}</td>
+      <td style="font-size:11px;color:var(--text3)">${period}</td>
+      <td style="font-size:11px">${r.data.budget||'-'}</td>
+      <td><div class="ep-fields">${fields}</div></td>
+    </tr>`;
+  }).join('');
+}
+
+function epUpdateCount(){
+  const n=_epData.filter(r=>r.selected).length;
+  document.getElementById('epSaveCount').textContent=n?`${n}건 저장 예정`:'저장할 항목 없음';
+  document.getElementById('epConfirmBtn').disabled=n===0;
+}
+
+function epToggleAll(){
+  _epShowAll=!_epShowAll;
+  const btn=document.querySelector('.ep-toggle');
+  if(btn)btn.textContent=_epShowAll?'변경사항만 보기':'전체 보기';
+  document.querySelectorAll('#epBody tr.ep-same').forEach(tr=>{
+    tr.classList.toggle('hidden',!_epShowAll);
+  });
+}
+
+document.addEventListener('DOMContentLoaded',()=>{
+  const allCb=document.getElementById('epCheckAll');
+  if(allCb)allCb.addEventListener('change',function(){
+    _epData.forEach(r=>{if(!(!_epShowAll&&r.type==='unchanged'))r.selected=this.checked;});
+    document.querySelectorAll('.ep-row-cb').forEach(cb=>{
+      const idx=parseInt(cb.closest('tr').dataset.idx);
+      if(_epData[idx]&&!(!_epShowAll&&_epData[idx].type==='unchanged'))cb.checked=this.checked;
+    });
+    epUpdateCount();
+  });
+});
+
+function closeExcelPreview(){
+  document.getElementById('excelPreviewOverlay').classList.remove('open');
+  _epData=[];
+}
+
+async function confirmExcelSave(){
+  const toSave=_epData.filter(r=>r.selected);
+  if(!toSave.length){showToast('저장할 항목이 없습니다.');return;}
+  document.getElementById('epConfirmBtn').textContent='저장 중...';
+  document.getElementById('epConfirmBtn').disabled=true;
+  const existingMap=new Map(projects.map(p=>[p.name.trim(),p.id]));
+  let added=0,updated=0,errors=[];
+  for(const item of toSave){
+    const {data,type,docId}=item;
+    // 주소 → 위경도 (신규 또는 위치 변경 시)
+    const needGeo=type==='new'||(item.changedFields&&item.changedFields.includes('location'));
+    if(needGeo&&data.location&&window._kakaoReady){
+      try{
+        const geo=await new Promise((res,rej)=>{
+          const gc=new kakao.maps.services.Geocoder();
+          gc.addressSearch(data.location,function(result,status){
+            if(status===kakao.maps.services.Status.OK&&result[0]){res({lat:parseFloat(result[0].y),lng:parseFloat(result[0].x)});}
+            else{const ps=new kakao.maps.services.Places();ps.keywordSearch(data.location,function(r2,s2){if(s2===kakao.maps.services.Status.OK&&r2[0]){res({lat:parseFloat(r2[0].y),lng:parseFloat(r2[0].x)});}else rej();});}
+          });
+        });
+        data.lat=geo.lat;data.lng=geo.lng;
+      }catch(e){}
+      await new Promise(r=>setTimeout(r,150));
+    }
+    const editor=userProfile?.name||userProfile?.displayName||currentUser?.displayName||currentUser?.email||'';
+    const ts=firebase.firestore.FieldValue.serverTimestamp();
+    try{
+      if(type==='new'){
+        await db.collection('projects').doc(docId).set({...data,updatedAt:ts,updatedBy:editor,createdAt:ts,createdBy:editor});
+        existingMap.set(data.name,docId);added++;
+      }else{
+        const upd={...data,updatedAt:ts,updatedBy:editor};
+        ['openDate','designEnd','devEnd'].forEach(k=>{if(upd[k]==='')delete upd[k];});
+        await db.collection('projects').doc(docId).update(upd);
+        updated++;
+      }
+    }catch(err){errors.push(data.name);}
+  }
+  document.getElementById('excelPreviewOverlay').classList.remove('open');
+  _epData=[];
+  let msg=[];
+  if(added)msg.push(`${added}개 추가`);
+  if(updated)msg.push(`${updated}개 수정`);
+  if(errors.length)msg.push(`오류 ${errors.length}건`);
+  showToast(msg.join(', ')||'완료');
+}
 
 // ═══════════════════════════════════
 //  검색
@@ -1526,6 +1662,7 @@ function firebaseErrMsg(code){const msgs={'auth/email-already-in-use':'이미 �
 function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2800);}
 document.getElementById('projModalOverlay').addEventListener('click',function(e){if(e.target===this)closeProjModal();});
 document.getElementById('addUserModalOverlay').addEventListener('click',function(e){if(e.target===this)closeAddUserModal();});
+document.getElementById('excelPreviewOverlay').addEventListener('click',function(e){if(e.target===this)closeExcelPreview();});
 document.getElementById('changePwModalOverlay').addEventListener('click',function(e){if(e.target===this)closeChangePwModal();});
 document.getElementById('setupPw').addEventListener('input',e=>checkPwStrength(e.target.value,'setupPwBar','setupPwHint'));
 // 캘린더 플로팅 툴팁
