@@ -958,11 +958,11 @@ function renderDashboard(){
   const isAdmin=userProfile&&userProfile.role==='admin';
   const active=projects.filter(p=>calcAutoStatus(p)!=='done');
   const allNames=new Set();active.forEach(p=>(p.team||[]).forEach(m=>{if(m.name)allNames.add(m.name);}));const totalMembers=allNames.size;
-  const totalBudget=projects.filter(p=>p.budget&&p.budget!=='TBD'&&!p.budget.includes('USD')).reduce((s,p)=>{const n=parseFloat(p.budget);return isNaN(n)?s:s+n;},0);
+  const totalBudget=projects.reduce((s,p)=>s+(typeof p.budget==='number'?p.budget:0),0);return isNaN(n)?s:s+n;},0);
   const alerts=getAlerts();
   document.getElementById('notifDot').style.display=alerts.length?'block':'none';
   document.getElementById('kpiGrid').style.gridTemplateColumns=isAdmin?'repeat(4,1fr)':'repeat(3,1fr)';
-  const budgetCard=isAdmin?`<div class="kpi-card purple"><div class="kpi-icon">💰</div><div class="kpi-label">수주 금액 합계</div><div class="kpi-value" style="color:var(--purple)">${totalBudget}억</div><div class="kpi-sub">원화 계약 기준</div></div>`:'';
+  const budgetCard=isAdmin?`<div class="kpi-card purple"><div class="kpi-icon">💰</div><div class="kpi-label">수주 금액 합계</div><div class="kpi-value" style="color:var(--purple)">${formatBudget(totalBudget)}</div><div class="kpi-sub">원화 계약 기준</div></div>`:'';
   document.getElementById('kpiGrid').innerHTML=`<div class="kpi-card blue"><div class="kpi-icon">📁</div><div class="kpi-label">전체 프로젝트</div><div class="kpi-value" style="color:var(--blue)">${projects.length}</div><div class="kpi-sub">활성 ${active.length}개 · 종료 ${projects.length-active.length}개</div></div><div class="kpi-card green"><div class="kpi-icon">👥</div><div class="kpi-label">총 투입 인원</div><div class="kpi-value" style="color:var(--green)">${totalMembers}명</div><div class="kpi-sub">활성 프로젝트 기준</div></div>${budgetCard}<div class="kpi-card orange"><div class="kpi-icon">⚠️</div><div class="kpi-label">알림</div><div class="kpi-value" style="color:var(--orange)">${alerts.length}</div><div class="kpi-sub">마감임박·위험·충돌</div></div>`;
   const sc={};Object.keys(STATUS_CFG).forEach(k=>sc[k]=0);projects.forEach(p=>{const st=calcAutoStatus(p);if(sc[st]!==undefined)sc[st]++;});
   if(statusChartObj)statusChartObj.destroy();
