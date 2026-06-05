@@ -1266,10 +1266,11 @@ function initDatePickers(){
     flatpickr(el,{
       dateFormat:'Y.m.d',locale:'ko',allowInput:true,
       onReady:function(_,__,fp){fp.calendarContainer&&fp.calendarContainer.classList.add('flatpickr-dark');},
+      onChange:function(){updateAutoStatusPreview();},
       onClose:function(_,dateStr,fp){
-        // 사용자가 직접 타이핑한 값 우선 유지
         const typed=fp.element.value;
         if(typed&&typed!==dateStr){fp.element.value=typed;}
+        updateAutoStatusPreview();
       }
     });
     // Enter: 타이핑한 값 유지하면서 달력 닫기
