@@ -983,8 +983,16 @@ function startRealtime(){
         else p.openDate='';
       }
     });
-    // 프로젝트: 생성일 내림차순 (최신 추가 우선). 수정해도 순서 안 바뀜
-    projects.sort((a,b)=>{const na=parseInt(a.id.replace("p",""))||0,nb=parseInt(b.id.replace("p",""))||0;return na-nb;});
+    // 등록순 정렬: createdAt 있으면 오름차순, 없으면 ID 숫자 오름차순
+    projects.sort((a,b)=>{
+  const ta=a.createdAt?.seconds??a.createdAt?.toMillis?.()/1000??-1;
+  const tb=b.createdAt?.seconds??b.createdAt?.toMillis?.()/1000??-1;
+  if(ta>=0&&tb>=0)return ta-tb;
+  if(ta>=0)return 1;
+  if(tb>=0)return -1;
+  const na=parseInt(a.id.replace('p',''))||0,nb=parseInt(b.id.replace('p',''))||0;
+  return na-nb;
+});
     document.getElementById('syncIndicator').className='sync-ok';
     document.getElementById('syncIndicator').textContent='● 실시간 연결';
     if(currentPage==='dashboard')renderDashboard();
@@ -1177,7 +1185,15 @@ function formatBudget(n){
 function sortedProjects(){
   const arr=[...projects];
   if(!_sortKey){
-    arr.sort((a,b)=>{const na=parseInt(a.id.replace('p',''))||0,nb=parseInt(b.id.replace('p',''))||0;return na-nb;});
+    arr.sort((a,b)=>{
+  const ta=a.createdAt?.seconds??a.createdAt?.toMillis?.()/1000??-1;
+  const tb=b.createdAt?.seconds??b.createdAt?.toMillis?.()/1000??-1;
+  if(ta>=0&&tb>=0)return ta-tb;
+  if(ta>=0)return 1;
+  if(tb>=0)return -1;
+  const na=parseInt(a.id.replace('p',''))||0,nb=parseInt(b.id.replace('p',''))||0;
+  return na-nb;
+});
     return arr;
   }
   arr.sort((a,b)=>{
