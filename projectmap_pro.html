@@ -958,7 +958,7 @@ function renderDashboard(){
   const isAdmin=userProfile&&userProfile.role==='admin';
   const active=projects.filter(p=>calcAutoStatus(p)!=='done');
   const allNames=new Set();active.forEach(p=>(p.team||[]).forEach(m=>{if(m.name)allNames.add(m.name);}));const totalMembers=allNames.size;
-  const totalBudget=projects.reduce((s,p)=>s+(typeof p.budget==='number'?p.budget:0),0);return isNaN(n)?s:s+n;},0);
+  const totalBudget=projects.reduce((s,p)=>s+(typeof p.budget==='number'?p.budget:0),0);
   const alerts=getAlerts();
   document.getElementById('notifDot').style.display=alerts.length?'block':'none';
   document.getElementById('kpiGrid').style.gridTemplateColumns=isAdmin?'repeat(4,1fr)':'repeat(3,1fr)';
