@@ -491,7 +491,7 @@ tr:hover td{background:var(--bg3);}
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
           <div class="form-group" style="margin:0"><label>설계 완료일</label><input id="fDesignEnd" placeholder="2025.05.30" oninput="updateAutoStatusPreview()"/></div>
           <div class="form-group" style="margin:0"><label>개발 완료일</label><input id="fDevEnd" placeholder="2026.03.31" oninput="updateAutoStatusPreview()"/></div>
-          <div class="form-group" style="margin:0"><label>테스트 완료일</label><input id="fTestEnd" placeholder="2026.05.31" oninput="updateAutoStatusPreview()"/></div>
+          
           <div class="form-group" style="margin:0"><label>오픈일 🚀</label><input id="fOpenDate" placeholder="2026.06.01" oninput="updateAutoStatusPreview()"/></div>
         </div>
         <div style="margin-top:8px;font-size:10px;color:var(--text3)">현재 자동 상태: <span id="autoStatusPreview" style="color:var(--blue);font-weight:600">-</span></div>
@@ -555,7 +555,7 @@ const db=firebase.firestore();
 //  CONSTANTS
 // ═══════════════════════════════════
 const HQ={name:'뱅크웨어글로벌 본사',address:'서울 중구 서소문로 11길 19',lat:37.5643,lng:126.9752};
-const STATUS_CFG={dev:{label:'개발 중',color:'#4f9eff',bg:'#1e3a5f'},test:{label:'테스트',color:'#4fcc7a',bg:'#1e4d2e'},stable:{label:'운영안정화',color:'#a855f7',bg:'#2d1e5f'},plan:{label:'설계',color:'#f59e0b',bg:'#3a2e1e'},done:{label:'종료',color:'#94a3b8',bg:'#1e2533'},none:{label:'미정',color:'#64748b',bg:'#1e2533'}};
+const STATUS_CFG={plan:{label:'착수',color:'#f59e0b',bg:'#fffbeb'},dev:{label:'설계',color:'#3b82f6',bg:'#eff6ff'},test:{label:'개발',color:'#8b5cf6',bg:'#f5f3ff'},stable:{label:'테스트',color:'#10b981',bg:'#ecfdf5'},done:{label:'운영안정화',color:'#6b7280',bg:'#f9fafb'}}
 const RISK_CFG={low:{label:'낮음',color:'#4fcc7a',bg:'#1e4d2e'},mid:{label:'보통',color:'#f59e0b',bg:'#3a2e1e'},high:{label:'높음',color:'#ef4444',bg:'#4d1e1e'}};
 const DEFAULT_PROJECTS=[
 {id:'p1',name:'SBI 프로젝트',client:'SBI저축은행',location:'서울 광화문',lat:37.5759,lng:126.9768,status:'done',start:'2024.03.04',end:'2025.12.31',designEnd:'2024.05.31',devEnd:'2025.06.30',testEnd:'2025.10.31',openDate:'2025.12.01',members:9,budget:'12억',type:'신규개발',risk:'low',pm:'금승철 상무',langs:['Java','Spring','Oracle','React'],team:[{name:'금승철',role:'PM'},{name:'홍길동',role:'개발리드'},{name:'이수빈',role:'개발자'},{name:'박준혁',role:'개발자'},{name:'김민지',role:'개발자'},{name:'최재원',role:'DBA'},{name:'장하은',role:'개발자'},{name:'윤도현',role:'QA'},{name:'정수아',role:'분석가'}],desc:'저축은행 차세대 뱅킹 시스템 구축'},
@@ -827,11 +827,7 @@ function updateAutoStatusPreview(){
     status:document.getElementById('fStatus')?.value||'plan',
     designEnd:document.getElementById('fDesignEnd')?.value,
     devEnd:document.getElementById('fDevEnd')?.value,
-    testEnd:document.getElementById('fTestEnd')?.value,
-    openDate:document.getElementById('fOpenDate')?.value,
-    end:document.getElementById('fEnd')?.value,
-    start:document.getElementById('fStart')?.value
-  };
+
   const st=calcAutoStatus(fakeP);
   const labels={plan:'설계',dev:'개발 중',test:'테스트',stable:'운영안정화',done:'종료'};
   const colors={plan:'var(--orange)',dev:'var(--blue)',test:'var(--green)',stable:'var(--purple)',done:'var(--gray)'};
@@ -929,19 +925,19 @@ function goPage(page){
 // ═══════════════════════════════════
 // 마일스톤 기반 자동 상태 계산
 function calcAutoStatus(p){
-  const hasMilestones=p.designEnd||p.devEnd||p.testEnd;
   const pd=s=>{if(!s)return null;const a=s.split('.');return new Date(parseInt(a[0]),parseInt(a[1]||1)-1,parseInt(a[2]||1));};
   const now=new Date();
-  const end=pd(p.end);
-  if(end&&now>=end)return'done'; // 마일스톤 없어도 종료일 지났으면 종료
-  if(!hasMilestones)return p.status; // 마일스톤 없으면 미정
-  const open=pd(p.openDate),testEnd=pd(p.testEnd),devEnd=pd(p.devEnd),designEnd=pd(p.designEnd);
-  if(open&&now>=open)return'stable';
-  if(testEnd&&now>=testEnd)return open?'test':'stable';
-  if(devEnd&&now>=devEnd)return'test';
-  if(designEnd&&now>=designEnd)return'dev';
+  const start=pd(p.start),dEnd=pd(p.designEnd),dvEnd=pd(p.devEnd),open=pd(p.openDate),end=pd(p.end);
+  const hasDates=p.start||p.designEnd||p.devEnd||p.openDate||p.end;
+  if(!hasDates)return p.status||'plan';
+  if(end&&now>=end)return'done';
+  if(open&&now>=open)return'done';
+  if(dvEnd&&now>=dvEnd)return'stable';
+  if(dEnd&&now>=dEnd)return'test';
+  if(start&&now>=start)return'dev';
   return'plan';
 }
+
 function calcProgress(p){
   const autoStatus=calcAutoStatus(p);if(autoStatus==='done')return 100;
   if(!p.start||!p.end)return 0;
@@ -1228,7 +1224,7 @@ function generateTempPw(){return Math.random().toString(36).slice(-6)+Math.rando
 //  프로젝트 CRUD
 // ═══════════════════════════════════
 function initDatePickers(){
-  ['fStart','fEnd','fDesignEnd','fDevEnd','fTestEnd','fOpenDate'].forEach(fid=>{
+  ['fStart','fEnd','fDesignEnd','fDevEnd','fOpenDate'].forEach(fid=>{
     const el=document.getElementById(fid);
     if(!el||el._flatpickr)return;
     flatpickr(el,{
@@ -1267,9 +1263,9 @@ function openProjModal(id){
   if(id){const p=projects.find(x=>x.id===id);if(!p)return;document.getElementById('projModalTitle').textContent='프로젝트 수정';document.getElementById('fId').value=p.id;document.getElementById('fName').value=p.name||'';document.getElementById('fClient').value=p.client||'';document.getElementById('fPm').value=p.pm||'';document.getElementById('fLocation').value=p.location||'';document.getElementById('fLat').value=p.lat||'';document.getElementById('fLng').value=p.lng||'';document.getElementById('fRisk').value=p.risk||'mid';document.getElementById('fStart').value=p.start||'';document.getElementById('fEnd').value=p.end||'';document.getElementById('fMembers').value=p.members||'';document.getElementById('fBudget').value=p.budget||'';document.getElementById('fType').value=p.type||'신규개발';document.getElementById('fLangs').value=(p.langs||[]).join(', ');document.getElementById('fTeam').value=(p.team||[]).map(t=>`${t.name}:${t.role}`).join(', ');document.getElementById('fDesc').value=p.desc||'';document.getElementById('fOpenDate').value=p.openDate||'';
 document.getElementById('fDesignEnd').value=p.designEnd||'';
 document.getElementById('fDevEnd').value=p.devEnd||'';
-document.getElementById('fTestEnd').value=p.testEnd||'';
+
 updateAutoStatusPreview();}
-  else{document.getElementById('projModalTitle').textContent='프로젝트 추가';document.getElementById('fId').value='';['fName','fClient','fPm','fLocation','fLat','fLng','fStart','fEnd','fOpenDate','fDesignEnd','fDevEnd','fTestEnd','fMembers','fBudget','fLangs','fTeam','fDesc'].forEach(i=>document.getElementById(i).value='');document.getElementById('fType').value='신규개발';document.getElementById('fRisk').value='mid';}}
+  else{document.getElementById('projModalTitle').textContent='프로젝트 추가';document.getElementById('fId').value='';['fName','fClient','fPm','fLocation','fLat','fLng','fStart','fEnd','fOpenDate','fDesignEnd','fDevEnd','fMembers','fBudget','fLangs','fTeam','fDesc'].forEach(i=>document.getElementById(i).value='');document.getElementById('fType').value='신규개발';document.getElementById('fRisk').value='mid';}}
 function closeProjModal(force){
   if(!force&&window._projModalDirty){
     if(!confirm('입력 중인 내용이 저장되지 않습니다.\n닫으시겠습니까?'))return;
@@ -1280,10 +1276,10 @@ function closeProjModal(force){
   const ar=document.getElementById('addrSearchResult');
   if(ar){ar.style.display='none';ar.innerHTML='';}
 }
-async function saveProject(){const name=document.getElementById('fName').value.trim();if(!name){showToast('프로젝트명을 입력해주세요.');return;}const _client=document.getElementById('fClient').value.trim(),_pm=document.getElementById('fPm').value.trim();if(!_client){showToast('고객사는 필수입력입니다.');return;}if(!_pm){showToast('PM은 필수입력입니다.');return;}const _start=document.getElementById('fStart').value.trim(),_end=document.getElementById('fEnd').value.trim();if(!_start||!_end){showToast('시작일과 종료일은 필수입력입니다. (예: 2025.03.15)');return;}const id=document.getElementById('fId').value,docId=id||('p'+Date.now());const now=firebase.firestore.FieldValue.serverTimestamp();const editor=userProfile?userProfile.name||userProfile.email:'unknown';const p={id:docId,name,client:document.getElementById('fClient').value,pm:document.getElementById('fPm').value,location:document.getElementById('fLocation').value,lat:parseFloat(document.getElementById('fLat').value)||37.5665,lng:parseFloat(document.getElementById('fLng').value)||126.9780,status:calcAutoStatus({designEnd:document.getElementById('fDesignEnd').value,devEnd:document.getElementById('fDevEnd').value,testEnd:document.getElementById('fTestEnd').value,openDate:document.getElementById('fOpenDate').value,end:document.getElementById('fEnd').value,start:document.getElementById('fStart').value}),start:document.getElementById('fStart').value,end:document.getElementById('fEnd').value,members:(document.getElementById('fTeam').value?document.getElementById('fTeam').value.split(',').map(s=>s.trim()).filter(Boolean).length:0),budget:document.getElementById('fBudget').value,type:document.getElementById('fType').value,risk:document.getElementById('fRisk').value,langs:document.getElementById('fLangs').value?document.getElementById('fLangs').value.split(',').map(s=>s.trim()).filter(Boolean):[],team:document.getElementById('fTeam').value?document.getElementById('fTeam').value.split(',').map(s=>{const[n,r]=s.trim().split(':');return{name:(n||'').trim(),role:(r||'').trim()};}).filter(t=>t.name):[],desc:document.getElementById('fDesc').value,openDate:document.getElementById('fOpenDate').value.trim()||'',
+async function saveProject(){const name=document.getElementById('fName').value.trim();if(!name){showToast('프로젝트명을 입력해주세요.');return;}const _client=document.getElementById('fClient').value.trim(),_pm=document.getElementById('fPm').value.trim();if(!_client){showToast('고객사는 필수입력입니다.');return;}if(!_pm){showToast('PM은 필수입력입니다.');return;}const _start=document.getElementById('fStart').value.trim(),_end=document.getElementById('fEnd').value.trim();if(!_start||!_end){showToast('시작일과 종료일은 필수입력입니다. (예: 2025.03.15)');return;}const id=document.getElementById('fId').value,docId=id||('p'+Date.now());const now=firebase.firestore.FieldValue.serverTimestamp();const editor=userProfile?userProfile.name||userProfile.email:'unknown';const p={id:docId,name,client:document.getElementById('fClient').value,pm:document.getElementById('fPm').value,location:document.getElementById('fLocation').value,lat:parseFloat(document.getElementById('fLat').value)||37.5665,lng:parseFloat(document.getElementById('fLng').value)||126.9780,status:calcAutoStatus({designEnd:document.getElementById('fDesignEnd').value,devEnd:document.getElementById('fDevEnd').value,openDate:document.getElementById('fOpenDate').value,end:document.getElementById('fEnd').value,start:document.getElementById('fStart').value}),start:document.getElementById('fStart').value,end:document.getElementById('fEnd').value,members:(document.getElementById('fTeam').value?document.getElementById('fTeam').value.split(',').map(s=>s.trim()).filter(Boolean).length:0),budget:document.getElementById('fBudget').value,type:document.getElementById('fType').value,risk:document.getElementById('fRisk').value,langs:document.getElementById('fLangs').value?document.getElementById('fLangs').value.split(',').map(s=>s.trim()).filter(Boolean):[],team:document.getElementById('fTeam').value?document.getElementById('fTeam').value.split(',').map(s=>{const[n,r]=s.trim().split(':');return{name:(n||'').trim(),role:(r||'').trim()};}).filter(t=>t.name):[],desc:document.getElementById('fDesc').value,openDate:document.getElementById('fOpenDate').value.trim()||'',
     designEnd:document.getElementById('fDesignEnd').value.trim()||'',
     devEnd:document.getElementById('fDevEnd').value.trim()||'',
-    testEnd:document.getElementById('fTestEnd').value.trim()||'',updatedBy:editor,updatedAt:now};if(!id){p.createdBy=editor;p.createdAt=now;await db.collection('projects').doc(docId).set(p);}
+if(!id){p.createdBy=editor;p.createdAt=now;await db.collection('projects').doc(docId).set(p);}
   else{// 수정 시 createdBy/createdAt 건드리지 않음
     const {createdBy,createdAt,...updateData}=p;
     await db.collection('projects').doc(docId).update(updateData);}closeProjModal(true);showToast(id?'수정됐습니다.':'추가됐습니다.');}
@@ -1326,7 +1322,6 @@ function downloadTemplate(){
     ['종료일*','2026.12.31',true,12],
     ['설계완료일','2025.05.30',false,12],
     ['개발완료일','2026.03.31',false,12],
-    ['테스트완료일','2026.05.31',false,13],
     ['오픈일','2026.06.01',false,12],
     ['계약규모','15억',false,10],
     ['유형','재구축',false,10],
@@ -1360,7 +1355,7 @@ function downloadTemplate(){
 
 // 현재 데이터 다운로드
 function downloadExcel(){
-  const data=projects.map(p=>({'프로젝트명':p.name,'고객사':p.client,'PM':p.pm,'위치주소':p.location,'시작일':p.start,'종료일':p.end,'설계완료일':p.designEnd||'','개발완료일':p.devEnd||'','테스트완료일':p.testEnd||'','오픈일':p.openDate||'','계약규모':p.budget||'','유형':p.type||'','위험도':RISK_CFG[p.risk]?.label||p.risk||'','기술스택':(p.langs||[]).join(', '),'팀원':(p.team||[]).map(t=>t.name+(t.role?':'+t.role:'')).join(', '),'개요':p.desc||''}));
+  const data=projects.map(p=>({'프로젝트명':p.name,'고객사':p.client,'PM':p.pm,'위치주소':p.location,'시작일':p.start,'종료일':p.end,'설계완료일':p.designEnd||'','개발완료일':p.devEnd||'','오픈일':p.openDate||'','계약규모':p.budget||'','유형':p.type||'','위험도':RISK_CFG[p.risk]?.label||p.risk||'','기술스택':(p.langs||[]).join(', '),'팀원':(p.team||[]).map(t=>t.name+(t.role?':'+t.role:'')).join(', '),'개요':p.desc||''}));
   const ws=XLSX.utils.json_to_sheet(data);
   ws['!cols']=[{wch:28},{wch:14},{wch:14},{wch:20},{wch:12},{wch:12},{wch:12},{wch:12},{wch:13},{wch:12},{wch:10},{wch:10},{wch:10},{wch:24},{wch:24},{wch:28}];
   const wb=XLSX.utils.book_new();
@@ -1438,13 +1433,20 @@ function uploadExcel(e){
         members:parseInt(row['투입인원'])||0,budget:String(row['계약규모']||''),
         type:row['유형']||'신규개발',risk:rm[row['위험도']]||'mid',
         langs:row['기술스택']?row['기술스택'].toString().split(',').map(s=>s.trim()).filter(Boolean):[],
-        team,desc:row['개요']||'',openDate:excelDateToStr(row['오픈일'])||'',designEnd:excelDateToStr(row['설계완료일'])||'',devEnd:excelDateToStr(row['개발완료일'])||'',testEnd:excelDateToStr(row['테스트완료일'])||''};
+        team,desc:row['개요']||'',openDate:excelDateToStr(row['오픈일'])||'',designEnd:excelDateToStr(row['설계완료일'])||'',devEnd:excelDateToStr(row['개발완료일'])||''};
       try{
         if(isExisting){
-          const _upd={...data,updatedAt:firebase.firestore.FieldValue.serverTimestamp()};['openDate','designEnd','devEnd','testEnd'].forEach(k=>{if(_upd[k]==='')delete _upd[k];});await db.collection('projects').doc(docId).update(_upd);
+          const _existing=projects.find(p=>p.id===docId);
+        const _chkKeys=['name','client','pm','location','start','end','openDate','designEnd','devEnd','budget','type','risk','desc'];
+        const _changed=!_existing||_chkKeys.some(k=>String(_existing[k]||'')!==String(data[k]||''));
+        if(_changed){
+          const _upd={...data,updatedAt:firebase.firestore.FieldValue.serverTimestamp(),updatedBy:userProfile?.name||currentUser?.email||''};
+          ['openDate','designEnd','devEnd'].forEach(k=>{if(_upd[k]==='')delete _upd[k];});
+          await db.collection('projects').doc(docId).update(_upd);
           updated++;
+        }
         }else{
-          await db.collection('projects').doc(docId).set({...data,updatedAt:firebase.firestore.FieldValue.serverTimestamp()});
+          await db.collection('projects').doc(docId).set({...data,updatedAt:firebase.firestore.FieldValue.serverTimestamp(),updatedBy:userProfile?.name||currentUser?.email||''});
           existingMap.set(name,docId);added++;
         }
       }catch(err){errors.push(name);}
