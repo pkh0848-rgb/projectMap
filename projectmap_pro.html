@@ -937,7 +937,7 @@ function calcAutoStatus(p){
   if(!hasMilestones)return 'none'; // 마일스톤 없으면 미정
   const open=pd(p.openDate),testEnd=pd(p.testEnd),devEnd=pd(p.devEnd),designEnd=pd(p.designEnd);
   if(open&&now>=open)return'stable';
-  if(testEnd&&now>=testEnd)return'stable';
+  if(testEnd&&now>=testEnd)return open?'test':'stable';
   if(devEnd&&now>=devEnd)return'test';
   if(designEnd&&now>=designEnd)return'dev';
   return'plan';
@@ -1441,10 +1441,10 @@ function uploadExcel(e){
         team,desc:row['개요']||'',openDate:excelDateToStr(row['오픈일'])||'',designEnd:excelDateToStr(row['설계완료일'])||'',devEnd:excelDateToStr(row['개발완료일'])||'',testEnd:excelDateToStr(row['테스트완료일'])||''};
       try{
         if(isExisting){
-          await db.collection('projects').doc(docId).update(data);
+          await db.collection('projects').doc(docId).update({...data,updatedAt:firebase.firestore.FieldValue.serverTimestamp()});
           updated++;
         }else{
-          await db.collection('projects').doc(docId).set(data);
+          await db.collection('projects').doc(docId).set({...data,updatedAt:firebase.firestore.FieldValue.serverTimestamp()});
           existingMap.set(name,docId);added++;
         }
       }catch(err){errors.push(name);}
