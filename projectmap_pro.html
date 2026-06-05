@@ -555,7 +555,7 @@ const db=firebase.firestore();
 //  CONSTANTS
 // ═══════════════════════════════════
 const HQ={name:'뱅크웨어글로벌 본사',address:'서울 중구 서소문로 11길 19',lat:37.5643,lng:126.9752};
-const STATUS_CFG={plan:{label:'착수',color:'#f59e0b',bg:'#fffbeb'},dev:{label:'설계',color:'#3b82f6',bg:'#eff6ff'},test:{label:'개발',color:'#8b5cf6',bg:'#f5f3ff'},stable:{label:'테스트',color:'#10b981',bg:'#ecfdf5'},done:{label:'운영안정화',color:'#6b7280',bg:'#f9fafb'}}
+const STATUS_CFG={plan:{label:'착수',color:'#6366f1',bg:'#eef2ff'},dev:{label:'설계',color:'#f59e0b',bg:'#fffbeb'},test:{label:'개발',color:'#3b82f6',bg:'#eff6ff'},stable:{label:'테스트',color:'#8b5cf6',bg:'#f5f3ff'},ops:{label:'운영안정화',color:'#10b981',bg:'#ecfdf5'},done:{label:'종료',color:'#6b7280',bg:'#f3f4f6'}}
 const RISK_CFG={low:{label:'낮음',color:'#4fcc7a',bg:'#1e4d2e'},mid:{label:'보통',color:'#f59e0b',bg:'#3a2e1e'},high:{label:'높음',color:'#ef4444',bg:'#4d1e1e'}};
 const DEFAULT_PROJECTS=[
 {id:'p1',name:'SBI 프로젝트',client:'SBI저축은행',location:'서울 광화문',lat:37.5759,lng:126.9768,status:'done',start:'2024.03.04',end:'2025.12.31',designEnd:'2024.05.31',devEnd:'2025.06.30',testEnd:'2025.10.31',openDate:'2025.12.01',members:9,budget:'12억',type:'신규개발',risk:'low',pm:'금승철 상무',langs:['Java','Spring','Oracle','React'],team:[{name:'금승철',role:'PM'},{name:'홍길동',role:'개발리드'},{name:'이수빈',role:'개발자'},{name:'박준혁',role:'개발자'},{name:'김민지',role:'개발자'},{name:'최재원',role:'DBA'},{name:'장하은',role:'개발자'},{name:'윤도현',role:'QA'},{name:'정수아',role:'분석가'}],desc:'저축은행 차세대 뱅킹 시스템 구축'},
@@ -824,13 +824,15 @@ function updateAutoStatusPreview(){
   const preview=document.getElementById('autoStatusPreview');
   if(!preview)return;
   const fakeP={
-    status:document.getElementById('fStatus')?.value||'plan',
+    start:document.getElementById('fStart')?.value,
     designEnd:document.getElementById('fDesignEnd')?.value,
     devEnd:document.getElementById('fDevEnd')?.value,
-
+    openDate:document.getElementById('fOpenDate')?.value,
+    end:document.getElementById('fEnd')?.value
+  };
   const st=calcAutoStatus(fakeP);
-  const labels={plan:'설계',dev:'개발 중',test:'테스트',stable:'운영안정화',done:'종료'};
-  const colors={plan:'var(--orange)',dev:'var(--blue)',test:'var(--green)',stable:'var(--purple)',done:'var(--gray)'};
+  const labels={plan:'착수',dev:'설계',test:'개발',stable:'테스트',ops:'운영안정화',done:'종료'};
+  const colors={plan:'#6366f1',dev:'#f59e0b',test:'#3b82f6',stable:'#8b5cf6',ops:'#10b981',done:'#6b7280'};
   preview.textContent=labels[st]||st;
   preview.style.color=colors[st]||'var(--text)';
 }
@@ -928,10 +930,8 @@ function calcAutoStatus(p){
   const pd=s=>{if(!s)return null;const a=s.split('.');return new Date(parseInt(a[0]),parseInt(a[1]||1)-1,parseInt(a[2]||1));};
   const now=new Date();
   const start=pd(p.start),dEnd=pd(p.designEnd),dvEnd=pd(p.devEnd),open=pd(p.openDate),end=pd(p.end);
-  const hasDates=p.start||p.designEnd||p.devEnd||p.openDate||p.end;
-  if(!hasDates)return p.status||'plan';
   if(end&&now>=end)return'done';
-  if(open&&now>=open)return'done';
+  if(open&&now>=open)return'ops';
   if(dvEnd&&now>=dvEnd)return'stable';
   if(dEnd&&now>=dEnd)return'test';
   if(start&&now>=start)return'dev';
@@ -1278,7 +1278,8 @@ function closeProjModal(force){
 }
 async function saveProject(){const name=document.getElementById('fName').value.trim();if(!name){showToast('프로젝트명을 입력해주세요.');return;}const _client=document.getElementById('fClient').value.trim(),_pm=document.getElementById('fPm').value.trim();if(!_client){showToast('고객사는 필수입력입니다.');return;}if(!_pm){showToast('PM은 필수입력입니다.');return;}const _start=document.getElementById('fStart').value.trim(),_end=document.getElementById('fEnd').value.trim();if(!_start||!_end){showToast('시작일과 종료일은 필수입력입니다. (예: 2025.03.15)');return;}const id=document.getElementById('fId').value,docId=id||('p'+Date.now());const now=firebase.firestore.FieldValue.serverTimestamp();const editor=userProfile?userProfile.name||userProfile.email:'unknown';const p={id:docId,name,client:document.getElementById('fClient').value,pm:document.getElementById('fPm').value,location:document.getElementById('fLocation').value,lat:parseFloat(document.getElementById('fLat').value)||37.5665,lng:parseFloat(document.getElementById('fLng').value)||126.9780,status:calcAutoStatus({designEnd:document.getElementById('fDesignEnd').value,devEnd:document.getElementById('fDevEnd').value,openDate:document.getElementById('fOpenDate').value,end:document.getElementById('fEnd').value,start:document.getElementById('fStart').value}),start:document.getElementById('fStart').value,end:document.getElementById('fEnd').value,members:(document.getElementById('fTeam').value?document.getElementById('fTeam').value.split(',').map(s=>s.trim()).filter(Boolean).length:0),budget:document.getElementById('fBudget').value,type:document.getElementById('fType').value,risk:document.getElementById('fRisk').value,langs:document.getElementById('fLangs').value?document.getElementById('fLangs').value.split(',').map(s=>s.trim()).filter(Boolean):[],team:document.getElementById('fTeam').value?document.getElementById('fTeam').value.split(',').map(s=>{const[n,r]=s.trim().split(':');return{name:(n||'').trim(),role:(r||'').trim()};}).filter(t=>t.name):[],desc:document.getElementById('fDesc').value,openDate:document.getElementById('fOpenDate').value.trim()||'',
     designEnd:document.getElementById('fDesignEnd').value.trim()||'',
-    devEnd:document.getElementById('fDevEnd').value.trim()||'',
+    devEnd:document.getElementById('fDevEnd').value.trim()||''};
+p.updatedAt=now;p.updatedBy=editor;
 if(!id){p.createdBy=editor;p.createdAt=now;await db.collection('projects').doc(docId).set(p);}
   else{// 수정 시 createdBy/createdAt 건드리지 않음
     const {createdBy,createdAt,...updateData}=p;
@@ -1378,7 +1379,7 @@ function uploadExcel(e){
   const reader=new FileReader();
   reader.onload=async evt=>{
     const wb=XLSX.read(evt.target.result,{type:'binary',cellDates:false}),ws=wb.Sheets[wb.SheetNames[0]],rows=XLSX.utils.sheet_to_json(ws,{raw:true});
-    const sm={'개발 중':'dev','테스트':'test','운영안정화':'stable','설계':'plan','종료':'done'};
+    const sm={'착수':'plan','설계':'dev','개발':'test','테스트':'stable','운영안정화':'ops','종료':'done'};
     const rm={'낮음':'low','보통':'mid','높음':'high'};
     // 기존 프로젝트를 name→id 맵으로 관리 (업데이트용)
     const existingMap=new Map(projects.map(p=>[p.name.trim(),p.id]));
@@ -1440,13 +1441,13 @@ function uploadExcel(e){
         const _chkKeys=['name','client','pm','location','start','end','openDate','designEnd','devEnd','budget','type','risk','desc'];
         const _changed=!_existing||_chkKeys.some(k=>String(_existing[k]||'')!==String(data[k]||''));
         if(_changed){
-          const _upd={...data,updatedAt:firebase.firestore.FieldValue.serverTimestamp(),updatedBy:userProfile?.name||currentUser?.email||''};
+          const _upd={...data,updatedAt:firebase.firestore.FieldValue.serverTimestamp(),updatedBy:userProfile?.name||userProfile?.displayName||currentUser?.displayName||currentUser?.email||''};
           ['openDate','designEnd','devEnd'].forEach(k=>{if(_upd[k]==='')delete _upd[k];});
           await db.collection('projects').doc(docId).update(_upd);
           updated++;
         }
         }else{
-          await db.collection('projects').doc(docId).set({...data,updatedAt:firebase.firestore.FieldValue.serverTimestamp(),updatedBy:userProfile?.name||currentUser?.email||''});
+          await db.collection('projects').doc(docId).set({...data,updatedAt:firebase.firestore.FieldValue.serverTimestamp(),updatedBy:userProfile?.name||userProfile?.displayName||currentUser?.displayName||currentUser?.email||''});
           existingMap.set(name,docId);added++;
         }
       }catch(err){errors.push(name);}
