@@ -1421,52 +1421,96 @@ async function deleteProject(id){if(!confirm('정말 삭제하시겠습니까?')
 // ═══════════════════════════════════
 // 빈 양식 다운로드
 function downloadTemplate(){
-  // 컬럼 정의: [key, 예시값, 필수여부, 너비(chars)]
   const cols=[
-    ['프로젝트명*','(예시) 우리카드 통합단말 재구축',true,28],
+    ['프로젝트명*','(예시) 우리카드 통합단말 재구축',true,30],
     ['고객사*','우리카드',true,14],
-    ['PM*','김정후 상무',true,14],
-    ['위치주소','서울 상암 디지털단지',false,20],
-    ['시작일*','2025.01.01',true,12],
-    ['종료일*','2026.12.31',true,12],
-    ['설계완료일','2025.05.30',false,12],
-    ['개발완료일','2026.03.31',false,12],
-    ['오픈일','2026.06.01',false,12],
-    ['계약규모','15억',false,10],
-    ['유형','재구축',false,10],
-    ['위험도','보통',false,10],
-    ['기술스택','Java, Spring, Oracle',false,24],
-    ['팀원','김철수:개발, 이영희:기획',false,24],
-    ['개요','프로젝트 설명',false,28],
+    ['PM*','김정후 상무',true,16],
+    ['위치주소','서울 상암 디지털단지',false,22],
+    ['시작일*','2024.06.03',true,13],
+    ['설계완료일','2024.08.31',false,13],
+    ['개발완료일','2025.08.31',false,13],
+    ['오픈일','2026.01.12',false,13],
+    ['종료일*','2026.05.29',true,13],
+    ['계약규모','28억',false,12],
+    ['유형','재구축',false,12],
+    ['위험도','낮음',false,10],
+    ['기술스택','C++, Java, PostgreSQL',false,26],
+    ['팀원','김정후:PM, 박서연:개발리드, 이태양:개발자',false,36],
+    ['개요','카드 통합단말기 소프트웨어 전면 재구축',false,36],
   ];
-  const row={};cols.forEach(([k,,],i)=>row[k]=cols[i][1]);
-  const ws=XLSX.utils.json_to_sheet([row]);
+  const headerRow={};cols.forEach(([k,,])=>{headerRow[k]='';});
+  const exRow={};cols.forEach(([k,,],i)=>{exRow[k]=cols[i][1];});
+  const ws=XLSX.utils.aoa_to_sheet([
+    cols.map(([k])=>k),
+    cols.map(([,v])=>v),
+  ]);
   const wb=XLSX.utils.book_new();
-  // 컬럼 너비 설정
-  ws['!cols']=cols.map(([,,, w])=>({wch:w}));
-  // 헤더 스타일: 필수=파란 배경 흰 글자, 선택=회색 배경
-  const reqStyle={font:{bold:true,color:{rgb:'FFFFFF'}},fill:{fgColor:{rgb:'2563EB'}},alignment:{horizontal:'center'}};
-  const optStyle={font:{bold:true,color:{rgb:'374151'}},fill:{fgColor:{rgb:'E5E7EB'}},alignment:{horizontal:'center'}};
-  const dataStyle={fill:{fgColor:{rgb:'F8FAFC'}}};
+  ws['!cols']=cols.map(([,,,w])=>({wch:w}));
+  const reqStyle={font:{bold:true,color:{rgb:'FFFFFF'}},fill:{fgColor:{rgb:'1D4ED8'}},alignment:{horizontal:'center',wrapText:true}};
+  const optStyle={font:{bold:true,color:{rgb:'1F2937'}},fill:{fgColor:{rgb:'DBEAFE'}},alignment:{horizontal:'center',wrapText:true}};
+  const exStyle={fill:{fgColor:{rgb:'F0F9FF'}},font:{italic:true,color:{rgb:'6B7280'}}};
+  const noteStyle={fill:{fgColor:{rgb:'FEF9C3'}},font:{italic:true,color:{rgb:'92400E'}}};
   cols.forEach(([key,,required],i)=>{
-    const col=String.fromCharCode(65+i);
-    const hCell=col+'1', dCell=col+'2';
-    if(!ws[hCell])ws[hCell]={t:'s',v:key};
-    ws[hCell].s=required?reqStyle:optStyle;
-    if(ws[dCell])ws[dCell].s=dataStyle;
+    const col=i<26?String.fromCharCode(65+i):'A'+String.fromCharCode(65+i-26);
+    const h=col+'1',d=col+'2';
+    if(ws[h])ws[h].s=required?reqStyle:optStyle;
+    if(ws[d])ws[d].s=exStyle;
   });
-  // 범례 행 (3행): * 표시 = 필수 입력 항목
-  ws['A3']={t:'s',v:'* 표시 항목은 필수 입력값입니다',s:{font:{italic:true,color:{rgb:'6B7280'}},fill:{fgColor:{rgb:'FFFFFF'}}}};
-  ws['!ref']='A1:'+String.fromCharCode(65+cols.length-1)+'3';
+  ws['!ref']='A1:'+String.fromCharCode(65+cols.length-1)+'2';
   XLSX.utils.book_append_sheet(wb,ws,'프로젝트');
+  // 안내 시트
+  const infoWs=XLSX.utils.aoa_to_sheet([
+    ['항목','필수여부','설명','허용값 예시'],
+    ['프로젝트명*','필수','프로젝트 전체 이름','우리카드 통합단말 재구축'],
+    ['고객사*','필수','발주처 회사명','우리카드'],
+    ['PM*','필수','프로젝트 관리자','김정후 상무'],
+    ['위치주소','선택','고객사 주소 (카카오 자동 변환)','서울 상암 디지털단지'],
+    ['시작일*','필수','프로젝트 착수일 YYYY.MM.DD','2024.06.03'],
+    ['설계완료일','선택','설계 단계 종료일','2024.08.31'],
+    ['개발완료일','선택','개발 단계 종료일','2025.08.31'],
+    ['오픈일','선택','시스템 오픈(테스트→운영 전환)일','2026.01.12'],
+    ['종료일*','필수','계약 종료일','2026.05.29'],
+    ['계약규모','선택','계약 금액 (숫자+억/만 형식)','28억, 3천만, TBD'],
+    ['유형','선택','신규개발 / 고도화 / 재구축 / 유지보수','재구축'],
+    ['위험도','선택','낮음 / 보통 / 높음','보통'],
+    ['기술스택','선택','쉼표로 구분','Java, Spring, Oracle'],
+    ['팀원','선택','이름:역할 형식, 쉼표 구분 (PM 자동추가)','박서연:개발리드, 이태양:개발자'],
+    ['개요','선택','프로젝트 설명','카드 통합단말기 전면 재구축'],
+  ]);
+  infoWs['!cols']=[{wch:16},{wch:8},{wch:38},{wch:30}];
+  const hdrS={font:{bold:true,color:{rgb:'FFFFFF'}},fill:{fgColor:{rgb:'1D4ED8'}}};
+  ['A1','B1','C1','D1'].forEach(c=>{if(infoWs[c])infoWs[c].s=hdrS;});
+  XLSX.utils.book_append_sheet(wb,infoWs,'입력 안내');
   XLSX.writeFile(wb,'프로젝트맵_업로드양식.xlsx');
-  showToast('양식 파일을 다운로드했습니다. 3행부터 실제 데이터를 입력하세요.');}
+  showToast('양식 다운로드 완료. 프로젝트 시트 2행부터 데이터를 입력하세요.');}
 
 // 현재 데이터 다운로드
 function downloadExcel(){
-  const data=sortedProjects().map(p=>({'프로젝트명':p.name,'고객사':p.client,'PM':p.pm,'위치주소':p.location,'시작일':p.start,'종료일':p.end,'설계완료일':p.designEnd||'','개발완료일':p.devEnd||'','오픈일':p.openDate||'','계약규모':p.budget||'','유형':p.type||'','위험도':RISK_CFG[p.risk]?.label||p.risk||'','기술스택':(p.langs||[]).join(', '),'팀원':(p.team||[]).map(t=>t.name+(t.role?':'+t.role:'')).join(', '),'개요':p.desc||''}));
-  const ws=XLSX.utils.json_to_sheet(data);
-  ws['!cols']=[{wch:28},{wch:14},{wch:14},{wch:20},{wch:12},{wch:12},{wch:12},{wch:12},{wch:13},{wch:12},{wch:10},{wch:10},{wch:10},{wch:24},{wch:24},{wch:28}];
+  const cols=[
+    ['프로젝트명*',30,true],['고객사*',14,true],['PM*',16,true],
+    ['위치주소',22,false],['시작일*',13,true],['설계완료일',13,false],
+    ['개발완료일',13,false],['오픈일',13,false],['종료일*',13,true],
+    ['계약규모',12,false],['유형',12,false],['위험도',10,false],
+    ['기술스택',26,false],['팀원',36,false],['개요',36,false],['현재단계',12,false]
+  ];
+  const rows=sortedProjects().map(p=>({
+    '프로젝트명*':p.name,'고객사*':p.client,'PM*':p.pm,'위치주소':p.location||'',
+    '시작일*':p.start||'','설계완료일':p.designEnd||'','개발완료일':p.devEnd||'',
+    '오픈일':p.openDate||'','종료일*':p.end||'','계약규모':p.budget||'',
+    '유형':p.type||'','위험도':RISK_CFG[p.risk]?.label||p.risk||'',
+    '기술스택':(p.langs||[]).join(', '),
+    '팀원':(p.team||[]).map(t=>t.name+(t.role?':'+t.role:'')).join(', '),
+    '개요':p.desc||'','현재단계':STATUS_CFG[calcAutoStatus(p)]?.label||''
+  }));
+  const ws=XLSX.utils.json_to_sheet(rows,{header:cols.map(([k])=>k)});
+  ws['!cols']=cols.map(([,w])=>({wch:w}));
+  const reqS={font:{bold:true,color:{rgb:'FFFFFF'}},fill:{fgColor:{rgb:'1D4ED8'}},alignment:{horizontal:'center'}};
+  const optS={font:{bold:true,color:{rgb:'1F2937'}},fill:{fgColor:{rgb:'DBEAFE'}},alignment:{horizontal:'center'}};
+  const infoS={font:{bold:true,color:{rgb:'FFFFFF'}},fill:{fgColor:{rgb:'4B5563'}},alignment:{horizontal:'center'}};
+  cols.forEach(([key,,req],i)=>{
+    const col=String.fromCharCode(65+i)+'1';
+    if(ws[col]){ws[col].s=key==='현재단계'?infoS:req?reqS:optS;}
+  });
   const wb=XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb,ws,'프로젝트');
   const _d=new Date();
