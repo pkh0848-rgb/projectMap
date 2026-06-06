@@ -17,7 +17,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 <style>
-:root{--bg:#0b0d14;--bg2:#12152a;--bg3:#1a1d33;--bg4:#1e2140;--border:#ffffff10;--border2:#ffffff18;--text:#e8eaf0;--text2:#9ca3b0;--text3:#555c70;--blue:#4f9eff;--green:#4fcc7a;--purple:#a855f7;--orange:#f59e0b;--red:#ef4444;--gold:#f0b429;--gray:#555;--sidebar-w:220px;--header-h:56px;}
+:root{--bg:#0b0d14;--bg2:#12152a;--bg3:#1a1d33;--bg4:#1e2140;--border:#ffffff10;--border2:#ffffff18;--text:#e8eaf0;--text2:#b8bfcc;--text3:#7a8296;--blue:#4f9eff;--green:#4fcc7a;--purple:#a855f7;--orange:#f59e0b;--red:#ef4444;--gold:#f0b429;--gray:#555;--sidebar-w:220px;--header-h:56px;}
 *{margin:0;padding:0;box-sizing:border-box;}
 body{font-family:'Segoe UI',sans-serif;background:var(--bg);color:var(--text);height:100vh;overflow:hidden;}
 
@@ -81,8 +81,8 @@ body{font-family:'Segoe UI',sans-serif;background:var(--bg);color:var(--text);he
 .app-body{display:flex;flex:1;overflow:hidden;}
 .sidebar{width:var(--sidebar-w);background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;}
 .nav-section{padding:16px 12px 8px;}
-.nav-label{font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:1px;padding:0 8px;margin-bottom:6px;}
-.nav-item{display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:8px;cursor:pointer;font-size:13px;color:var(--text2);transition:all 0.15s;margin-bottom:2px;border:none;background:none;width:100%;text-align:left;}
+.nav-label{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:1px;padding:0 8px;margin-bottom:6px;}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;cursor:pointer;font-size:14px;color:var(--text2);font-weight:500;transition:all 0.15s;margin-bottom:2px;border:none;background:none;width:100%;text-align:left;}
 .nav-item:hover{background:var(--bg3);color:var(--text);}
 .nav-item.active{background:linear-gradient(135deg,#4f9eff18,#a855f718);color:#fff;border:1px solid #4f9eff22;}
 .nav-icon{font-size:16px;width:20px;text-align:center;}
@@ -410,7 +410,7 @@ tr:hover td{background:var(--bg3);}
         <button class="nav-item" onclick="goPage('resources')" id="nav-resources"><span class="nav-icon">ð¥</span> ì¸ë ¥ íí©<span class="nav-badge" id="conflictBadge" style="display:none">!</span></button>
         <button class="nav-item" onclick="goPage('users')" id="nav-users" style="display:none"><span class="nav-icon">âï¸</span> ì¬ì©ì ê´ë¦¬</button>
       </div>
-      <div class="sidebar-bottom"><button class="nav-item" onclick="doLogout()" style="color:var(--text3)"><span class="nav-icon">ðª</span> ë¡ê·¸ìì</button></div>
+      <div class="sidebar-bottom"><button class="nav-item" onclick="doLogout()" style="color:var(--text2)"><span class="nav-icon">ðª</span> ë¡ê·¸ìì</button></div>
     </nav>
     <div class="content">
 
