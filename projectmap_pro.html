@@ -489,7 +489,7 @@ tr:hover td{background:var(--bg3);}
         <div class="page-header">
           <div class="page-title">사용자 관리 <span id="userCount"></span></div>
           <button class="btn-primary" onclick="openAddUserModal()" style="margin-left:auto">＋ 사용자 초대</button>
-          <button class="btn-secondary admin-only" onclick="seedMilestones()" style="margin-left:8px;font-size:11px;opacity:0.6" title="마일스톤 없는 프로젝트에 일정 자동 생성">🔧 마일스톤 자동생성</button>
+          
         </div>
         <div class="table-wrap"><table>
           <thead><tr><th>이름</th><th>이메일</th><th>역할</th><th>상태</th><th>가입일</th><th>관리</th></tr></thead>
@@ -1424,9 +1424,6 @@ if(!id){p.createdBy=editor;p.createdAt=now;await db.collection('projects').doc(d
   else{// 수정 시 createdBy/createdAt 건드리지 않음
     const {createdBy,createdAt,...updateData}=p;
     await db.collection('projects').doc(docId).update(updateData);}closeProjModal(true);showToast(id?'수정됐습니다.':'추가됐습니다.');}
-async function seedMilestones(){
-  const targets=projects.filter(p=>!p.designEnd&&!p.devEnd&&!p.testEnd&&p.start&&p.end);
-  if(!targets.length){showToast('모든 프로젝트에 이미 마일스톤이 있습니다.');return;}
   if(!confirm(`마일스톤 없는 ${targets.length}개 프로젝트에 시작일/종료일 기준으로 마일스톤을 자동 생성합니다.`))return;
   const pd=s=>{if(!s)return null;const a=s.split('.');return new Date(parseInt(a[0]),parseInt(a[1]||1)-1,parseInt(a[2]||1));};
   const fmt=d=>`${d.getFullYear()}.${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')}`;
