@@ -686,15 +686,8 @@ auth.onAuthStateChanged(async fbUser=>{
       if(!fbUser.emailVerified && doc.data().role!=='admin'){
         await auth.signOut();showScreen('login');return;
       }
-      // 이메일 인증 완료 시 isActive 자동 활성화 후 doc 재조회
-      if(fbUser.emailVerified && doc.data().isActive===false && doc.data().role!=='admin'){
-        try{
-          await db.collection('users').doc(fbUser.uid).update({isActive:true,emailVerified:true});
-          doc=await db.collection('users').doc(fbUser.uid).get();
-        }catch(e){}
-      }
-      // 이메일 인증된 유저는 isActive 체크 스킵 (보안규칙으로 업데이트 실패해도 허용)
-      if(!fbUser.emailVerified && doc.data().isActive===false){await auth.signOut();showScreen('login');return;}
+      // 비활성화 계정 차단 (admin이 deactivate한 경우)
+      if(doc.data().isActive===false){await auth.signOut();showScreen('login');return;}
       userProfile=doc.data();currentUser=fbUser;
       if(userProfile.mustChangePassword){showScreen('changePw');}
       else{initAppUI();showScreen('app');}
