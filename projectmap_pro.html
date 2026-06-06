@@ -492,7 +492,7 @@ tr:hover td{background:var(--bg3);}
           
         </div>
         <div class="table-wrap"><table>
-          <thead><tr><th>이름</th><th>이메일</th><th>역할</th><th>상태</th><th>가입일</th><th>관리</th></tr></thead>
+          <thead><tr><th onclick="setUserSort('name')" style="cursor:pointer;user-select:none">이름<span id="sortIconName" style="font-size:10px;margin-left:2px;color:var(--accent)"></span></th><th>이메일</th><th onclick="setUserSort('role')" style="cursor:pointer;user-select:none">역할<span id="sortIconRole" style="font-size:10px;margin-left:2px;color:var(--accent)"></span></th><th onclick="setUserSort('status')" style="cursor:pointer;user-select:none">상태<span id="sortIconStatus" style="font-size:10px;margin-left:2px;color:var(--accent)"></span></th><th>가입일</th><th>관리</th></tr></thead>
           <tbody id="usersTable"></tbody>
         </table></div>
       </div></div>
@@ -1274,9 +1274,17 @@ function searchMember(name){document.getElementById('globalSearch').value=name;s
 // ═══════════════════════════════════
 //  사용자 관리
 // ═══════════════════════════════════
+let userSortCol=null,userSortDir=0;
+function setUserSort(col){
+  if(userSortCol===col){userSortDir++;if(userSortDir>2){userSortCol=null;userSortDir=0;}}
+  else{userSortCol=col;userSortDir=1;}
+  renderUsers();
+}
 async function renderUsers(){
   const snap=await db.collection('users').get();
-  appUsers=snap.docs.map(d=>d.data()).sort((a,b)=>{const ta=a.createdAt?.seconds||0,tb=b.createdAt?.seconds||0;return tb-ta;});
+  appUsers=snap.docs.map(d=>d.data()).sort((a,b)=>{const ta=a.createdAt?.seconds||0,tb=b.createdAt?.seconds||0;return ta-tb;});
+  if(userSortCol&&userSortDir>0){appUsers.sort((a,b)=>{let va='',vb='';if(userSortCol==='name'){va=(a.name||'').toLowerCase();vb=(b.name||'').toLowerCase();}else if(userSortCol==='role'){va=a.role||'';vb=b.role||'';}else if(userSortCol==='status'){const gs=u=>(u.isActive===false&&u.emailVerified===false)?'0':u.isActive===false?'1':u.mustChangePassword?'2':'3';va=gs(a);vb=gs(b);}return userSortDir===1?(va<vb?-1:va>vb?1:0):(va>vb?-1:va<vb?1:0);});}
+  ['Name','Role','Status'].forEach(c=>{const el=document.getElementById('sortIcon'+c);if(el)el.textContent=userSortCol===c.toLowerCase()?(userSortDir===1?' ↑':' ↓'):'';});
   document.getElementById('userCount').textContent=`(${appUsers.length}명)`;
   document.getElementById('usersTable').innerHTML=appUsers.map(u=>{
     const statusBadge=u.isActive===false&&u.emailVerified===false?`<span class="user-status-badge badge-pending">인증 대기</span>`:u.isActive===false?`<span class="user-status-badge badge-inactive">비활성</span>`:u.mustChangePassword?`<span class="user-status-badge badge-pending">초대됨</span>`:`<span class="user-status-badge badge-active">활성</span>`;
@@ -1347,6 +1355,7 @@ async function activateUser(uid){
   showToast('활성화됐습니다.');renderUsers();}
 
 async function resendInvite(email){
+  if(!confirm(`${email}로 재초대 이메일을 재발송하시겠습니까?`))return;
   await auth.sendPasswordResetEmail(email);
   showToast(`${email}로 초대 이메일을 재발송했습니다.`);}
 
