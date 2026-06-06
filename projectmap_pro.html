@@ -1424,25 +1424,6 @@ if(!id){p.createdBy=editor;p.createdAt=now;await db.collection('projects').doc(d
   else{// 수정 시 createdBy/createdAt 건드리지 않음
     const {createdBy,createdAt,...updateData}=p;
     await db.collection('projects').doc(docId).update(updateData);}closeProjModal(true);showToast(id?'수정됐습니다.':'추가됐습니다.');}
-  if(!confirm(`마일스톤 없는 ${targets.length}개 프로젝트에 시작일/종료일 기준으로 마일스톤을 자동 생성합니다.`))return;
-  const pd=s=>{if(!s)return null;const a=s.split('.');return new Date(parseInt(a[0]),parseInt(a[1]||1)-1,parseInt(a[2]||1));};
-  const fmt=d=>`${d.getFullYear()}.${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')}`;
-  let count=0;
-  for(const p of targets){
-    const start=pd(p.start),end=pd(p.end);
-    if(!start||!end)continue;
-    const dur=end-start;
-    const designEnd=new Date(start.getTime()+dur*0.25);
-    const devEnd=new Date(start.getTime()+dur*0.6);
-    const testEnd=new Date(start.getTime()+dur*0.85);
-    const openDate=new Date(end.getTime()-15*24*60*60*1000);
-    const update={designEnd:fmt(designEnd),devEnd:fmt(devEnd),testEnd:fmt(testEnd),openDate:fmt(openDate)};
-    update.status=calcAutoStatus({...p,...update});
-    await db.collection('projects').doc(p.id).update(update);
-    count++;
-  }
-  showToast(`${count}개 프로젝트에 마일스톤 자동 생성 완료`);
-}
 async function deleteProject(id){const _dp=projects.find(x=>x.id===id);if(!confirm((_dp?_dp.name+' ':'')+' 프로젝트를 삭제하시겠습니까?\n되돌릴 수 없습니다.'))return;await db.collection('projects').doc(id).delete();showToast('삭제됐습니다.');}
 
 // ═══════════════════════════════════
