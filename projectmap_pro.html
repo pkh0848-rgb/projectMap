@@ -784,7 +784,7 @@ async function doSignup(){
     // Firestore 프로필 저장
     await db.collection('users').doc(cred.user.uid).set({
       uid:cred.user.uid,name,email,role:'viewer',
-      mustChangePassword:false,isActive:false,emailVerified:false,
+      mustChangePassword:false,isActive:true,emailVerified:false,
       createdAt:firebase.firestore.FieldValue.serverTimestamp()
     });
     // 인증 이메일 발송
