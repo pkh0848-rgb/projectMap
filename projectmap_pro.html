@@ -1780,6 +1780,17 @@ function syncAlertHeight(){
     alertCard.style.maxHeight=leftCol.offsetHeight+'px';
   }
 }
+
+// Hide search bar on dashboard page
+(function(){
+  function syncSearch(){
+    var ap=document.querySelector('.page.active');
+    var s=document.querySelector('.header-search');
+    if(s) s.style.display=(ap&&ap.id==='page-dashboard')?'none':'';
+  }
+  new MutationObserver(syncSearch).observe(document.body,{subtree:true,attributes:true,attributeFilter:['class']});
+  syncSearch();
+})();
 </script>
 </body>
 </html>
