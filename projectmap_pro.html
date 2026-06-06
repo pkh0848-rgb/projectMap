@@ -1716,7 +1716,7 @@ async function confirmExcelSave(){
 // ═══════════════════════════════════
 //  검색
 // ═══════════════════════════════════
-function onGlobalSearch(val){searchQuery=val.toLowerCase();if(currentPage==='map')renderMap();if(currentPage==='projects'){document.querySelectorAll('#projTable tr').forEach(tr=>{tr.style.display=tr.textContent.toLowerCase().includes(searchQuery)?'':'none';});}if(currentPage==='resources')renderResources();if(currentPage==='users'){document.querySelectorAll('#usersTable tr').forEach(tr=>{tr.style.display=tr.textContent.toLowerCase().includes(searchQuery)?'':'none';});}}
+function onGlobalSearch(val){searchQuery=val.toLowerCase();if(currentPage==='map')renderMap();if(currentPage==='projects'){document.querySelectorAll('#projTable tr').forEach(tr=>{const cells=tr.querySelectorAll('td');if(!cells.length){tr.style.display='';return;}const text=[0,1,2].map(i=>cells[i]?cells[i].textContent:'').join(' ').toLowerCase();tr.style.display=text.includes(searchQuery)?'':'none';});}if(currentPage==='resources')renderResources();if(currentPage==='users'){document.querySelectorAll('#usersTable tr').forEach(tr=>{const cells=tr.querySelectorAll('td');if(!cells.length){tr.style.display='';return;}const text=[0,1].map(i=>cells[i]?cells[i].textContent:'').join(' ').toLowerCase();tr.style.display=text.includes(searchQuery)?'':'none';});}}
 
 // ═══════════════════════════════════
 //  유틸
@@ -1784,10 +1784,10 @@ function syncAlertHeight(){
 // Hide search bar on dashboard; update placeholder and clear on page switch
 (function(){
   var ph={
-    'page-map':'팀원 이름 검색...',
+    'page-map':'프로젝트명·고객사 검색...',
     'page-projects':'프로젝트명·고객사·PM 검색...',
-    'page-resources':'인력명·프로젝트명·역할 검색...',
-    'page-users':'이름·이메일 검색...'
+    'page-resources':'프로젝트명 검색...',
+    'page-users':'사용자 이름 검색...'
   };
   var prevPage='';
   function syncSearch(){
