@@ -387,7 +387,7 @@ tr:hover td{background:var(--bg3);}
 <!-- 앱 -->
 <div id="app">
   <header class="app-header">
-    <div class="app-logo" onclick="navigateTo('dashboard')" style="cursor:pointer"><div class="icon">🗺</div><h1>ProjectMap</h1><span class="ver">Pro</span><span class="sync-ok" id="syncIndicator">● 실시간 연결</span></div>
+    <div class="app-logo" onclick="goPage('dashboard')" style="cursor:pointer"><div class="icon">🗺</div><h1>ProjectMap</h1><span class="ver">Pro</span><span class="sync-ok" id="syncIndicator">● 실시간 연결</span></div>
     <div class="header-search"><input type="text" placeholder="🔍  프로젝트·고객사·멤버 검색..." id="globalSearch" oninput="onGlobalSearch(this.value)"/></div>
     <div class="header-right">
       <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()">🌙<span id="themeLabel">다크</span></button>
