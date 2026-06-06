@@ -64,7 +64,7 @@ body{font-family:'Segoe UI',sans-serif;background:var(--bg);color:var(--text);he
 .sync-ing{color:var(--orange);background:#f59e0b11;border:1px solid #f59e0b22;font-size:11px;padding:3px 10px;border-radius:10px;margin-left:8px;}
 .header-search{flex:1;max-width:300px;margin-left:auto;}
 .header-search input{width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:8px;padding:6px 12px;color:var(--text);font-size:13px;outline:none;}
-.header-right{display:flex;align-items:center;gap:12px;margin-left:16px;}
+.header-right{display:flex;align-items:center;gap:12px;margin-left:auto;}
 .notif-btn{position:relative;background:none;border:none;color:var(--text2);cursor:pointer;font-size:18px;padding:4px;}
 .theme-toggle{background:var(--bg3);border:1px solid var(--border2);border-radius:20px;padding:4px 10px;cursor:pointer;font-size:15px;color:var(--text2);display:flex;align-items:center;gap:6px;transition:all 0.2s;}
 .theme-toggle:hover{background:var(--bg4);color:var(--text);}
@@ -687,7 +687,7 @@ auth.onAuthStateChanged(async fbUser=>{
         await auth.signOut();showScreen('login');return;
       }
       // 비활성화 계정 차단 (admin이 deactivate한 경우)
-      if(doc.data().isActive===false){await auth.signOut();showScreen('login');return;}
+      if(doc.data().isActive===false){await auth.signOut();showScreen('login');const _e=document.getElementById('loginErr');if(_e){_e.textContent='계정이 비활성화되었습니다. 관리자에게 문의하세요.';_e.style.display='block';}return;}
       userProfile=doc.data();currentUser=fbUser;
       if(userProfile.mustChangePassword){showScreen('changePw');}
       else{initAppUI();showScreen('app');}
@@ -1741,7 +1741,7 @@ function onGlobalSearch(val){searchQuery=val.toLowerCase();if(currentPage==='map
 // ═══════════════════════════════════
 //  유틸
 // ═══════════════════════════════════
-function firebaseErrMsg(code){const msgs={'auth/email-already-in-use':'이미 사용 중인 이메일입니다.','auth/invalid-email':'올바른 이메일 형식이 아닙니다.','auth/weak-password':'비밀번호가 너무 짧습니다. (6자 이상)','auth/user-not-found':'등록된 이메일이 아닙니다.','auth/wrong-password':'비밀번호가 올바르지 않습니다.','auth/too-many-requests':'너무 많은 시도입니다. 잠시 후 다시 시도해주세요.','auth/requires-recent-login':'보안을 위해 다시 로그인 후 시도해주세요.'};return msgs[code]||'오류가 발생했습니다. 다시 시도해주세요.';}
+function firebaseErrMsg(code){const msgs={'auth/email-already-in-use':'이미 사용 중인 이메일입니다.','auth/invalid-email':'올바른 이메일 형식이 아닙니다.','auth/weak-password':'비밀번호가 너무 짧습니다. (6자 이상)','auth/user-not-found':'등록된 이메일이 아닙니다.','auth/wrong-password':'비밀번호가 올바르지 않습니다.','auth/invalid-credential':'이메일 또는 비밀번호가 올바르지 않습니다.','auth/too-many-requests':'너무 많은 시도입니다. 잠시 후 다시 시도해주세요.','auth/requires-recent-login':'보안을 위해 다시 로그인 후 시도해주세요.'};return msgs[code]||'오류가 발생했습니다. 다시 시도해주세요.';}
 function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2800);}
 document.getElementById('projModalOverlay').addEventListener('click',function(e){if(e.target===this)closeProjModal();});
 document.getElementById('addUserModalOverlay').addEventListener('click',function(e){if(e.target===this)closeAddUserModal();});
