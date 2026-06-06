@@ -1716,7 +1716,7 @@ async function confirmExcelSave(){
 // ═══════════════════════════════════
 //  검색
 // ═══════════════════════════════════
-function onGlobalSearch(val){searchQuery=val.toLowerCase();if(currentPage==='map')renderMap();if(currentPage==='projects'){document.querySelectorAll('#projTable tr').forEach(tr=>{tr.style.display=tr.textContent.toLowerCase().includes(searchQuery)?'':'none';});}if(currentPage==='resources')renderResources();}
+function onGlobalSearch(val){searchQuery=val.toLowerCase();if(currentPage==='map')renderMap();if(currentPage==='projects'){document.querySelectorAll('#projTable tr').forEach(tr=>{tr.style.display=tr.textContent.toLowerCase().includes(searchQuery)?'':'none';});}if(currentPage==='resources')renderResources();if(currentPage==='users'){document.querySelectorAll('#usersTable tr').forEach(tr=>{tr.style.display=tr.textContent.toLowerCase().includes(searchQuery)?'':'none';});}}
 
 // ═══════════════════════════════════
 //  유틸
@@ -1781,12 +1781,27 @@ function syncAlertHeight(){
   }
 }
 
-// Hide search bar on dashboard page
+// Hide search bar on dashboard; update placeholder and clear on page switch
 (function(){
+  var ph={
+    'page-map':'프로젝트명·고객사 검색...',
+    'page-projects':'프로젝트명·고객사·PM 검색...',
+    'page-resources':'프로젝트명 검색...',
+    'page-users':'사용자 이름 검색...'
+  };
+  var prevPage='';
   function syncSearch(){
     var ap=document.querySelector('.page.active');
     var s=document.querySelector('.header-search');
-    if(s) s.style.display=(ap&&ap.id==='page-dashboard')?'none':'';
+    var inp=document.querySelector('#globalSearch');
+    if(!s)return;
+    var isDash=ap&&ap.id==='page-dashboard';
+    s.style.display=isDash?'none':'';
+    if(!isDash&&ap&&inp){
+      inp.placeholder=ph[ap.id]||'검색...';
+      if(ap.id!==prevPage&&inp.value){inp.value='';if(typeof onGlobalSearch==='function')onGlobalSearch('');}
+      prevPage=ap.id;
+    }
   }
   new MutationObserver(syncSearch).observe(document.body,{subtree:true,attributes:true,attributeFilter:['class']});
   syncSearch();
