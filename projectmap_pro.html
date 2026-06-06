@@ -1691,11 +1691,22 @@ async function confirmExcelSave(){
     if(needGeo&&data.location&&window._kakaoReady){
       try{
         const geo=await new Promise((res,rej)=>{
+          let kakaoGeo=null,nomGeo=null,nomDone=false,kakaoDone=false;
+          const isKorea=g=>g&&g.lat>33&&g.lat<39&&g.lng>124&&g.lng<132;
+          const tryFinish=()=>{
+            if(!nomDone||!kakaoDone)return;
+            if(nomGeo&&!isKorea(nomGeo)){res(nomGeo);}
+            else if(kakaoGeo){res(kakaoGeo);}
+            else rej();
+          };
           const gc=new kakao.maps.services.Geocoder();
           gc.addressSearch(data.location,function(result,status){
-            if(status===kakao.maps.services.Status.OK&&result[0]){res({lat:parseFloat(result[0].y),lng:parseFloat(result[0].x)});}
-            else{const ps=new kakao.maps.services.Places();ps.keywordSearch(data.location,function(r2,s2){if(s2===kakao.maps.services.Status.OK&&r2[0]){res({lat:parseFloat(r2[0].y),lng:parseFloat(r2[0].x)});}else rej();});}
+            if(status===kakao.maps.services.Status.OK&&result[0]){kakaoGeo={lat:parseFloat(result[0].y),lng:parseFloat(result[0].x)};kakaoDone=true;tryFinish();}
+            else{const ps=new kakao.maps.services.Places();ps.keywordSearch(data.location,function(r2,s2){if(s2===kakao.maps.services.Status.OK&&r2[0])kakaoGeo={lat:parseFloat(r2[0].y),lng:parseFloat(r2[0].x)};kakaoDone=true;tryFinish();});}
           });
+          fetch('https://nominatim.openstreetmap.org/search?q='+encodeURIComponent(data.location)+'&format=json&limit=1&accept-language=ko')
+            .then(r=>r.json()).then(r=>{if(r[0])nomGeo={lat:parseFloat(r[0].lat),lng:parseFloat(r[0].lon)};nomDone=true;tryFinish();})
+            .catch(()=>{nomDone=true;tryFinish();});
         });
         data.lat=geo.lat;data.lng=geo.lng;
       }catch(e){}
