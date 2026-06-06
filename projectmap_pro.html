@@ -18,6 +18,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 <style>
 :root{--bg:#0b0d14;--bg2:#12152a;--bg3:#1a1d33;--bg4:#1e2140;--border:#ffffff10;--border2:#ffffff18;--text:#e8eaf0;--text2:#b8bfcc;--text3:#7a8296;--blue:#4f9eff;--green:#4fcc7a;--purple:#a855f7;--orange:#f59e0b;--red:#ef4444;--gold:#f0b429;--gray:#555;--sidebar-w:220px;--header-h:56px;}
+body.light{--bg:#f0f2f8;--bg2:#ffffff;--bg3:#e8eaf2;--bg4:#dde0ee;--border:#00000010;--border2:#0000001a;--text:#1a1d2e;--text2:#3d4460;--text3:#7a80a0;--gray:#aaa;}
 *{margin:0;padding:0;box-sizing:border-box;}
 body{font-family:'Segoe UI',sans-serif;background:var(--bg);color:var(--text);height:100vh;overflow:hidden;}
 
@@ -65,6 +66,9 @@ body{font-family:'Segoe UI',sans-serif;background:var(--bg);color:var(--text);he
 .header-search input{width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:8px;padding:6px 12px;color:var(--text);font-size:13px;outline:none;}
 .header-right{display:flex;align-items:center;gap:12px;margin-left:16px;}
 .notif-btn{position:relative;background:none;border:none;color:var(--text2);cursor:pointer;font-size:18px;padding:4px;}
+.theme-toggle{background:var(--bg3);border:1px solid var(--border2);border-radius:20px;padding:4px 10px;cursor:pointer;font-size:15px;color:var(--text2);display:flex;align-items:center;gap:6px;transition:all 0.2s;}
+.theme-toggle:hover{background:var(--bg4);color:var(--text);}
+.theme-toggle span{font-size:11px;font-weight:500;}
 .notif-dot{position:absolute;top:2px;right:2px;width:7px;height:7px;background:var(--red);border-radius:50%;border:1.5px solid var(--bg2);}
 .user-chip{display:flex;align-items:center;gap:8px;background:var(--bg3);border-radius:20px;padding:4px 12px 4px 4px;cursor:pointer;position:relative;}
 .user-avatar{width:26px;height:26px;background:linear-gradient(135deg,#4f9eff44,#a855f744);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;}
@@ -386,6 +390,7 @@ tr:hover td{background:var(--bg3);}
     <div class="app-logo"><div class="icon">🗺</div><h1>ProjectMap</h1><span class="ver">Pro</span><span class="sync-ok" id="syncIndicator">● 실시간 연결</span></div>
     <div class="header-search"><input type="text" placeholder="🔍  프로젝트·고객사·멤버 검색..." id="globalSearch" oninput="onGlobalSearch(this.value)"/></div>
     <div class="header-right">
+      <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()">🌙<span id="themeLabel">다크</span></button>
       <button class="notif-btn" onclick="goPage('dashboard')">🔔<span class="notif-dot" id="notifDot" style="display:none"></span></button>
       <div class="user-chip" id="userChip" onclick="toggleUserMenu()">
         <div class="user-avatar" id="userAvatar">?</div>
@@ -1764,6 +1769,19 @@ document.getElementById('setupPw').addEventListener('input',e=>checkPwStrength(e
     tip.style.left=(x+tw+16>vw?x-tw-4:x+14)+'px';
     tip.style.top=(y+th+16>vh?y-th-4:y+16)+'px';
   });
+})();
+function toggleTheme(){
+  const isLight=document.body.classList.toggle('light');
+  localStorage.setItem('theme',isLight?'light':'dark');
+  document.getElementById('themeToggle').firstChild.textContent=isLight?'☀️':'🌙';
+  document.getElementById('themeLabel').textContent=isLight?'라이트':'다크';
+}
+(function(){
+  if(localStorage.getItem('theme')==='light'){
+    document.body.classList.add('light');
+    document.getElementById('themeToggle').firstChild.textContent='☀️';
+    document.getElementById('themeLabel').textContent='라이트';
+  }
 })();
 function toggleUserMenu(){const m=document.getElementById('userMenu');m.classList.toggle('open');}
 document.addEventListener('click',e=>{const chip=document.getElementById('userChip');if(chip&&!chip.contains(e.target)){document.getElementById('userMenu')?.classList.remove('open');}});
